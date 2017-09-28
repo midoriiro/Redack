@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
@@ -12,9 +13,13 @@ namespace Redack.DatabaseLayer.DataAccess
         private readonly RedackDbContext _context;
         private readonly DbSet<T> _entities;
 
-        public Repository()
+        public Repository(RedackDbContext context = null)
         {
-            this._context = new RedackDbContext("RedackDbContext");
+            if (context is null)
+                this._context = new RedackDbContext(ConfigurationManager.AppSettings["RedackDbContext"]);
+            else
+                this._context = context;
+
             this._entities = this._context.Set<T>();
         }
 
