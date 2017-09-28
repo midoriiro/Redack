@@ -96,7 +96,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LocalAddin.cs" />
     <Compile Include="Sugar\Attribute\AutoEntityDataAttribute.cs" />
     <Compile Include="Sugar\Attribute\AutoMoqDataAttribute.cs" />
     <Compile Include="Sugar\Attribute\IgnorePropertiesAttribute.cs" />
