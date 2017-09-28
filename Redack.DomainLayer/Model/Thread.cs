@@ -20,6 +20,16 @@ namespace Redack.DomainLayer.Model
 
         // Navigation properties
         public virtual ICollection<Message> Messages { get; set; }
+
+        [Required(ErrorMessage = "The node field is required")]
         public virtual Node Node { get; set; }
-	}
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode() +
+                   this.Title.GetHashCode() +
+                   this.Description.GetHashCode() +
+                   this.Node.GetHashCode();
+        }
+    }
 }

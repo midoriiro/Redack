@@ -16,5 +16,11 @@ namespace Redack.DomainLayer.Model
         // Navigation properties
         public virtual ICollection<User> Users { get; set; }
 	    public virtual ICollection<Permission> Permissions { get; set; }
-	}
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode() +
+                   this.Name.GetHashCode();
+        }
+    }
 }

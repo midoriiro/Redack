@@ -8,5 +8,15 @@ namespace Redack.DomainLayer.Model
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
+
+	    public override bool Equals(object obj)
+	    {
+	        return obj != null && this.GetHashCode() == obj.GetHashCode();
+	    }
+
+	    public override int GetHashCode()
+	    {
+	        return this.Id.GetHashCode();
+	    }
 	}
 }

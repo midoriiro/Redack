@@ -15,6 +15,8 @@ namespace Redack.DomainLayer.Model
         public string Text { get; set; }
 
         // Navigation properties
+
+        [Required(ErrorMessage = "The thread field is required")]
         public virtual Thread Thread { get; set; }
 
         [Index]
@@ -25,6 +27,16 @@ namespace Redack.DomainLayer.Model
         public Message()
         {
             this.DateCreated = DateTime.Now;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode() +
+                   this.DateCreated.GetHashCode() +
+                   this.DateUpdated.GetHashCode() +
+                   this.Text.GetHashCode() +
+                   this.CreatedBy.GetHashCode() +
+                   this.UpdatedBy.GetHashCode();
         }
     }
 }

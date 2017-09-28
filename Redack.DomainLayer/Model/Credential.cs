@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
 using Redack.DomainLayer.Exception;
 
 namespace Redack.DomainLayer.Model
@@ -32,6 +33,15 @@ namespace Redack.DomainLayer.Model
             {
                 yield return new ValidationResult(new CredentialPasswordConfirmException().Message);
             }
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode() +
+                this.Login.GetHashCode() +
+                this.Password.GetHashCode() +
+                this.PasswordConfirm.GetHashCode() +
+                this.GetHashCode();
         }
     }
 }
