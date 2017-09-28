@@ -22,7 +22,7 @@ namespace Redack.DatabaseLayer.Test.Sugar.Specimen
             PropertyInfo propertyInfo = request as PropertyInfo;
 
             if (propertyInfo != null && propertyInfo.Name == this._propertyName)
-                return new MailAddressGenerator();
+                return new MailAddressGenerator().Create(request, context);
 
             return new NoSpecimen();
         }
