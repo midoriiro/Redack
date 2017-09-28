@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ploeh.AutoFixture;
+using Redack.DatabaseLayer.Test.Sugar.Customization;
 using Redack.DomainLayer.Model;
 
 namespace Redack.DatabaseLayer.Test.Sugar.Entity
@@ -12,6 +13,7 @@ namespace Redack.DatabaseLayer.Test.Sugar.Entity
     {
         public void Customize(IFixture fixture)
         {
+            fixture.Customize(new OmitOnRecursionCustomization(2));
             fixture.Customize(new ValidCredentialCustomization());
         }
     }
