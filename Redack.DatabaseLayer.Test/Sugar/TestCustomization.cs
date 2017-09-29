@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -80,6 +81,26 @@ namespace Redack.DatabaseLayer.Test.Sugar
                 Assert.IsNull(obj.Property3);
             else
                 Assert.IsNotNull(obj.Property3);
+        }
+
+        [Fact]
+        public void TestEmailAddress()
+        {
+            this._fixture.Customize(new EmailAddressCustomization<DummyObject>("Property1"));
+            var obj = this._fixture.Create<DummyObject>();
+            
+            Assert.IsNotNull(obj.Property2);
+
+            try
+            {
+                var email = new MailAddress(obj.Property1);
+
+                Assert.IsTrue(true);
+            }
+            catch
+            {
+                Assert.IsTrue(false);
+            }
         }
     }
 }
