@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.Dsl;
-using Ploeh.AutoFixture.Kernel;
 using Redack.DatabaseLayer.Test.Sugar.Specimen;
 
 namespace Redack.DatabaseLayer.Test.Sugar.Customization

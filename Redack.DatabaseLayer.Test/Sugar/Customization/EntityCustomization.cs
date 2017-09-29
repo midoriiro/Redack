@@ -13,9 +13,8 @@ namespace Redack.DatabaseLayer.Test.Sugar.Customization
     {
         public void Customize(IFixture fixture)
         {
-            fixture.Customize(
-                new AutoFixture.AutoEF.EntityCustomization(
-                    new DbContextEntityTypesProvider(typeof(RedackDbContext))));
+            fixture.Customize(new AutoFixture.AutoEF.EntityCustomization(
+                new DbContextEntityTypesProvider(typeof(RedackDbContext))));
         }
     }
 }
