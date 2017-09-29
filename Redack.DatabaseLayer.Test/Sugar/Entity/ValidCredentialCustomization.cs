@@ -14,7 +14,8 @@ namespace Redack.DatabaseLayer.Test.Sugar.Entity
     {
         public void Customize(IFixture fixture)
         {
-            fixture.Customizations.Add(new ValidEmailAddress("Login"));
+            fixture.Customize(new OmitOnRecursionCustomization(2));
+            fixture.Customize(new EmailAddressCustomization<Credential>("Login"));
             fixture.Customize(new CopyPropertyValueToAnother<Credential>(
                 "Password", "PasswordConfirm"));
         }
