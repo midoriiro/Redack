@@ -8,7 +8,7 @@ using Ploeh.AutoFixture.Kernel;
 
 namespace Redack.DatabaseLayer.Test.Sugar.Specimen
 {
-    public class IgnoreVirtualProperties : ISpecimenBuilder
+    public class IgnoreVirtualPropertiesSpecimen : ISpecimenBuilder
     {
         public object Create(object request, ISpecimenContext context)
         {

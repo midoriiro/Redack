@@ -20,7 +20,7 @@ namespace Redack.DatabaseLayer.Test.Sugar.Customization
 
         public void Customize(IFixture fixture)
         {
-            fixture.Customizations.Add(new IgnoreProperties(this._propertiesName));
+            fixture.Customizations.Add(new IgnorePropertiesSpecimen(this._propertiesName));
         }
     }
 }

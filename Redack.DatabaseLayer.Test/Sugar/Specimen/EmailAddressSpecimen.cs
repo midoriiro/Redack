@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Net.Mail;
 using System.Reflection;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.Kernel;
 
 namespace Redack.DatabaseLayer.Test.Sugar.Specimen
 {
-    class ValidEmailAddress : ISpecimenBuilder
+    class EmailAddressSpecimen : ISpecimenBuilder
     {
         private readonly string _propertyName;
 
-        public ValidEmailAddress(string propertyName)
+        public EmailAddressSpecimen(string propertyName)
         {
             this._propertyName = propertyName;
         }
@@ -22,7 +23,7 @@ namespace Redack.DatabaseLayer.Test.Sugar.Specimen
             PropertyInfo propertyInfo = request as PropertyInfo;
 
             if (propertyInfo != null && propertyInfo.Name == this._propertyName)
-                return new MailAddressGenerator().Create(request, context);
+                return context.Create<MailAddress>().Address;
 
             return new NoSpecimen();
         }

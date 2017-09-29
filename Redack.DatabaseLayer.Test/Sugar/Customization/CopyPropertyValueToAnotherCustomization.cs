@@ -24,7 +24,7 @@ namespace Redack.DatabaseLayer.Test.Sugar.Customization
 
         public void Customize(IFixture fixture)
         {
-            fixture.Customizations.Add(new IgnoreProperties(new string[]
+            fixture.Customizations.Add(new IgnorePropertiesSpecimen(new string[]
             {
                 this._from, this._to
             }));

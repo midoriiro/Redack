@@ -12,7 +12,7 @@ namespace Redack.DatabaseLayer.Test.Sugar.Customization
     {
         public void Customize(IFixture fixture)
         {
-            fixture.Customizations.Add(new IgnoreVirtualProperties());
+            fixture.Customizations.Add(new IgnoreVirtualPropertiesSpecimen());
         }
     }
 }

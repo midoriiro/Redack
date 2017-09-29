@@ -5,11 +5,11 @@ using Ploeh.AutoFixture.Kernel;
 
 namespace Redack.DatabaseLayer.Test.Sugar.Specimen
 {
-    public class IgnoreProperties : ISpecimenBuilder
+    public class IgnorePropertiesSpecimen : ISpecimenBuilder
     {
         private readonly string[] _propertiesName;
 
-        public IgnoreProperties(string[] propertiesName)
+        public IgnorePropertiesSpecimen(string[] propertiesName)
         {
             this._propertiesName = propertiesName;
         }
