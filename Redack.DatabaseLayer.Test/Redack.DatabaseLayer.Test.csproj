@@ -99,6 +99,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\DummyEntity.cs" />
+    <Compile Include="Data\DummyObjectWithRecursion.cs" />
     <Compile Include="Sugar\Attribute\AutoEntityDataAttribute.cs" />
     <Compile Include="Sugar\Attribute\AutoMoqDataAttribute.cs" />
     <Compile Include="Sugar\Attribute\IgnorePropertiesAttribute.cs" />
@@ -110,7 +112,7 @@
     <Compile Include="Sugar\Customization\IgnorePropertiesCustomization.cs" />
     <Compile Include="Sugar\Customization\IgnoreVirtualPropertiesCustomization.cs" />
     <Compile Include="Sugar\Customization\OmitOnRecursionCustomization.cs" />
-    <Compile Include="Sugar\DummyObject.cs" />
+    <Compile Include="Data\DummyObject.cs" />
     <Compile Include="Sugar\Entity\ValidCredentialCustomization.cs" />
     <Compile Include="Sugar\Entity\ValidUserCustomization.cs" />
     <Compile Include="Sugar\Specimen\IgnorePropertiesSpecimen.cs" />

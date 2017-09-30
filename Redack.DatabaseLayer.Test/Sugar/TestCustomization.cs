@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ploeh.AutoFixture;
-using Redack.DatabaseLayer.Test.Sugar;
 using Redack.DatabaseLayer.Test.Sugar.Customization;
+using Redack.DatabaseLayer.Test.Sugar.Data;
+using System.Net.Mail;
+using Redack.DatabaseLayer.Test.Data;
 using Xunit;
 
 namespace Redack.DatabaseLayer.Test.Sugar
-{   
+{
     public class TestCustomization
     {
         private readonly Fixture _fixture;
