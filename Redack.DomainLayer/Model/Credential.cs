@@ -12,7 +12,7 @@ namespace Redack.DomainLayer.Model
         [Required(ErrorMessage = "The login field is required")]
         [MaxLength(50, ErrorMessage = "Type less than 50 characters")]
         [Index(IsUnique = true)]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "The login field is not a valid email address")]
         public string Login { get; set; }
 
         [Required(ErrorMessage = "The password field is required")]
