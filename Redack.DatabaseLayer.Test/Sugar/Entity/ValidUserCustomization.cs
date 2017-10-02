@@ -15,6 +15,13 @@ namespace Redack.DatabaseLayer.Test.Sugar.Entity
         {
             fixture.Customize(new OmitOnRecursionCustomization(2));
             fixture.Customize(new ValidCredentialCustomization());
+            fixture.Customize(new IgnorePropertiesCustomization(new string[]
+            {
+                "Messages",
+                "Group",
+                "Permissions"
+            }));
+            fixture.Customize(new StringMaxLengthCustomization<User>("Alias", 15));
         }
     }
 }

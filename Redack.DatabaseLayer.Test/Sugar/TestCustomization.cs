@@ -57,7 +57,6 @@ namespace Redack.DatabaseLayer.Test.Sugar
             this._fixture.Customize(new IgnoreVirtualPropertiesCustomization());
             var obj = this._fixture.Create<DummyObjectWithRecursion>();
 
-            Assert.IsNotNull(obj.Property1);
             Assert.IsNull(obj.Property2);
             Assert.IsNull(obj.Property3);
         }
@@ -70,9 +69,6 @@ namespace Redack.DatabaseLayer.Test.Sugar
             this._fixture.Customize(new OmitOnRecursionCustomization(recursionDepth));
             var obj = this._fixture.Create<DummyObjectWithRecursion>();
 
-            Assert.IsNotNull(obj.Property1);
-            Assert.IsNotNull(obj.Property2);
-
             if(recursionDepth == 1)
                 Assert.IsNull(obj.Property3);
             else
@@ -84,8 +80,6 @@ namespace Redack.DatabaseLayer.Test.Sugar
         {
             this._fixture.Customize(new EmailAddressCustomization<DummyObject>("Property1"));
             var obj = this._fixture.Create<DummyObject>();
-            
-            Assert.IsNotNull(obj.Property2);
 
             try
             {
@@ -97,6 +91,15 @@ namespace Redack.DatabaseLayer.Test.Sugar
             {
                 Assert.IsTrue(false);
             }
+        }
+
+        [Fact]
+        public void TestStringMaxLength()
+        {
+            this._fixture.Customize(new StringMaxLengthCustomization<DummyObject>("Property1", 10));
+            var obj = this._fixture.Create<DummyObject>();
+
+            Assert.AreEqual(10, obj.Property1.Length);
         }
     }
 }
