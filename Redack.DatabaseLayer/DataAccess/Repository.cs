@@ -17,11 +17,17 @@ namespace Redack.DatabaseLayer.DataAccess
         public Repository(IDbContext context = null)
         {
             if(context is null)
-                this._context = new RedackDbContext(ConfigurationManager.AppSettings["RedackDbContext"]);
+                this._context = new RedackDbContext(
+                    ConfigurationManager.ConnectionStrings["RedackDbContext"].ConnectionString);
             else
                 this._context = context;
 
             this._entities = this._context.Set<TEntity>();
+        }
+
+        public bool Exists(TEntity entity)
+        {
+            return this.GetById(entity.Id) != null;
         }
 
         public List<TEntity> GetAll()
@@ -32,6 +38,28 @@ namespace Redack.DatabaseLayer.DataAccess
         public TEntity GetById(int id)
         {
             return this._entities.Find(id);
+        }
+
+        public TEntity GetOrInsert(TEntity entity)
+        {
+            TEntity obj = this._entities.Find(entity.Id);
+
+            if (obj != null) return obj;
+
+            this.Insert(entity);
+            this.Commit();
+
+            return entity;
+        }
+
+        public void InsertOrUpdate(TEntity entity)
+        {
+            if (!this.Exists(entity))
+                this.Insert(entity);
+            else
+                this.Update(entity);
+
+            this.Commit();
         }
 
         public void Insert(TEntity entity)
