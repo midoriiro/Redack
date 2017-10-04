@@ -5,6 +5,8 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Redack.DomainLayer.Model;
 
 namespace Redack.DatabaseLayer.DataAccess
@@ -16,18 +18,23 @@ namespace Redack.DatabaseLayer.DataAccess
 
         public Repository(IDbContext context = null)
         {
-            if(context is null)
+            if (context is null)
                 this._context = new RedackDbContext(
-                    ConfigurationManager.ConnectionStrings["RedackDbContext"].ConnectionString);
+                    ConfigurationManager.ConnectionStrings["RedackDbConnection"].ConnectionString);
             else
                 this._context = context;
 
             this._entities = this._context.Set<TEntity>();
         }
 
-        public bool Exists(TEntity entity)
+        public IQueryable<TEntity> All()
         {
-            return this.GetById(entity.Id) != null;
+            return this._entities;
+        }
+
+        public IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> predicate)
+        {
+            return this._entities.Where(predicate);
         }
 
         public List<TEntity> GetAll()
@@ -35,14 +42,24 @@ namespace Redack.DatabaseLayer.DataAccess
             return this._entities.ToList<TEntity>();
         }
 
+        public async Task<List<TEntity>> GetAllAsync()
+        {
+            return await this._entities.ToListAsync();
+        }
+
         public TEntity GetById(int id)
         {
             return this._entities.Find(id);
         }
 
+        public async Task<TEntity> GetByIdAsync(int id)
+        {
+            return await this._entities.FindAsync(id);
+        }
+
         public TEntity GetOrInsert(TEntity entity)
         {
-            TEntity obj = this._entities.Find(entity.Id);
+            TEntity obj = this.GetById(entity.Id);
 
             if (obj != null) return obj;
 
@@ -83,9 +100,24 @@ namespace Redack.DatabaseLayer.DataAccess
             this._context.SaveChanges();
         }
 
+        public async Task<int> CommitAsync()
+        {
+            return await this._context.SaveChangesAsync();
+        }
+
         public void Rollback()
         {
             this._context.Rollback();
+        }
+
+        public bool Exists(TEntity entity)
+        {
+            return this._entities.Count(e => e.Id == entity.Id) == 1;
+        }
+
+        public async Task<bool> ExistsAsync(TEntity entity)
+        {
+            return await this._entities.CountAsync(e => e.Id == entity.Id) == 1;
         }
 
         #region IDisposable Support
