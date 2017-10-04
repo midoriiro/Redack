@@ -4,23 +4,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Redack.DomainLayer.Model
 {
-    [Table("Groups")]
-    public class Group : Entity
-    {
-        [Required(ErrorMessage = "The name field is required")]
-        [MaxLength(15, ErrorMessage = "Type less than 15 characters")]
-        [MinLength(3, ErrorMessage = "Type at least 3 characters")]
-        [Index(IsUnique = true)]
-        public string Name { get; set; }
+	[Table("Groups")]
+	public class Group : Entity
+	{
+		[Required(ErrorMessage = "The name field is required")]
+		[MaxLength(15, ErrorMessage = "Type less than 15 characters")]
+		[MinLength(3, ErrorMessage = "Type at least 3 characters")]
+		[Index(IsUnique = true)]
+		public string Name { get; set; }
 
-        // Navigation properties
-        public virtual ICollection<User> Users { get; set; }
-	    public virtual ICollection<Permission> Permissions { get; set; }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode() +
-                   this.Name.GetHashCode();
-        }
-    }
+		// Navigation properties
+		public virtual ICollection<User> Users { get; set; }
+		public virtual ICollection<Permission> Permissions { get; set; }
+	}
 }

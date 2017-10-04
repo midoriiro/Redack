@@ -1,5 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
+
+#pragma warning disable 659
 
 namespace Redack.DomainLayer.Model
 {
@@ -11,12 +14,21 @@ namespace Redack.DomainLayer.Model
 
 		public override bool Equals(object obj)
 		{
-			return obj != null && this.GetHashCode() == obj.GetHashCode();
-		}
+		    if (obj == null || this.GetType() != obj.GetType())
+		        return false;
 
-		public override int GetHashCode()
-		{
-			return this.Id.GetHashCode();
+		    PropertyInfo[] properties = this.GetType().GetProperties();
+
+		    foreach (var property in properties)
+		    {
+		        object value1 = this.GetType().GetProperty(property.Name)?.GetValue(this, null);
+		        object value2 = obj.GetType().GetProperty(property.Name)?.GetValue(obj, null);
+
+		        if (value1 != value2)
+		            return false;
+		    }
+
+		    return true;
 		}
 	}
 }

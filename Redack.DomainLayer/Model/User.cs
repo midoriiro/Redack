@@ -22,13 +22,5 @@ namespace Redack.DomainLayer.Model
         public virtual ICollection<Message> Messages { get; set; }
         public virtual Group Group { get; set; }
         public virtual ICollection<Permission> Permissions { get; set; }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode() +
-                this.Alias.GetHashCode() +
-                this.IdentIcon.GetHashCode() +
-                this.Credential.GetHashCode();
-        }
     }
 }

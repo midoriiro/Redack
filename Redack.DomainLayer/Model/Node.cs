@@ -15,11 +15,5 @@ namespace Redack.DomainLayer.Model
 
         // Navigation properties
         public virtual ICollection<Thread> Threads { get; set; }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode() +
-                   this.Name.GetHashCode();
-        }
     }
 }

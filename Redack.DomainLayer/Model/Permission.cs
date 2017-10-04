@@ -32,14 +32,6 @@ namespace Redack.DomainLayer.Model
         {
             return this.ContentType + "." + this.Codename;
         }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode() +
-                   this.Codename.GetHashCode() + 
-                   this.HelpText.GetHashCode() +
-                   this.ContentType.GetHashCode();
-        }
     }
 
 }

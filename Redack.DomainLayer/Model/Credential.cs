@@ -7,7 +7,7 @@ using Redack.DomainLayer.Exception;
 namespace Redack.DomainLayer.Model
 {
     [Table("Credentials")]
-    public class Credential : Entity, IValidatableObject
+    public class Credential : Entity
     {
         [Required(ErrorMessage = "The login field is required")]
         [MaxLength(50, ErrorMessage = "Type less than 50 characters")]
@@ -26,22 +26,5 @@ namespace Redack.DomainLayer.Model
 
         // Navigation properties
         public virtual ICollection<Credential> OldCredentials { get; set; }
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (this.Password != this.PasswordConfirm)
-            {
-                yield return new ValidationResult(new CredentialPasswordConfirmException().Message);
-            }
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode() +
-                this.Login.GetHashCode() +
-                this.Password.GetHashCode() +
-                this.PasswordConfirm.GetHashCode() +
-                this.GetHashCode();
-        }
     }
 }

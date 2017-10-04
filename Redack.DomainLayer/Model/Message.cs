@@ -28,15 +28,5 @@ namespace Redack.DomainLayer.Model
         {
             this.DateCreated = DateTime.Now;
         }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode() +
-                   this.DateCreated.GetHashCode() +
-                   this.DateUpdated.GetHashCode() +
-                   this.Text.GetHashCode() +
-                   this.CreatedBy.GetHashCode() +
-                   this.UpdatedBy.GetHashCode();
-        }
     }
 }
