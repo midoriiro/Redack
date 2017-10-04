@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.ServiceLayer", "Reda
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.ServiceLayer.Test", "Redack.ServiceLayer.Test\Redack.ServiceLayer.Test.csproj", "{B4A03248-01D0-4049-B068-E1A0CD4108F3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.Test.Lollipop", "Redack.Test.Lollipop\Redack.Test.Lollipop.csproj", "{0D96D605-583F-4531-98B9-298110974B41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{B4A03248-01D0-4049-B068-E1A0CD4108F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4A03248-01D0-4049-B068-E1A0CD4108F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4A03248-01D0-4049-B068-E1A0CD4108F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D96D605-583F-4531-98B9-298110974B41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D96D605-583F-4531-98B9-298110974B41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D96D605-583F-4531-98B9-298110974B41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D96D605-583F-4531-98B9-298110974B41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
