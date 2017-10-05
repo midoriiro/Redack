@@ -1,5 +1,7 @@
-﻿using System.Data.Entity;
+﻿using System.Configuration;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Data.Entity.Validation;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,16 +11,25 @@ namespace Redack.DatabaseLayer.DataAccess
 {
     public class RedackDbContext : DbContext, IDbContext
     {
+        public virtual DbSet<ApiKey> ApiKeys { get; set; }
         public virtual DbSet<Credential> Credentials { get; set; }
         public virtual DbSet<Group> Groups { get; set; }
+        public virtual DbSet<Identity> Identities { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<Node> Nodes { get; set; }
         public virtual DbSet<Permission> Permissions { get; set; }
         public virtual DbSet<Thread> Threads { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
-        public RedackDbContext(string connectionString) : base(connectionString)
+        public RedackDbContext() : base(
+            ConfigurationManager.ConnectionStrings["RedackDbConnection"].ConnectionString)
         {
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Conventions.Add<OneToManyCascadeDeleteConvention>();
+            modelBuilder.Conventions.Add<ManyToManyCascadeDeleteConvention>();
         }
 
         public new DbSet<TEntity> Set<TEntity>() where TEntity : Entity

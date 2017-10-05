@@ -19,8 +19,7 @@ namespace Redack.DatabaseLayer.DataAccess
         public Repository(IDbContext context = null)
         {
             if (context is null)
-                this._context = new RedackDbContext(
-                    ConfigurationManager.ConnectionStrings["RedackDbConnection"].ConnectionString);
+                this._context = new RedackDbContext();
             else
                 this._context = context;
 
@@ -64,7 +63,6 @@ namespace Redack.DatabaseLayer.DataAccess
             if (obj != null) return obj;
 
             this.Insert(entity);
-            this.Commit();
 
             return entity;
         }
@@ -75,8 +73,6 @@ namespace Redack.DatabaseLayer.DataAccess
                 this.Insert(entity);
             else
                 this.Update(entity);
-
-            this.Commit();
         }
 
         public void Insert(TEntity entity)
@@ -86,7 +82,7 @@ namespace Redack.DatabaseLayer.DataAccess
 
         public void Update(TEntity entity)
         {
-            this._context.SetEntityState(entity, EntityState.Modified);
+            this._entities.Attach(entity);
         }
 
         public void Delete(TEntity entity)
