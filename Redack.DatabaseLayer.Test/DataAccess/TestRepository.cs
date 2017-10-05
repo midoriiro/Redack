@@ -345,6 +345,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(1, sut.GetAll().Count);
 
             var result = sut.GetOrInsert(obj2);
+            sut.Commit();
 
             Assert.AreEqual(2, sut.GetAll().Count);
             Assert.AreEqual(obj2, result);
@@ -396,6 +397,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(1, sut.GetAll().Count);
 
             sut.InsertOrUpdate(obj2);
+            sut.Commit();
 
             Assert.AreEqual(2, sut.GetAll().Count);
         }
