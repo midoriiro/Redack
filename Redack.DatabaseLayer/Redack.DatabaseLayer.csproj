@@ -51,6 +51,31 @@
     <Compile Include="DataAccess\RedackDbContext.cs" />
     <Compile Include="DataAccess\IRepository.cs" />
     <Compile Include="DataAccess\Repository.cs" />
+    <Compile Include="Migrations\201709260805488_01-initial.cs" />
+    <Compile Include="Migrations\201709260805488_01-initial.Designer.cs">
+      <DependentUpon>201709260805488_01-initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709260949489_02-Add-DataTypeAttribute.cs" />
+    <Compile Include="Migrations\201709260949489_02-Add-DataTypeAttribute.Designer.cs">
+      <DependentUpon>201709260949489_02-Add-DataTypeAttribute.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201710041447178_03-Add-ApiKey-Identity.cs" />
+    <Compile Include="Migrations\201710041447178_03-Add-ApiKey-Identity.Designer.cs">
+      <DependentUpon>201710041447178_03-Add-ApiKey-Identity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201710041539451_04-Update-ApiKey-Identity.cs" />
+    <Compile Include="Migrations\201710041539451_04-Update-ApiKey-Identity.Designer.cs">
+      <DependentUpon>201710041539451_04-Update-ApiKey-Identity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201710041602343_05-Update-ApiKey-Identity.cs" />
+    <Compile Include="Migrations\201710041602343_05-Update-ApiKey-Identity.Designer.cs">
+      <DependentUpon>201710041602343_05-Update-ApiKey-Identity.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201710050720486_06-Add-DeleteOnCascade.cs" />
+    <Compile Include="Migrations\201710050720486_06-Add-DeleteOnCascade.Designer.cs">
+      <DependentUpon>201710050720486_06-Add-DeleteOnCascade.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -64,6 +89,26 @@
       <Project>{24a7bd77-65db-4be9-bd2b-dcda1a4b3e0c}</Project>
       <Name>Redack.DomainLayer</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201709260805488_01-initial.resx">
+      <DependentUpon>201709260805488_01-initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709260949489_02-Add-DataTypeAttribute.resx">
+      <DependentUpon>201709260949489_02-Add-DataTypeAttribute.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201710041447178_03-Add-ApiKey-Identity.resx">
+      <DependentUpon>201710041447178_03-Add-ApiKey-Identity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201710041539451_04-Update-ApiKey-Identity.resx">
+      <DependentUpon>201710041539451_04-Update-ApiKey-Identity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201710041602343_05-Update-ApiKey-Identity.resx">
+      <DependentUpon>201710041602343_05-Update-ApiKey-Identity.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201710050720486_06-Add-DeleteOnCascade.resx">
+      <DependentUpon>201710050720486_06-Add-DeleteOnCascade.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
