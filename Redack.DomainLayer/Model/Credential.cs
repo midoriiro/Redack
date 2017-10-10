@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Redack.DomainLayer.Exception;
 
 namespace Redack.DomainLayer.Model
@@ -24,10 +28,37 @@ namespace Redack.DomainLayer.Model
         [Compare("Password", ErrorMessage = "Password confirmation does not match")]
         public string PasswordConfirm { get; set; }
 
+        [Required(ErrorMessage = "The salt field is required")]
+        public string Salt { get; set; }
+
         // Navigation properties
         public virtual ICollection<Credential> OldCredentials { get; set; }
 
         [Required(ErrorMessage = "The api key field is required")]
         public virtual ApiKey ApiKey { get; set; }
+
+        public static string ToHash(string data, byte[] salt)
+        {
+            byte[] bytes = KeyDerivation.Pbkdf2(
+                password: data,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA512,
+                iterationCount: 10000,
+                numBytesRequested: 512 / 8);
+
+            return Convert.ToBase64String(bytes);
+        }
+
+        public void ToHash()
+        {
+            byte[] salt = new byte[256 / 8];
+            RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
+            provider.GetBytes(salt);
+
+            this.Salt = Convert.ToBase64String(salt);
+
+            this.Password = ToHash(this.Password, salt);
+            this.PasswordConfirm = ToHash(this.PasswordConfirm, salt);
+        }
     }
 }

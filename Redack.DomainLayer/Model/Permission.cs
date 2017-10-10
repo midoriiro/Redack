@@ -16,7 +16,7 @@ namespace Redack.DomainLayer.Model
         [Required(ErrorMessage = "The content type field is required")]
         public string ContentType { get; set; }
 
-        private Permission() {}
+        private Permission() { }
 
         public static Permission Create<T>(string codename, string helpText) where T : Entity
         {

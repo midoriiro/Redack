@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
+using System.Security.Principal;
 
 namespace Redack.DomainLayer.Model
 {
@@ -24,5 +25,27 @@ namespace Redack.DomainLayer.Model
         public virtual ICollection<Message> Messages { get; set; }
         public virtual Group Group { get; set; }
         public virtual ICollection<Permission> Permissions { get; set; }
+
+        public static User Create(string login, string password, string passwordConfirm)
+        {
+            var user = new User()
+            {
+                Alias = Guid.NewGuid().ToString().Substring(0, 15),
+                Credential = new Credential()
+                {
+                    Login = login,
+                    Password = password,
+                    PasswordConfirm = passwordConfirm,
+                    ApiKey = new ApiKey()
+                    {
+                        Key = ApiKey.GenerateKey(256)
+                    }
+                }
+            };
+
+            user.Credential.ToHash();
+
+            return user;
+        }
     }
 }

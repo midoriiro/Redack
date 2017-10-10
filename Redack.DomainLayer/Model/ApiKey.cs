@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Redack.DomainLayer.Model
 {
+    [Table("ApiKeys")]
     public class ApiKey : Entity
     {
         [Required(ErrorMessage = "The api key field is required")]
