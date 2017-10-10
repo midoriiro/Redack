@@ -1,5 +1,6 @@
 ﻿using System.Web.Http;
 using Redack.ServiceLayer.App_Start;
+using Redack.ServiceLayer.Filters;
 
 namespace Redack.ServiceLayer
 {
@@ -9,9 +10,8 @@ namespace Redack.ServiceLayer
 
         public static void Register(HttpConfiguration config)
         {
-            // Web API configuration and services
+            //config.Filters.Add(new ValidateModelAttribute());
 
-            // Web API routes
             config.MapHttpAttributeRoutes(new InheritedRouteProvider());
 
             config.Routes.MapHttpRoute(
