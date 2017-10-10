@@ -1,18 +1,14 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.Xunit2;
-using Redack.Test.Lollipop.Customization;
-using Redack.Test.Lollipop.Entity;
-using Redack.DomainLayer.Model;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data.Entity.Validation;
-using Castle.Components.DictionaryAdapter.Xml;
-using Castle.DynamicProxy;
 using Redack.DatabaseLayer.DataAccess;
+using Redack.DomainLayer.Model;
 using Redack.Test.Lollipop;
+using Redack.Test.Lollipop.Customization;
 using Redack.Test.Lollipop.Data;
+using Redack.Test.Lollipop.Entity;
+using System.Data.Entity.Validation;
+using Redack.Test.Lollipop.Configuration;
 using Xunit;
 
 namespace Redack.DatabaseLayer.Test.Entity
@@ -27,7 +23,7 @@ namespace Redack.DatabaseLayer.Test.Entity
 
             var obj = fixture.Create<User>();
 
-            var context = new DummyDbContext();
+            var context = new RedackDbContext();
             var sut = new Repository<User>(context);
 
             sut.Insert(obj);
@@ -51,7 +47,7 @@ namespace Redack.DatabaseLayer.Test.Entity
 
             var obj = fixture.Create<User>();
 
-            var context = new DummyDbContext();
+            var context = new RedackDbContext();
             var sut = new Repository<User>(context);
 
             sut.Insert(obj);
