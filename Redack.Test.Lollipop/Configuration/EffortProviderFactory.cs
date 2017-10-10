@@ -26,12 +26,7 @@ namespace Redack.Test.Lollipop.Configuration
         {
             lock (Lock)
             {
-                if (_connection == null)
-                {
-                    _connection = Effort.DbConnectionFactory.CreateTransient();
-                }
-
-                return _connection;
+                return _connection ?? (_connection = Effort.DbConnectionFactory.CreateTransient());
             }
         }
     }
