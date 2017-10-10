@@ -16,7 +16,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
     public class TestRepository : TestBase
     {
         [Theory, AutoData]
-        public void TestInsert()
+        public void Insert_WithValidEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -34,7 +34,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestInsert_ExistingEntity_Fail()
+        public void Insert_WithExistingEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -53,7 +53,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestUpdate()
+        public void Update_WithValidEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -74,7 +74,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestUpdate_NonExistingEntity_Fail()
+        public void Update_WithNonExistingEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -91,7 +91,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestDelete()
+        public void Delete_WithValidEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -112,7 +112,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestDelete_NonExistingEntity_Fail()
+        public void Delete_NonExistingEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -129,7 +129,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestCommit()
+        public void Commit()
         {
             var context = new Mock<IDbContext>();
 
@@ -140,7 +140,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public async void TestCommitAsync()
+        public async void CommitAsync()
         {
             var context = new Mock<IDbContext>();
 
@@ -151,7 +151,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestRollback()
+        public void Rollback()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -169,7 +169,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestGetAll()
+        public void GetAll_WithValidEntitiesList()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -199,7 +199,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestGetAll_EmptyList()
+        public void GetAll_WithEmptyEntitiesList()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -212,7 +212,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public async void TestGetAllAsync()
+        public async void GetAllAsync_WithValidEntitiesList()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -244,7 +244,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public async void TestGetAllAsync_EmptyList()
+        public async void GetAllAsync_WithEmptyEntitiesList()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -258,7 +258,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestGetById()
+        public void GetById_WithExistingId()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -278,7 +278,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestGetById_NonExistingId()
+        public void GetById_WithNonExistingId()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -293,7 +293,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public async void TestGetByIdAsync()
+        public async void GetByIdAsync_WithExistingId()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -313,7 +313,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public async void TestGetByIdAsync_NonExistingId()
+        public async void GetByIdAsync_WithNonExistingId()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -328,7 +328,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestGetOrInsert_Insert()
+        public void GetOrInsert_WithEntityInsert()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -352,7 +352,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestGetOrInsert_Get()
+        public void GetOrInsert_WithEntityGet()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -380,7 +380,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestInsertOrUpdate_Insert()
+        public void InsertOrUpdate_WithEntityInsert()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -403,7 +403,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestInsertOrUpdate_Update()
+        public void InsertOrUpdate_WithEntityUpdate()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -428,7 +428,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestExists()
+        public void Exists_WithExistingEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -446,7 +446,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestExists_NonExisttingEntity_Fail()
+        public void Exists_WithNonExistingEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -462,7 +462,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public async void TestExistsAsync()
+        public async void ExistsAsync_WithExistingEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -480,7 +480,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public async void TestExistsAsync_NonExisttingEntity_Fail()
+        public async void ExistsAsync_NonExisttingEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -496,7 +496,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestAll()
+        public void All_WithValidEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
@@ -513,7 +513,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestDispose()
+        public void Dispose()
         {
             var context = new Mock<IDbContext>();
 
@@ -523,7 +523,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Theory, AutoData]
-        public void TestQuery()
+        public void Query_WithValidEntity()
         {
             var fixture = new Fixture();
             fixture.Customize(new OmitOnRecursionCustomization());
