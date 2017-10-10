@@ -82,7 +82,7 @@ namespace Redack.DatabaseLayer.DataAccess
 
         public void Update(TEntity entity)
         {
-            this._entities.Attach(entity);
+            this._context.SetEntityState(entity, EntityState.Modified);
         }
 
         public void Delete(TEntity entity)
