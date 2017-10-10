@@ -17,7 +17,7 @@ namespace Redack.Test.Lollipop
         }
 
         [Fact]
-        public void TestObjectFill()
+        public void ObjectFill()
         {
             var obj = this._fixture.Create<DummyObject>();
 
@@ -26,7 +26,7 @@ namespace Redack.Test.Lollipop
         }
 
         [Fact]
-        public void TestIgnoreProperties()
+        public void IgnoreProperties()
         {
             this._fixture.Customize(new IgnorePropertiesCustomization(new string[]
             {
@@ -41,7 +41,7 @@ namespace Redack.Test.Lollipop
         }
 
         [Fact]
-        public void TestCopyPropertyValueToAnother()
+        public void CopyPropertyValueToAnother()
         {
             this._fixture.Customize(new CopyPropertyValueToAnother<DummyObject>(
                 "Property1", "Property2"));
@@ -51,7 +51,7 @@ namespace Redack.Test.Lollipop
         }
 
         [Fact]
-        public void TestIgnoreVirtualProperties()
+        public void IgnoreVirtualProperties()
         {
             this._fixture.Customize(new IgnoreVirtualPropertiesCustomization());
             var obj = this._fixture.Create<DummyObjectWithRecursion>();
@@ -63,7 +63,7 @@ namespace Redack.Test.Lollipop
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
-        public void TestOmitOnRecursion(int recursionDepth)
+        public void OmitOnRecursion(int recursionDepth)
         {
             this._fixture.Customize(new OmitOnRecursionCustomization(recursionDepth));
             var obj = this._fixture.Create<DummyObjectWithRecursion>();
@@ -75,7 +75,7 @@ namespace Redack.Test.Lollipop
         }
 
         [Fact]
-        public void TestEmailAddress()
+        public void EmailAddress()
         {
             this._fixture.Customize(new EmailAddressCustomization<DummyObject>("Property1"));
             var obj = this._fixture.Create<DummyObject>();
@@ -93,12 +93,23 @@ namespace Redack.Test.Lollipop
         }
 
         [Fact]
-        public void TestStringMaxLength()
+        public void StringMaxLength()
         {
             this._fixture.Customize(new StringMaxLengthCustomization<DummyObject>("Property1", 10));
             var obj = this._fixture.Create<DummyObject>();
 
             Assert.AreEqual(10, obj.Property1.Length);
+        }
+
+        [Fact]
+        public void PropertiesHasSameValues()
+        {
+            this._fixture.Customize(new PropertiesHasSameValuesCustomization<string>("Property1"));
+            this._fixture.Customize(new OmitOnRecursionCustomization(2));
+
+            var obj = this._fixture.Create<DummyObjectWithRecursion>();
+
+            Assert.AreEqual(obj.Property1, obj.Property3.Property1);
         }
     }
 }
