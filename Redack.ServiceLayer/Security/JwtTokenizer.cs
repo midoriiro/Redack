@@ -21,12 +21,19 @@ namespace Redack.ServiceLayer.Security
             };
 
             return JWT.Encode(
-                payload, ApiKey.ToBytes(identity.ApiKey.Key), JweAlgorithm.A256GCMKW, JweEncryption.A256CBC_HS512);
+                payload, 
+                ApiKey.ToBytes(identity.ApiKey.Key), 
+                JweAlgorithm.A256GCMKW, 
+                JweEncryption.A256CBC_HS512);
         }
 
         public string Decode(Identity identity)
         {
-            return JWT.Decode(identity.Token, identity.ApiKey.Key);
+            return JWT.Decode(
+                identity.Access, 
+                ApiKey.ToBytes(identity.ApiKey.Key), 
+                JweAlgorithm.A256GCMKW, 
+                JweEncryption.A256CBC_HS512);
         }
     }
 }

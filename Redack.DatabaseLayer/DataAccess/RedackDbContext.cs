@@ -12,6 +12,7 @@ namespace Redack.DatabaseLayer.DataAccess
     public class RedackDbContext : DbContext, IDbContext
     {
         public virtual DbSet<ApiKey> ApiKeys { get; set; }
+        public virtual DbSet<Client> Clients { get; set; }
         public virtual DbSet<Credential> Credentials { get; set; }
         public virtual DbSet<Group> Groups { get; set; }
         public virtual DbSet<Identity> Identities { get; set; }
