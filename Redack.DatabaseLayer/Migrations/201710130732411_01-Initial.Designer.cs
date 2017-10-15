@@ -7,13 +7,13 @@ namespace Redack.DatabaseLayer.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class _03AddApiKeyIdentity : IMigrationMetadata
+    public sealed partial class _01Initial : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(_03AddApiKeyIdentity));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(_01Initial));
         
         string IMigrationMetadata.Id
         {
-            get { return "201710041447178_03-Add-ApiKey-Identity"; }
+            get { return "201710130732411_01-Initial"; }
         }
         
         string IMigrationMetadata.Source
