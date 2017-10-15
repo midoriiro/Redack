@@ -10,11 +10,16 @@ namespace Redack.ServiceLayer.Security
 {
     public class JwtIdentity : GenericIdentity
     {
-        public int Id { get; }
+        public Identity Identity { get; }
 
-        public JwtIdentity(User user) : base(user.Alias)
+        public JwtIdentity(Identity identity) : base(identity.Client.Name)
         {
-            this.Id = user.Id;
+            this.Identity = identity;
+        }
+
+        public IPrincipal GetPrincipal()
+        {
+            return new GenericPrincipal(this, null);
         }
 
         public User GetUser()
@@ -23,22 +28,10 @@ namespace Redack.ServiceLayer.Security
 
             using (var repository = new Repository<User>())
             {
-                user = repository.GetById(this.Id);
+                user = repository.Query(e => e.Credential.ApiKey.Key == this.Identity.User.Credential.ApiKey.Key).Single();
             }
 
             return user;
-        }
-
-        public Identity GetIdentity()
-        {
-            Identity identity;
-
-            using (var repository = new Repository<Identity>())
-            {
-                identity = repository.Query(e => e.ApiKey.Id == this.GetUser().Credential.ApiKey.Id).Single();
-            }
-
-            return identity;
         }
     }
 }
