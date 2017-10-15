@@ -22,11 +22,12 @@ namespace Redack.DomainLayer.Model
         [Required(ErrorMessage = "The credential field is required")]
         public virtual Credential Credential { get; set; }
 
+        public virtual ICollection<Identity> Identities { get; set; }
         public virtual ICollection<Message> Messages { get; set; }
         public virtual Group Group { get; set; }
         public virtual ICollection<Permission> Permissions { get; set; }
 
-        public static User Create(string login, string password, string passwordConfirm)
+        public static User Create(string login, string password, string passwordConfirm, int keySize)
         {
             var user = new User()
             {
@@ -38,10 +39,21 @@ namespace Redack.DomainLayer.Model
                     PasswordConfirm = passwordConfirm,
                     ApiKey = new ApiKey()
                     {
-                        Key = ApiKey.GenerateKey(256)
+                        Key = ApiKey.GenerateKey(keySize)
                     }
                 }
             };
+
+            user.Credential.ToHash();
+
+            return user;
+        }
+
+        public static User Update(User user, string password, string passwordConfirm, int keySize)
+        {
+            user.Credential.Password = password;
+            user.Credential.PasswordConfirm = passwordConfirm;
+            user.Credential.ApiKey.Key = ApiKey.GenerateKey(keySize);
 
             user.Credential.ToHash();
 

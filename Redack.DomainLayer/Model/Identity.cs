@@ -13,10 +13,10 @@ namespace Redack.DomainLayer.Model
         public string Refresh { get; set; }
 
         // Navigation properties
-        [Required(ErrorMessage = "The api key field is required")]
-        public virtual ApiKey ApiKey { get; set; }
+        [Required(ErrorMessage = "The user field is required")]
+        public virtual User User { get; set; }
 
         [Required(ErrorMessage = "The client field is required")]
-        public Client Client { get; set; }
+        public virtual Client Client { get; set; }
     }
 }
