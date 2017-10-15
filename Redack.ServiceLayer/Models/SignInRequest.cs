@@ -8,7 +8,7 @@ using Redack.DomainLayer.Model;
 
 namespace Redack.ServiceLayer.Models
 {
-    public class CredentialSignInRequest : Model
+    public class SignInRequest : Model
     {
         [Required]
         public Client Client { get; set; }

@@ -10,9 +10,14 @@ using Redack.DomainLayer.Model;
 
 namespace Redack.ServiceLayer.Controllers
 {
-    public abstract class RepositoryApiController<TEntity> : ApiController where TEntity : Entity
+    public abstract class RepositoryApiController<TEntity> : BaseApiController where TEntity : Entity
     {
-        private readonly IRepository<TEntity> _repository = new Repository<TEntity>();
+        private readonly IRepository<TEntity> _repository;
+
+        public RepositoryApiController() : base()
+        {
+            this._repository = new Repository<TEntity>(this.Context);
+        }
 
         // GET: api/Entities
         [HttpGet]

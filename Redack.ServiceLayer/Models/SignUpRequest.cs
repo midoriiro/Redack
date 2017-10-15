@@ -7,7 +7,7 @@ using System.Web.UI.WebControls;
 
 namespace Redack.ServiceLayer.Models
 {
-    public class CredentialSignUpRequest : CredentialSignInRequest
+    public class SignUpRequest : SignInRequest
     {
         [Required]
         public string PasswordConfirm { get; set; }

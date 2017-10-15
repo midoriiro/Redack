@@ -100,6 +100,7 @@
   <ItemGroup>
     <Compile Include="App_Start\InheritedRouteProvider.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Controllers\ClientsController.cs" />
     <Compile Include="Controllers\ApiKeysController.cs" />
     <Compile Include="Controllers\IdentitiesController.cs" />
@@ -116,8 +117,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\CredentialSignInRequest.cs" />
-    <Compile Include="Models\CredentialSignUpRequest.cs" />
+    <Compile Include="Models\ForgotPasswordRequest.cs" />
+    <Compile Include="Models\SignInRequest.cs" />
+    <Compile Include="Models\SignUpRequest.cs" />
     <Compile Include="Models\Model.cs" />
     <Compile Include="Models\TokenResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
