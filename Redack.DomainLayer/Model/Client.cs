@@ -19,7 +19,7 @@ namespace Redack.DomainLayer.Model
 
         // Navigation properties
         [Required]
-        public ApiKey Key { get; set; }
+        public virtual ApiKey ApiKey { get; set; }
 
         public Client()
         {
