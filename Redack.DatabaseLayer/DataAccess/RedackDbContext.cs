@@ -1,4 +1,5 @@
 ﻿using System.Configuration;
+using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration.Conventions;
@@ -27,10 +28,28 @@ namespace Redack.DatabaseLayer.DataAccess
         {
         }
 
+        public RedackDbContext(DbConnection connection) : base(connection, true)
+        {
+        }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Conventions.Add<OneToManyCascadeDeleteConvention>();
-            modelBuilder.Conventions.Add<ManyToManyCascadeDeleteConvention>();
+            modelBuilder.Entity<User>()
+                .HasRequired(e => e.Credential)
+                .WithRequiredPrincipal()
+                .WillCascadeOnDelete(true);
+
+            modelBuilder.Entity<Credential>()
+                .HasOptional(e => e.ApiKey)
+                .WithOptionalPrincipal()
+                .Map(e => e.MapKey("Credential_Id"))
+                .WillCascadeOnDelete(true);
+
+            modelBuilder.Entity<Client>()
+                .HasOptional(e => e.ApiKey)
+                .WithOptionalPrincipal()
+                .Map(e => e.MapKey("Client_Id"))
+                .WillCascadeOnDelete(true);
         }
 
         public new DbSet<TEntity> Set<TEntity>() where TEntity : Entity
