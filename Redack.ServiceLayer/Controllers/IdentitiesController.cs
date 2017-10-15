@@ -1,54 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Data.Entity.Validation;
-using System.Linq;
-using System.Net;
-using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using Newtonsoft.Json;
-using Redack.DatabaseLayer.DataAccess;
+﻿using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Model;
 using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models;
 using Redack.ServiceLayer.Security;
+using System;
+using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Validation;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace Redack.ServiceLayer.Controllers
 {
     [RoutePrefix("api/identities")]
-    public class IdentitiesController : ApiController
+    public class IdentitiesController : BaseApiController
     {
-        private readonly RedackDbContext _context;
+        private readonly int _keySize = 256;
+        private readonly int _expirationTimeAccess = 5;
+        private readonly int _expirationTimeRefresh = 604800;
+
         private readonly IRepository<User> _repositoryUser;
         private readonly IRepository<Client> _repositoryClient;
         private readonly IRepository<Identity> _repository;
 
         public IdentitiesController()
         {
-            this._context = new RedackDbContext();
-            this._repositoryUser = new Repository<User>(this._context);
-            this._repositoryClient = new Repository<Client>(this._context);
-            this._repository = new Repository<Identity>(this._context);
+            this._repositoryUser = new Repository<User>(this.Context);
+            this._repositoryClient = new Repository<Client>(this.Context);
+            this._repository = new Repository<Identity>(this.Context);
         }
 
         // POST: api/Identities/
         [HttpPost]
         [Route("signup")]
         [ResponseType(typeof(void))]
-        public virtual async Task<IHttpActionResult> SignUp([FromBody]CredentialSignUpRequest request)
+        public virtual async Task<IHttpActionResult> SignUp([FromBody]SignUpRequest request)
         {
             try
             {
-                var client = this._repositoryClient.Query(e => e.Key.Id == request.Client.Key.Id).Single();
-
-                if (client.IsBlocked)
-                    throw new InvalidOperationException();
-
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                this._repositoryClient.Query(
+                    e => e.ApiKey.Id == request.Client.ApiKey.Id && e.IsBlocked == false).Single();
             }
             catch (InvalidOperationException)
             {
@@ -56,7 +49,10 @@ namespace Redack.ServiceLayer.Controllers
             }
 
             var user = DomainLayer.Model.User.Create(
-                request.Login, request.Password, request.PasswordConfirm);
+                request.Login, 
+                request.Password, 
+                request.PasswordConfirm, 
+                this._keySize);
 
             this._repositoryUser.Insert(user);
 
@@ -79,11 +75,35 @@ namespace Redack.ServiceLayer.Controllers
             return this.CreatedAtRoute(WebApiConfig.DefaultRouteName, new { id = user.Id }, user);
         }
 
+        // GET: api/Identities/
+        [JwtAuthorizationFilter]
+        [HttpGet]
+        [Route("signdown")]
+        [ResponseType(typeof(void))]
+        public virtual async Task<IHttpActionResult> SignDown()
+        {
+            Identity identity;
+
+            try
+            {
+                identity = this.GetIdentity();
+            }
+            catch (InvalidOperationException)
+            {
+                return this.BadRequest();
+            }
+
+            this._repositoryUser.Delete(identity.User);
+            await this._repositoryUser.CommitAsync();
+
+            return this.Ok();
+        }
+
         // POST: api/Identities/
         [HttpPost]
         [Route("signin")]
         [ResponseType(typeof(TokenResponse))]
-        public virtual async Task<IHttpActionResult> SignIn([FromBody]CredentialSignInRequest request)
+        public virtual async Task<IHttpActionResult> SignIn([FromBody]SignInRequest request)
         {
             User user;
             Client client;
@@ -93,60 +113,99 @@ namespace Redack.ServiceLayer.Controllers
                 user = this._repositoryUser.Query(
                     e => e.Credential.Login == request.Login && e.Credential.Password == request.Password).Single();
 
-                client = this._repositoryClient.Query(e => e.Key.Id == request.Client.Key.Id).Single();
+                client = this._repositoryClient.Query(
+                    e => e.ApiKey.Id == request.Client.ApiKey.Id && e.IsBlocked == false).Single();
             }
             catch (InvalidOperationException)
             {
                 return this.Unauthorized();
             }
 
-            Identity identity;
+            var exist = this._repository.Query(
+                    e => e.User.Credential.ApiKey.Id == user.Credential.ApiKey.Id &&
+                         e.Client.Id == request.Client.Id)
+                .Any();
 
-            try
-            {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                this._repository.Query(
-                    e => e.ApiKey.Id == user.Credential.ApiKey.Id && e.Client.Id == request.Client.Id).Single();
-
+            if(exist)
                 return this.Conflict();
-            }
-            catch (InvalidOperationException)
+
+            Identity identity = new Identity
             {
-                identity = new Identity
-                {
-                    Client = client,
-                    ApiKey = user.Credential.ApiKey
-                };
-            }
+                Client = client,
+                User = user
+            };
 
-            var tokenizer = new JwtTokenizer();
-            var tokenAccess = tokenizer.Encode(identity, 5);
-            var tokenRefresh = tokenizer.Encode(identity, 604800);
-
-            
-            identity.Access = tokenAccess;
-            identity.Refresh = tokenRefresh;
+            this.GetToken(identity);
 
             this._repository.Insert(identity);
             await this._repository.CommitAsync();
 
-            return this.Ok(new TokenResponse(){Access = tokenAccess, Refresh = tokenRefresh });
+            return this.Ok(new TokenResponse{Access = identity.Access, Refresh = identity.Refresh });
         }
 
-        // POST: api/Identities/
+        // GET: api/Identities/
+        [HttpPost]
+        [Route("signin/forgotpassword")]
+        [ResponseType(typeof(void))]
+        public virtual async Task<IHttpActionResult> SignInForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            User user;
+
+            try
+            {
+                user = this._repositoryUser.Query(
+                    e => e.Credential.Login == request.Login && e.Credential.Password == request.OldPassword).Single();
+
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                this._repositoryClient.Query(
+                    e => e.ApiKey.Id == request.Client.ApiKey.Id && e.IsBlocked == false).Single();
+            }
+            catch (InvalidOperationException)
+            {
+                return this.Unauthorized();
+            }
+
+            user = DomainLayer.Model.User.Update(
+                user, 
+                request.NewPassword, 
+                request.NewPasswordConfirm, 
+                this._keySize);
+
+            this._repositoryUser.Update(user);
+
+            try
+            {
+                await this._repositoryUser.CommitAsync();
+            }
+            catch (DbEntityValidationException)
+            {
+                return this.BadRequest(this.ModelState);
+            }
+
+            var identities = this._repository.Query(e => e.User.Id == user.Id).ToList();
+
+            foreach (var id in identities)
+            {
+                this._repository.Delete(id);
+            }
+
+            await this._repository.CommitAsync();
+
+            return this.Ok();
+        }
+
+        // GET: api/Identities/
         [JwtAuthorizationFilter]
         [HttpGet]
         [Route("signout")]
         [ResponseType(typeof(void))]
         public virtual async Task<IHttpActionResult> SignOut()
         {
-            var jwtIdentity = this.User.Identity as JwtIdentity;
-
             Identity identity;
-            
+
             try
             {
-                identity = jwtIdentity.GetIdentity();
+                identity = this.GetIdentity();
             }
             catch (InvalidOperationException)
             {
@@ -159,6 +218,78 @@ namespace Redack.ServiceLayer.Controllers
             return this.Ok();
         }
 
+        // GET: api/Identities/
+        [JwtAuthorizationFilter]
+        [HttpGet]
+        [Route("signout/all")]
+        [ResponseType(typeof(void))]
+        public virtual async Task<IHttpActionResult> SignOutAll()
+        {
+            Identity identity;
+
+            try
+            {
+                identity = this.GetIdentity();
+            }
+            catch (InvalidOperationException)
+            {
+                return this.BadRequest();
+            }
+
+            var identities = this._repository.Query(e => e.User.Id == identity.User.Id).ToList();
+
+            foreach (var id in identities)
+            {
+                this._repository.Delete(id);
+            }
+
+            await this._repository.CommitAsync();
+
+            return this.Ok();
+        }
+
+        // GET: api/Identities/
+        [JwtAuthorizationFilter]
+        [HttpGet]
+        [Route("refresh")]
+        [ResponseType(typeof(TokenResponse))]
+        public virtual async Task<IHttpActionResult> Refresh()
+        {
+            Identity identity;
+
+            try
+            {
+                identity = this.GetIdentity();
+            }
+            catch (InvalidOperationException)
+            {
+                return this.BadRequest();
+            }
+
+            if (identity.Client.IsBlocked || 
+                !JwtTokenizer.IsValid(
+                    identity.User.Credential.ApiKey.Key, 
+                    identity.Client.ApiKey.Key, 
+                    identity.Refresh))
+                return this.Unauthorized();
+
+            this.GetToken(identity);
+
+            this._repository.Update(identity);
+            await this._repository.CommitAsync();
+
+            return this.Ok(new TokenResponse { Access = identity.Access, Refresh = identity.Refresh });
+        }
+
+        protected void GetToken(Identity identity)
+        {
+            identity.Access = JwtTokenizer.Encode(
+                identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, this._expirationTimeAccess);
+
+            identity.Refresh = JwtTokenizer.Encode(
+                identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, this._expirationTimeRefresh);
+        }
+        
         protected override void Dispose(bool disposing)
         {
             if (disposing)
