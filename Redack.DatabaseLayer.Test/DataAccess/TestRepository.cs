@@ -15,7 +15,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 {
     public class TestRepository : TestBase
     {
-        [Theory, AutoData]
+        [Fact]
         public void Insert_WithValidEntity()
         {
             var fixture = new Fixture();
@@ -33,7 +33,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(obj, sut.GetById(obj.Id));
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void Insert_WithExistingEntity()
         {
             var fixture = new Fixture();
@@ -52,7 +52,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.ThrowsException<DbUpdateException>(() => sut.Commit());
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void Update_WithValidEntity()
         {
             var fixture = new Fixture();
@@ -73,7 +73,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(obj, sut.GetById(obj.Id));
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void Update_WithNonExistingEntity()
         {
             var fixture = new Fixture();
@@ -90,7 +90,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.ThrowsException<DbUpdateConcurrencyException>(() => sut.Commit());
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void Delete_WithValidEntity()
         {
             var fixture = new Fixture();
@@ -111,7 +111,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.IsNull(sut.GetById(obj.Id));
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void Delete_NonExistingEntity()
         {
             var fixture = new Fixture();
@@ -128,7 +128,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.ThrowsException<DbUpdateConcurrencyException>(() => sut.Commit());
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void Commit()
         {
             var context = new Mock<IDbContext>();
@@ -139,7 +139,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             context.Verify(e => e.SaveChanges(), Times.Once);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public async void CommitAsync()
         {
             var context = new Mock<IDbContext>();
@@ -150,7 +150,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             context.Verify(e => e.SaveChangesAsync(), Times.Once);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void Rollback()
         {
             var fixture = new Fixture();
@@ -168,7 +168,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.IsNull(sut.GetById(obj.Id));
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void GetAll_WithValidEntitiesList()
         {
             var fixture = new Fixture();
@@ -198,7 +198,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(orderedEntities[2], orderedResult[2]);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void GetAll_WithEmptyEntitiesList()
         {
             var fixture = new Fixture();
@@ -211,7 +211,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(0, sut.GetAll().Count);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public async void GetAllAsync_WithValidEntitiesList()
         {
             var fixture = new Fixture();
@@ -243,7 +243,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(orderedEntities[2], orderedResult[2]);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public async void GetAllAsync_WithEmptyEntitiesList()
         {
             var fixture = new Fixture();
@@ -257,7 +257,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(0, result.Count);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void GetById_WithExistingId()
         {
             var fixture = new Fixture();
@@ -277,7 +277,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(obj, result);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void GetById_WithNonExistingId()
         {
             var fixture = new Fixture();
@@ -292,7 +292,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.IsNull(result);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public async void GetByIdAsync_WithExistingId()
         {
             var fixture = new Fixture();
@@ -312,7 +312,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(obj, result);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public async void GetByIdAsync_WithNonExistingId()
         {
             var fixture = new Fixture();
@@ -327,7 +327,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.IsNull(result);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void GetOrInsert_WithEntityInsert()
         {
             var fixture = new Fixture();
@@ -351,7 +351,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(obj2, result);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void GetOrInsert_WithEntityGet()
         {
             var fixture = new Fixture();
@@ -379,7 +379,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(obj, result);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void InsertOrUpdate_WithEntityInsert()
         {
             var fixture = new Fixture();
@@ -402,7 +402,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(2, sut.GetAll().Count);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void InsertOrUpdate_WithEntityUpdate()
         {
             var fixture = new Fixture();
@@ -427,7 +427,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(2, sut.GetAll().Count);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void Exists_WithExistingEntity()
         {
             var fixture = new Fixture();
@@ -445,7 +445,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.IsTrue(sut.Exists(obj));
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void Exists_WithNonExistingEntity()
         {
             var fixture = new Fixture();
@@ -461,7 +461,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.IsFalse(sut.Exists(obj));
         }
 
-        [Theory, AutoData]
+        [Fact]
         public async void ExistsAsync_WithExistingEntity()
         {
             var fixture = new Fixture();
@@ -479,7 +479,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.IsTrue(await sut.ExistsAsync(obj));
         }
 
-        [Theory, AutoData]
+        [Fact]
         public async void ExistsAsync_NonExisttingEntity()
         {
             var fixture = new Fixture();
@@ -495,7 +495,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.IsFalse(await sut.ExistsAsync(obj));
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void All_WithValidEntity()
         {
             var fixture = new Fixture();
@@ -512,8 +512,8 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(1, sut.All().Count());
         }
 
-        [Theory, AutoData]
-        public void Dispose()
+        [Fact]
+        public void Disposed()
         {
             var context = new Mock<IDbContext>();
 
@@ -522,7 +522,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             context.Verify(e => e.Dispose(), Times.Once);
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void Query_WithValidEntity()
         {
             var fixture = new Fixture();
