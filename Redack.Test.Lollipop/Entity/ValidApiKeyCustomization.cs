@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ploeh.AutoFixture;
+﻿using Ploeh.AutoFixture;
 using Redack.DomainLayer.Model;
+using Thread = System.Threading.Thread;
 
 namespace Redack.Test.Lollipop.Entity
 {
-    class ValidApiKeyCustomization : ICustomization
+    public class ValidApiKeyCustomization : ICustomization
     {
         private readonly int _keySize;
 
@@ -19,6 +15,10 @@ namespace Redack.Test.Lollipop.Entity
 
         public void Customize(IFixture fixture)
         {
+            // TODO: fix this workaround
+
+            Thread.Sleep(25);
+
             fixture.Customize<ApiKey>(e => e.With(p => p.Key, ApiKey.GenerateKey(this._keySize)));
         }
     }
