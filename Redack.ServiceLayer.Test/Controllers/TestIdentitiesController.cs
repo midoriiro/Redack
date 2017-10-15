@@ -1,14 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity.Validation;
+using System.Data.Entity;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http;
-using System.Web.Http.Results;
 using Ploeh.AutoFixture;
 using Ploeh.AutoFixture.Xunit2;
 using Redack.DatabaseLayer.DataAccess;
@@ -17,221 +9,440 @@ using Redack.ServiceLayer.Controllers;
 using Redack.ServiceLayer.Models;
 using Redack.ServiceLayer.Security;
 using Redack.Test.Lollipop;
-using Redack.Test.Lollipop.Configuration;
-using Redack.Test.Lollipop.Customization;
 using Redack.Test.Lollipop.Entity;
 using Redack.Test.Lollipop.Model;
+using System.Net.Http;
+using System.Security.Principal;
+using System.Web.Configuration;
+using System.Web.Http;
+using System.Web.Http.Results;
 using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace Redack.ServiceLayer.Test.Controllers
 {
-    public class TestIdentitiesController : TestBase
+    public class TestIdentitiesController : TestBaseController<IdentitiesController>
     {
-        private readonly RedackDbContext _context;
-        private readonly IdentitiesController _controller;
-
-        public TestIdentitiesController()
+        public SignUpRequest CreateValidSignUpRequest(
+            User user = null, Client client = null, bool pushUser = true, bool pushClient = true)
         {
-            this._context = new RedackDbContext();
+            user = user ?? this.CreateValidUser(push: pushUser);
+            client = client ?? this.CreateValidClient(push: pushClient);
 
-            this._controller = new IdentitiesController
-            {
-                Request = new HttpRequestMessage(),
-                Configuration = new HttpConfiguration()
-            };
+            var fixture = new Fixture();
+            fixture.Customize(new ValidSignUpRequestCustomization());
+
+            var request = fixture.Create<SignUpRequest>();
+            request.Client = client;
+            request.Login = user.Credential.Login;
+            request.Password = user.Credential.Password;
+            request.PasswordConfirm = user.Credential.PasswordConfirm;
+
+            return request;
         }
 
-        public User CreateValidUser()
+        public SignInRequest CreateSignInRequest(
+            User user = null, Client client = null, bool pushUser = true, bool pushClient = true)
         {
+            user = user ?? this.CreateValidUser(push: pushUser);
+            client = client ?? this.CreateValidClient(push: pushClient);
+
             var fixture = new Fixture();
-            fixture.Customize(new ValidUserCustomization());
+            fixture.Customize(new ValidSignInRequestCustomization());
 
-            var user = fixture.Create<User>();
+            var request = fixture.Create<SignInRequest>();
+            request.Client = client;
+            request.Login = user.Credential.Login;
+            request.Password = user.Credential.Password;
 
-            var repository = new Repository<User>(this._context);
-            repository.Insert(user);
-            repository.Commit();
-
-            return user;
-        }
-
-        public Client CreateValidClient()
-        {
-            var fixture = new Fixture();
-            fixture.Customize(new ValidClientCustomization());
-
-            var client = fixture.Create<Client>();
-
-            var repository = new Repository<Client>(this._context);
-            repository.Insert(client);
-            repository.Commit();
-
-            return client;
-        }
-
-        public Identity CreateValidIdentity(User user = null, Client client = null)
-        {
-            var fixture = new Fixture();
-            fixture.Customize(new ValidIdentityCustomization());
-
-            var tokenizer = new JwtTokenizer();
-
-            user = user ?? this.CreateValidUser();
-            client = client ?? this.CreateValidClient();
-
-            var identity = fixture.Create<Identity>();
-            identity.ApiKey = user.Credential.ApiKey;
-            identity.Client = client;
-            identity.Access = tokenizer.Encode(identity, 5);
-            identity.Refresh = tokenizer.Encode(identity, 1000);
-
-            var repository = new Repository<Identity>(this._context);
-            repository.Insert(identity);
-            repository.Commit();
-
-            return identity;
+            return request;
         }
 
         [Fact]
         public void SignUp_WithValidRequest()
         {
-            var fixture = new Fixture();
-            fixture.Customize(new ValidCredentialRequestCustomization<CredentialSignUpRequest>());
+            var request = this.CreateValidSignUpRequest(pushUser: false);
 
-            var client = this.CreateValidClient();
+            var response = this.Controller.SignUp(request).Result;
 
-            var credential = fixture.Create<CredentialSignUpRequest>();
-            credential.Client = client;
-
-            var response = this._controller.SignUp(credential);
-            var result = response.Result;
-
-            Assert.IsInstanceOfType(result, typeof(CreatedAtRouteNegotiatedContentResult<User>));
+            Assert.IsInstanceOfType(response, typeof(CreatedAtRouteNegotiatedContentResult<User>));
         }
 
         [Fact]
         public void SignUp_WithExistingUser()
         {
-            var fixture = new Fixture();
-            fixture.Customize(new ValidCredentialRequestCustomization<CredentialSignUpRequest>());
+            var request = this.CreateValidSignUpRequest();
 
-            var user = this.CreateValidUser();
+            var response = this.Controller.SignUp(request).Result;
 
-            var client = this.CreateValidClient();
-
-            var credential = fixture.Create<CredentialSignUpRequest>();
-            credential.Client = client;
-            credential.Login = user.Credential.Login;
-            credential.Password = user.Credential.Password;
-            credential.PasswordConfirm = user.Credential.PasswordConfirm;
-
-            var response = this._controller.SignUp(credential);
-            var result = response.Result;
-
-            Assert.IsInstanceOfType(result, typeof(ConflictResult));
+            Assert.IsInstanceOfType(response, typeof(ConflictResult));
         }
 
-        [Theory, AutoData]
-        public void SignUp_WithInvalidCredential()
+        [Fact]
+        public void SignUp_WithInvalidRequest()
         {
-            Fixture fixture = new Fixture();
-            fixture.Customize(new IgnorePropertiesCustomization(new[]
+            var fixture = new Fixture();
+
+            var user = this.CreateValidUser(push: false);
+            user.Credential.Password = fixture.Create<string>();
+            user.Credential.PasswordConfirm = fixture.Create<string>();
+
+            var request = this.CreateValidSignUpRequest(user, pushUser: false);
+
+            var response = this.Controller.SignUp(request).Result;
+
+            Assert.IsInstanceOfType(response, typeof(InvalidModelStateResult));
+        }
+
+        [Fact]
+        public void SignUp_WithNonExistingClient()
+        {
+            var request = this.CreateValidSignUpRequest(pushClient: false);
+
+            var response = this.Controller.SignUp(request).Result;
+
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+        }
+
+        [Fact]
+        public void SignUp_WithBlockedClient()
+        {
+            var request = this.CreateValidSignUpRequest();
+
+            request.Client.IsBlocked = true;
+
+            using (var repository = new Repository<Client>())
             {
-                "PasswordConfirm"
-            }));
+                repository.Update(request.Client);
+                repository.Commit();
+            }
 
-            var response = this._controller.SignUp(fixture.Create<CredentialSignUpRequest>());
-            var result = response.Result;
+            var response = this.Controller.SignUp(request).Result;
 
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
         }
 
-        [Theory, AutoData]
-        public void SignUp_WithInvalidClient()
-        {
-            var fixture = new Fixture();
-            fixture.Customize(new ValidCredentialRequestCustomization<CredentialSignUpRequest>());
-
-            var credential = fixture.Create<CredentialSignUpRequest>();
-            credential.Client = fixture.Create<Client>();
-
-            var response = this._controller.SignUp(credential);
-            var result = response.Result;
-
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
-        }
-
-        [Theory, AutoData]
+        [Fact]
         public void SignIn_WithValidRequest()
         {
-            var fixture = new Fixture();
-            fixture.Customize(new ValidCredentialRequestCustomization<CredentialSignInRequest>());
+            var request = this.CreateSignInRequest();
 
-            var user = this.CreateValidUser();
+            var response = this.Controller.SignIn(request).Result;
 
-            var client = this.CreateValidClient();
-
-            var credential = fixture.Create<CredentialSignInRequest>();
-            credential.Client = client;
-            credential.Login = user.Credential.Login;
-            credential.Password = user.Credential.Password;
-
-            var response = this._controller.SignIn(credential);
-            var result = response.Result;
-
-            Assert.IsInstanceOfType(result, typeof(OkNegotiatedContentResult<TokenResponse>));
+            Assert.IsInstanceOfType(response, typeof(OkNegotiatedContentResult<TokenResponse>));
         }
 
-        [Theory, AutoData]
+        [Fact]
         public void SignIn_WithExistingIdentity()
         {
+            var user = this.CreateValidUser();
+            var identity = this.CreateValidIdentity(user);
+
+            var request = this.CreateSignInRequest(user, identity.Client);
+
+            var response = this.Controller.SignIn(request).Result;
+
+            Assert.IsInstanceOfType(response, typeof(ConflictResult));
+        }
+
+        [Fact]
+        public void SignIn_WithInvalidRequest()
+        {
             var fixture = new Fixture();
-            fixture.Customize(new ValidCredentialRequestCustomization<CredentialSignInRequest>());
 
             var user = this.CreateValidUser();
 
-            var identity = this.CreateValidIdentity(user);
+            var request = this.CreateSignInRequest(user);
+            request.Login = user.Credential.Login;
+            request.Password = fixture.Create<string>();
 
-            var credential = fixture.Create<CredentialSignInRequest>();
-            credential.Client = identity.Client;
-            credential.Login = user.Credential.Login;
-            credential.Password = user.Credential.Password;
+            var response = this.Controller.SignIn(request).Result;
 
-            var response = this._controller.SignIn(credential);
-            var result = response.Result;
-
-            Assert.IsInstanceOfType(result, typeof(ConflictResult));
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
         }
 
-        [Theory, AutoData]
-        public void SignIn_WithInvalidCredential()
+        [Fact]
+        public void SignIn_WithBlockedClient()
         {
-            Fixture fixture = new Fixture();
-            fixture.Customize(new IgnorePropertiesCustomization(new[]
+            var request = this.CreateSignInRequest();
+
+            request.Client.IsBlocked = true;
+
+            using (var repository = new Repository<Client>())
             {
-                "Password"
-            }));
+                repository.Update(request.Client);
+                repository.Commit();
+            }
 
-            var response = this._controller.SignIn(fixture.Create<CredentialSignInRequest>());
-            var result = response.Result;
+            var response = this.Controller.SignIn(request).Result;
 
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
         }
 
-        [Theory, AutoData]
-        public void SignIn_WithInvalidClient()
+        [Fact]
+        public void SignIn_WithNonExistingClient()
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidCredentialRequestCustomization<CredentialSignInRequest>());
+            fixture.Customize(new ValidSignInRequestCustomization());
 
-            var credential = fixture.Create<CredentialSignInRequest>();
-            credential.Client = fixture.Create<Client>();
+            var response = this.Controller.SignIn(fixture.Create<SignInRequest>()).Result;
 
-            var response = this._controller.SignIn(credential);
-            var result = response.Result;
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+        }
 
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
+        [Fact]
+        public void SignOut_WithValidIdentity()
+        {
+            var apiKey = this.CreateValidApiKey(false);
+            var credential = this.CreateValidCredential(apiKey, false);
+            var user = this.CreateValidUser(credential);
+            var client = this.CreateValidClient();
+            var identity = this.CreateValidIdentity(user, client);
+
+            this.SetControllerIdentity(new JwtIdentity(identity));
+
+            var response = this.Controller.SignOut().Result;
+
+            Assert.IsInstanceOfType(response, typeof(OkResult));
+
+            using (var repository = new Repository<Identity>())
+            {
+                Assert.IsNull(repository.GetById(identity.Id));
+            }
+
+            using (var repository = new Repository<Client>())
+            {
+                Assert.IsNotNull(repository.GetById(client.Id));
+            }
+
+            using (var repository = new Repository<User>())
+            {
+                Assert.IsNotNull(repository.GetById(user.Id));
+            }
+
+            using (var repository = new Repository<Credential>())
+            {
+                Assert.IsNotNull(repository.GetById(credential.Id));
+            }
+
+            using (var repository = new Repository<ApiKey>())
+            {
+                Assert.IsNotNull(repository.GetById(apiKey.Id));
+            }
+        }
+
+        [Fact]
+        public void SignOut_WithNonExistingIdentity()
+        {
+            var response = this.Controller.SignOut().Result;
+
+            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+        }
+
+        [Fact]
+        public void SignOut_WithInvalidIdentity()
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidIdentityCustomization());
+
+            var identity = fixture.Create<Identity>();
+
+            this.SetControllerIdentity(new JwtIdentity(identity));
+
+            var response = this.Controller.SignOut().Result;
+
+            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+        }
+
+        [Fact]
+        public void Refresh_WithValidIdentity()
+        {
+            this.SetControllerIdentity(new JwtIdentity(this.CreateValidIdentity()));
+
+            var response = this.Controller.Refresh().Result;
+
+            Assert.IsInstanceOfType(response, typeof(OkNegotiatedContentResult<TokenResponse>));
+        }
+
+        [Fact]
+        public void Refresh_WithNonExistingIdentity()
+        {
+            var response = this.Controller.Refresh().Result;
+
+            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+        }
+
+        [Fact]
+        public void Refresh_WithInvalidIdentity()
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidIdentityCustomization());
+
+            var identity = fixture.Create<Identity>();
+
+            this.SetControllerIdentity(new JwtIdentity(identity));
+
+            var response = this.Controller.Refresh().Result;
+
+            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+        }
+
+        [Fact]
+        public void Refresh_WithBlockedClient()
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidIdentityCustomization());
+
+            var identity = this.CreateValidIdentity();
+
+            identity.Client.IsBlocked = true;
+
+            using (var repository = new Repository<Client>())
+            {
+                repository.Update(identity.Client);
+                repository.Commit();
+            }
+
+            this.SetControllerIdentity(new JwtIdentity(identity));
+
+            var response = this.Controller.Refresh().Result;
+
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+        }
+
+        [Fact]
+        public void Refresh_WithExpiredToken()
+        {
+            var identity = this.CreateValidIdentity();
+
+            identity.Access = JwtTokenizer.Encode(identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, -0.01);
+            identity.Refresh = JwtTokenizer.Encode(identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, -0.01);
+
+            this.SetControllerIdentity(new JwtIdentity(identity));
+
+            var response = this.Controller.Refresh().Result;
+
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+        }
+
+        [Fact]
+        public void SignDown_WithValidIdentity()
+        {
+            var apiKey = this.CreateValidApiKey(false);
+            var credential = this.CreateValidCredential(apiKey, false);
+            var user = this.CreateValidUser(credential);
+            var client = this.CreateValidClient();
+            var identity = this.CreateValidIdentity(user, client);
+
+            this.SetControllerIdentity(new JwtIdentity(identity));
+
+            var response = this.Controller.SignDown().Result;
+
+            Assert.IsInstanceOfType(response, typeof(OkResult));
+
+            using (var repository = new Repository<Identity>())
+            {
+                Assert.IsNull(repository.GetById(identity.Id));
+            }
+
+            using (var repository = new Repository<Client>())
+            {
+                Assert.IsNotNull(repository.GetById(client.Id));
+            }
+
+            using (var repository = new Repository<User>())
+            {
+                Assert.IsNull(repository.GetById(user.Id));
+            }
+
+            using (var repository = new Repository<Credential>())
+            {
+                Assert.IsNull(repository.GetById(credential.Id));
+            }
+
+            using (var repository = new Repository<ApiKey>())
+            {
+                Assert.IsNull(repository.GetById(apiKey.Id));
+            }
+        }
+
+        [Fact]
+        public void SignDown_WithInvalidIdentity()
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidIdentityCustomization());
+
+            var identity = fixture.Create<Identity>();
+
+            this.SetControllerIdentity(new JwtIdentity(identity));
+
+            var response = this.Controller.SignDown().Result;
+
+            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+        }
+
+        [Fact]
+        public void SignOutAll_WithValidIdentity()
+        {
+            var apiKey1 = this.CreateValidApiKey(false);
+            var apiKey2 = this.CreateValidApiKey(false);
+            var apiKey3 = this.CreateValidApiKey(false);
+            var credential = this.CreateValidCredential(apiKey1, false);
+            var user = this.CreateValidUser(credential);
+            var client1 = this.CreateValidClient(apiKey2);
+            var client2 = this.CreateValidClient(apiKey3);
+            var identity1 = this.CreateValidIdentity(user, client1);
+            var identity2 = this.CreateValidIdentity(user, client2);
+
+            this.SetControllerIdentity(new JwtIdentity(identity1));
+
+            var response = this.Controller.SignOutAll().Result;
+
+            Assert.IsInstanceOfType(response, typeof(OkResult));
+
+            using (var repository = new Repository<Identity>())
+            {
+                Assert.IsNull(repository.GetById(identity1.Id));
+                Assert.IsNull(repository.GetById(identity2.Id));
+            }
+
+            using (var repository = new Repository<Client>())
+            {
+                Assert.IsNotNull(repository.GetById(client1.Id));
+                Assert.IsNotNull(repository.GetById(client2.Id));
+            }
+
+            using (var repository = new Repository<User>())
+            {
+                Assert.IsNotNull(repository.GetById(user.Id));
+            }
+
+            using (var repository = new Repository<Credential>())
+            {
+                Assert.IsNotNull(repository.GetById(credential.Id));
+            }
+
+            using (var repository = new Repository<ApiKey>())
+            {
+                Assert.IsNotNull(repository.GetById(apiKey1.Id));
+                Assert.IsNotNull(repository.GetById(apiKey2.Id));
+                Assert.IsNotNull(repository.GetById(apiKey3.Id));
+            }
+        }
+
+        [Fact]
+        public void SignOutAll_WithInvalidIdentity()
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidIdentityCustomization());
+
+            var identity = fixture.Create<Identity>();
+
+            this.SetControllerIdentity(new JwtIdentity(identity));
+
+            var response = this.Controller.SignDown().Result;
+
+            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
         }
     }
 }
