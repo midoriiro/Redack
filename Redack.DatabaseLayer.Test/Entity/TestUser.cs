@@ -5,10 +5,8 @@ using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Model;
 using Redack.Test.Lollipop;
 using Redack.Test.Lollipop.Customization;
-using Redack.Test.Lollipop.Data;
 using Redack.Test.Lollipop.Entity;
 using System.Data.Entity.Validation;
-using Redack.Test.Lollipop.Configuration;
 using Xunit;
 
 namespace Redack.DatabaseLayer.Test.Entity
