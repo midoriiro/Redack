@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Principal;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
+using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Model;
 using Redack.ServiceLayer.Security;
-using Thread = System.Threading.Thread;
 
 namespace Redack.ServiceLayer.Filters
 {
@@ -18,18 +21,34 @@ namespace Redack.ServiceLayer.Filters
     {
         public override void OnAuthorization(HttpActionContext actionContext)
         {
-            var token = "";
-
-            var authorization = actionContext.Request.Headers.Authorization;
+            AuthenticationHeaderValue authorization = actionContext.Request.Headers.Authorization;
 
             if (authorization == null || authorization.Scheme != "Basic")
             {
-                actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized);
+                this.Unauthorized(actionContext);
                 return;
             }
 
-            token = authorization.Parameter;
+            Identity identity = this.GetIdentity(authorization.Parameter);
 
+            if(identity == null || !this.ValidIdentity(identity) || identity.Client.IsBlocked)
+            {
+                this.Unauthorized(actionContext);
+                return;
+            }
+
+            JwtIdentity jwtIdentity = new JwtIdentity(identity);
+
+            actionContext.RequestContext.Principal = jwtIdentity.GetPrincipal();
+        }
+
+        public void Unauthorized(HttpActionContext actionContext)
+        {
+            actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized);
+        }
+
+        public Identity GetIdentity(string token)
+        {
             Identity identity;
 
             using (var repository = new Repository<Identity>())
@@ -37,34 +56,12 @@ namespace Redack.ServiceLayer.Filters
                 identity = repository.Query(e => e.Access == token).Single();
             }
 
-            if(identity == null)
-            {
-                actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized);
-                return;
-            }
+            return identity;
+        }
 
-            var tokenizer = new JwtTokenizer();
-            var tokenized = tokenizer.Decode(identity);
-
-            // TODO : token validation
-
-            User user;
-
-            using (var repository = new Repository<User>())
-            {
-                user = repository.Query(e => e.Credential.ApiKey.Equals(identity.ApiKey)).Single();
-            }
-
-            if(user == null)
-            {
-                actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized);
-                return;
-            }
-
-            IIdentity jwtIdentity = new JwtIdentity(user);
-            IPrincipal principal = new GenericPrincipal(jwtIdentity, new string[]{});
-
-            HttpContext.Current.User = principal;
+        public bool ValidIdentity(Identity identity)
+        {
+            return JwtTokenizer.IsValid(identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, identity.Access);
         }
     }
 }
