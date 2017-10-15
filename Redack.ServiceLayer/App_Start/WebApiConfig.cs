@@ -10,8 +10,6 @@ namespace Redack.ServiceLayer
 
         public static void Register(HttpConfiguration config)
         {
-            //config.Filters.Add(new ValidateModelAttribute());
-
             config.MapHttpAttributeRoutes(new InheritedRouteProvider());
 
             config.Routes.MapHttpRoute(

@@ -32,8 +32,6 @@ namespace Redack.DomainLayer.Model
         public string Salt { get; set; }
 
         // Navigation properties
-        public virtual ICollection<Credential> OldCredentials { get; set; }
-
         [Required(ErrorMessage = "The api key field is required")]
         public virtual ApiKey ApiKey { get; set; }
 

@@ -15,7 +15,6 @@ namespace Redack.DomainLayer.Model
         public string Text { get; set; }
 
         // Navigation properties
-
         [Required(ErrorMessage = "The thread field is required")]
         public virtual Thread Thread { get; set; }
 

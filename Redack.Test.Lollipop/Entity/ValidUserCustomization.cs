@@ -14,7 +14,8 @@ namespace Redack.Test.Lollipop.Entity
             {
                 "Messages",
                 "Group",
-                "Permissions"
+                "Permissions",
+                "Identities"
             }));
             fixture.Customize(new StringMaxLengthCustomization<User>("Alias", 15));
         }
