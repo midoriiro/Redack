@@ -58,5 +58,15 @@ namespace Redack.DomainLayer.Model
             this.Password = ToHash(this.Password, salt);
             this.PasswordConfirm = ToHash(this.PasswordConfirm, salt);
         }
+
+        public override void Update()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Delete()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

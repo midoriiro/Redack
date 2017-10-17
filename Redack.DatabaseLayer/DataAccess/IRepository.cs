@@ -8,7 +8,7 @@ using Redack.DomainLayer.Model;
 
 namespace Redack.DatabaseLayer.DataAccess
 {
-    public interface IRepository<TEntity> : IDisposable where TEntity : Entity
+    public interface IRepository<TEntity> : IDisposable where TEntity : IEntity
     {
         IQueryable<TEntity> All();
         IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> predicate);

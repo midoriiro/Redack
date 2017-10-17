@@ -1,14 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Redack.DomainLayer.Exception;
 
 namespace Redack.DomainLayer.Model
 {
     [Table("Messages")]
     public class Message : Entity
     {
-        public DateTime DateCreated { get; set; }
-        public DateTime DateUpdated { get; set; }
+        [Required(ErrorMessage = "The date field is required")]
+        public DateTime Date { get; set; }
 
         [Required(ErrorMessage = "The text field is required")]
         [MinLength(15, ErrorMessage = "Type at least 15 characters")]
@@ -17,15 +19,26 @@ namespace Redack.DomainLayer.Model
         // Navigation properties
         [Required(ErrorMessage = "The thread field is required")]
         public virtual Thread Thread { get; set; }
-
+        
+        [Required(ErrorMessage = "The author field is required")]
         [Index]
-        public virtual User CreatedBy { get; set; }
+        public virtual User Author { get; set; }
 
-        public virtual User UpdatedBy { get; set; }
+        public virtual ICollection<MessageHistory> RevisionHistory { get; set; }
 
         public Message()
         {
-            this.DateCreated = DateTime.Now;
+            this.Date = DateTime.Now;
+        }
+
+        public override void Update()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Delete()
+        {
+            throw new NotImplementedException();
         }
     }
 }

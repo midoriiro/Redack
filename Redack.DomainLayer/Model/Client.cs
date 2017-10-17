@@ -25,5 +25,15 @@ namespace Redack.DomainLayer.Model
         {
             this.IsBlocked = false;
         }
+
+        public override void Update()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Delete()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

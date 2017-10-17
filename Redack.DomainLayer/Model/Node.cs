@@ -15,5 +15,15 @@ namespace Redack.DomainLayer.Model
 
         // Navigation properties
         public virtual ICollection<Thread> Threads { get; set; }
+
+        public override void Update()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void Delete()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

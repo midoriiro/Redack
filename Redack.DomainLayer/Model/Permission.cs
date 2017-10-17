@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -7,6 +8,7 @@ namespace Redack.DomainLayer.Model
     public class Permission : Entity
     {
         [Required(ErrorMessage = "The codename field is required")]
+        [Index("UIX_ContentTypeAndCodename", IsUnique = true, Order = 2)]
         public string Codename { get; set; }
 
         [Required(ErrorMessage = "The help text field is required")]
@@ -14,9 +16,12 @@ namespace Redack.DomainLayer.Model
         public string HelpText { get; set; }
 
         [Required(ErrorMessage = "The content type field is required")]
+        [Index("UIX_ContentTypeAndCodename", IsUnique = true, Order = 1)]
         public string ContentType { get; set; }
 
-        private Permission() { }
+        // Navigation properties
+        public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<Group> Groups { get; set; }
 
         public static Permission Create<T>(string codename, string helpText) where T : Entity
         {
@@ -30,7 +35,17 @@ namespace Redack.DomainLayer.Model
 
         public override string ToString()
         {
-            return this.ContentType + "." + this.Codename;
+            return $"{this.ContentType}.{this.Codename}";
+        }
+
+        public override void Update()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void Delete()
+        {
+            throw new System.NotImplementedException();
         }
     }
 

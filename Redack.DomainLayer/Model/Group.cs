@@ -16,5 +16,15 @@ namespace Redack.DomainLayer.Model
 		// Navigation properties
 		public virtual ICollection<User> Users { get; set; }
 		public virtual ICollection<Permission> Permissions { get; set; }
+
+	    public override void Update()
+	    {
+	        throw new System.NotImplementedException();
+	    }
+
+	    public override void Delete()
+	    {
+	        throw new System.NotImplementedException();
+	    }
 	}
 }

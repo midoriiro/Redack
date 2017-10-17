@@ -22,10 +22,10 @@ namespace Redack.DomainLayer.Model
         [Required(ErrorMessage = "The credential field is required")]
         public virtual Credential Credential { get; set; }
 
-        public virtual ICollection<Identity> Identities { get; set; }
-        public virtual ICollection<Message> Messages { get; set; }
-        public virtual Group Group { get; set; }
-        public virtual ICollection<Permission> Permissions { get; set; }
+        public virtual ICollection<Identity> Identities { get; set; } = new List<Identity>();
+        public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+        public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
+        public virtual ICollection<Permission> Permissions { get; set; } = new List<Permission>();
 
         public static User Create(string login, string password, string passwordConfirm, int keySize)
         {
@@ -58,6 +58,19 @@ namespace Redack.DomainLayer.Model
             user.Credential.ToHash();
 
             return user;
+        }
+
+        public override void Update()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Delete()
+        {
+            this.Groups.Clear();
+            this.Messages.Clear();
+            this.Identities.Clear();
+            this.Permissions.Clear();
         }
     }
 }

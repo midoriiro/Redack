@@ -23,5 +23,15 @@ namespace Redack.DomainLayer.Model
 
         [Required(ErrorMessage = "The node field is required")]
         public virtual Node Node { get; set; }
+
+        public override void Update()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void Delete()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

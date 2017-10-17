@@ -18,5 +18,15 @@ namespace Redack.DomainLayer.Model
 
         [Required(ErrorMessage = "The client field is required")]
         public virtual Client Client { get; set; }
+
+        public override void Update()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override void Delete()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

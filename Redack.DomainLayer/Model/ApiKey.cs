@@ -17,5 +17,15 @@ namespace Redack.DomainLayer.Model
         public static string GenerateKey(int size) => Convert.ToBase64String(new AesCryptoServiceProvider { KeySize = size }.Key);
 
         public static byte[] ToBytes(string key) => Convert.FromBase64String(key);
+
+        public override void Update()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Delete()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

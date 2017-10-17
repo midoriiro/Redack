@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Redack.DomainLayer.Model
 {
-	public abstract class Entity
+	public abstract class Entity : IEntity
 	{
 		[Key]
 		[DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -16,21 +16,24 @@ namespace Redack.DomainLayer.Model
 
 		public override bool Equals(object obj)
 		{
-		    if (obj == null || this.GetType() != obj.GetType())
-		        return false;
+			if (obj == null || this.GetType() != obj.GetType())
+				return false;
 
-		    PropertyInfo[] properties = this.GetType().GetProperties();
+			PropertyInfo[] properties = this.GetType().GetProperties();
 
-		    foreach (var property in properties)
-		    {
-		        object value1 = this.GetType().GetProperty(property.Name)?.GetValue(this, null);
-		        object value2 = obj.GetType().GetProperty(property.Name)?.GetValue(obj, null);
+			foreach (var property in properties)
+			{
+				object value1 = this.GetType().GetProperty(property.Name)?.GetValue(this, null);
+				object value2 = obj.GetType().GetProperty(property.Name)?.GetValue(obj, null);
 
-		        if (value1 != value2)
-		            return false;
-		    }
+				if (value1 != value2)
+					return false;
+			}
 
-		    return true;
+			return true;
 		}
+
+		public abstract void Update();
+		public abstract void Delete();
 	}
 }
