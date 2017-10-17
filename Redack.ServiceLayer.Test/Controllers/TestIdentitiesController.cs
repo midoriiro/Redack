@@ -1,20 +1,11 @@
-﻿using System;
-using System.Data.Entity;
-using System.Linq;
-using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.Xunit2;
+﻿using Ploeh.AutoFixture;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Model;
 using Redack.ServiceLayer.Controllers;
 using Redack.ServiceLayer.Models;
 using Redack.ServiceLayer.Security;
-using Redack.Test.Lollipop;
 using Redack.Test.Lollipop.Entity;
 using Redack.Test.Lollipop.Model;
-using System.Net.Http;
-using System.Security.Principal;
-using System.Web.Configuration;
-using System.Web.Http;
 using System.Web.Http.Results;
 using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
@@ -54,6 +45,23 @@ namespace Redack.ServiceLayer.Test.Controllers
             request.Client = client;
             request.Login = user.Credential.Login;
             request.Password = user.Credential.Password;
+
+            return request;
+        }
+
+        public ForgotPasswordRequest CreateForgotPasswordRequest(
+            User user = null, Client client = null, bool pushUser = true, bool pushClient = true)
+        {
+            user = user ?? this.CreateValidUser(push: pushUser);
+            client = client ?? this.CreateValidClient(push: pushClient);
+
+            var fixture = new Fixture();
+            fixture.Customize(new ValidForgotPasswordRequestCustomization());
+
+            var request = fixture.Create<ForgotPasswordRequest>();
+            request.Client = client;
+            request.Login = user.Credential.Login;
+            request.OldPassword = user.Credential.Password;
 
             return request;
         }
@@ -146,14 +154,28 @@ namespace Redack.ServiceLayer.Test.Controllers
         }
 
         [Fact]
-        public void SignIn_WithInvalidRequest()
+        public void SignIn_WithInvalidLoginRequest()
         {
             var fixture = new Fixture();
 
             var user = this.CreateValidUser();
 
             var request = this.CreateSignInRequest(user);
-            request.Login = user.Credential.Login;
+            request.Login = fixture.Create<string>();
+
+            var response = this.Controller.SignIn(request).Result;
+
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+        }
+
+        [Fact]
+        public void SignIn_WithInvalidPasswordRequest()
+        {
+            var fixture = new Fixture();
+
+            var user = this.CreateValidUser();
+
+            var request = this.CreateSignInRequest(user);
             request.Password = fixture.Create<string>();
 
             var response = this.Controller.SignIn(request).Result;
@@ -443,6 +465,108 @@ namespace Redack.ServiceLayer.Test.Controllers
             var response = this.Controller.SignDown().Result;
 
             Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+        }
+
+        [Fact]
+        public void ForgotPassword_WithValidRequestAndValidIdentity()
+        {
+            var identity = this.CreateValidIdentity();
+
+            this.SetControllerIdentity(new JwtIdentity(identity));
+
+            var request = this.CreateForgotPasswordRequest(identity.User);
+
+            var response = this.Controller.SignInForgotPassword(request).Result;
+
+            Assert.IsInstanceOfType(response, typeof(OkResult));
+
+            using (var repository = new Repository<Identity>())
+            {
+                Assert.IsNull(repository.GetById(identity.Id));
+            }
+        }
+
+        [Fact]
+        public void ForgotPassword_WithValidRequestAndZeroIdentity()
+        {
+            var request = this.CreateForgotPasswordRequest();
+
+            var response = this.Controller.SignInForgotPassword(request).Result;
+
+            Assert.IsInstanceOfType(response, typeof(OkResult));
+        }
+
+        [Fact]
+        public void ForgotPassword_WithInvalidLoginRequest()
+        {
+            var fixture = new Fixture();
+
+            var user = this.CreateValidUser();
+
+            var request = this.CreateForgotPasswordRequest(user);
+            request.Login = fixture.Create<string>();
+
+            var response = this.Controller.SignInForgotPassword(request).Result;
+
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+        }
+
+        [Fact]
+        public void ForgotPassword_WithInvalidPasswordRequest()
+        {
+            var fixture = new Fixture();
+
+            var user = this.CreateValidUser();
+
+            var request = this.CreateForgotPasswordRequest(user);
+            request.OldPassword = fixture.Create<string>();
+
+            var response = this.Controller.SignInForgotPassword(request).Result;
+
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+        }
+
+        [Fact]
+        public void ForgotPassword_WithInvalidPasswordConfirmRequest()
+        {
+            var fixture = new Fixture();
+
+            var user = this.CreateValidUser();
+
+            var request = this.CreateForgotPasswordRequest(user);
+            request.NewPasswordConfirm = fixture.Create<string>();
+
+            var response = this.Controller.SignInForgotPassword(request).Result;
+
+            Assert.IsInstanceOfType(response, typeof(InvalidModelStateResult));
+        }
+
+        [Fact]
+        public void ForgotPassword_WithNonExistingClient()
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidForgotPasswordRequestCustomization());
+
+            var response = this.Controller.SignInForgotPassword(fixture.Create<ForgotPasswordRequest>()).Result;
+
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+        }
+
+        [Fact]
+        public void ForgotPassword_WithBlockedClient()
+        {
+            var request = this.CreateForgotPasswordRequest();
+            request.Client.IsBlocked = true;
+
+            using (var repository = new Repository<Client>())
+            {
+                repository.Update(request.Client);
+                repository.Commit();
+            }
+
+            var response = this.Controller.SignInForgotPassword(request).Result;
+
+            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
         }
     }
 }
