@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Security.Principal;
 using System.Web.Http;
+using NMemory.Linq;
 using Ploeh.AutoFixture;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Model;
@@ -22,6 +24,92 @@ namespace Redack.Test.Lollipop
 
             var factory = new EffortProviderFactory();
             this.Context = new RedackDbContext(factory.CreateConnection(""));
+        }
+
+        public Group CreateValidGroup(bool push = true)
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidGroupCustomization());
+
+            var group = fixture.Create<Group>();
+
+            if (!push) return group;
+
+            this.Context.Groups.Add(group);
+            this.Context.SaveChanges();
+
+            return group;
+        }
+
+        public Node CreateValidNode(bool push = true)
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidNodeCustomization());
+
+            var node = fixture.Create<Node>();
+
+            if (!push) return node;
+
+            this.Context.Nodes.Add(node);
+            this.Context.SaveChanges();
+
+            return node;
+        }
+
+        public DomainLayer.Model.Thread CreateValidThread(Node node = null, bool push = true)
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidThreadCustomization());
+
+            node = node ?? this.CreateValidNode();
+
+            var thread = fixture.Create<DomainLayer.Model.Thread>();
+            thread.Node = node;
+
+            if (!push) return thread;
+
+            this.Context.Threads.Add(thread);
+            this.Context.SaveChanges();
+
+            return thread;
+        }
+
+        public Message CreateValidMessage(
+            User user = null, 
+            DomainLayer.Model.Thread thread = null, 
+            bool push = true)
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidMessageCustomization());
+
+            user = user ?? this.CreateValidUser();
+            thread = thread ?? this.CreateValidThread();
+
+            var message = fixture.Create<Message>();
+            message.Author = user;
+            message.Thread = thread;
+
+            if (!push) return message;
+
+            this.Context.Messages.Add(message);
+            this.Context.SaveChanges();
+
+            return message;
+        }
+
+        public Permission CreateValidPermission<TEntity>(bool push = true) where TEntity : DomainLayer.Model.Entity
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new ValidPermissionCustomization<TEntity>());
+
+            var permission = fixture.Create<Permission>();
+
+            if (!push) return permission;
+
+            this.Context.Permissions.Add(permission);
+            this.Context.SaveChanges();
+
+            return permission;
         }
 
         public ApiKey CreateValidApiKey(bool push = true)
