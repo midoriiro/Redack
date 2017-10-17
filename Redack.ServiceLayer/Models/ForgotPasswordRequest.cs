@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Redack.DomainLayer.Models;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
-using Redack.DomainLayer.Model;
 
 namespace Redack.ServiceLayer.Models
 {

@@ -1,6 +1,6 @@
 ﻿namespace Redack.Test.Lollipop.Data
 {
-    public class DummyEntity : DomainLayer.Model.Entity
+    public class DummyEntity : DomainLayer.Models.Entity
     {
         public string Property1 { get; set; }
 

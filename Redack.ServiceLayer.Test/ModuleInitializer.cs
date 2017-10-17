@@ -4,7 +4,7 @@
 // modifications, this file may also be moved to any location, as long as it
 // remains a part of its current project.
 
-using Redack.Test.Lollipop.Configuration;
+using Redack.Test.Lollipop.Configurations;
 
 namespace Redack.ServiceLayer.Test
 {

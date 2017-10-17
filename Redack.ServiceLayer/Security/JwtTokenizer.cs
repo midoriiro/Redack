@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Web;
-using Jose;
+﻿using Jose;
 using Newtonsoft.Json;
-using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Model;
+using System;
+using System.Collections.Generic;
 
 namespace Redack.ServiceLayer.Security
 {

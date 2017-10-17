@@ -1,16 +1,12 @@
-﻿using System;
-using System.Data.Entity;
-using System.Linq;
-using System.Security.Principal;
-using System.Web.Http;
-using NMemory.Linq;
-using Ploeh.AutoFixture;
+﻿using Ploeh.AutoFixture;
 using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Model;
+using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Security;
-using Redack.Test.Lollipop.Configuration;
 using Redack.Test.Lollipop.Entity;
-using Thread = System.Threading.Thread;
+using System;
+using System.Linq;
+using Redack.Test.Lollipop.Configurations;
+using Redack.Test.Lollipop.Entities;
 
 namespace Redack.Test.Lollipop
 {
@@ -26,10 +22,10 @@ namespace Redack.Test.Lollipop
             this.Context = new RedackDbContext(factory.CreateConnection(""));
         }
 
-        public Group CreateValidGroup(bool push = true)
+        public Group CreateGroup(bool push = true)
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidGroupCustomization());
+            fixture.Customize(new GroupCustomization());
 
             var group = fixture.Create<Group>();
 
@@ -41,10 +37,10 @@ namespace Redack.Test.Lollipop
             return group;
         }
 
-        public Node CreateValidNode(bool push = true)
+        public Node CreateNode(bool push = true)
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidNodeCustomization());
+            fixture.Customize(new NodeCustomization());
 
             var node = fixture.Create<Node>();
 
@@ -56,14 +52,14 @@ namespace Redack.Test.Lollipop
             return node;
         }
 
-        public DomainLayer.Model.Thread CreateValidThread(Node node = null, bool push = true)
+        public DomainLayer.Models.Thread CreateThread(Node node = null, bool push = true)
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidThreadCustomization());
+            fixture.Customize(new ThreadCustomization());
 
-            node = node ?? this.CreateValidNode();
+            node = node ?? this.CreateNode();
 
-            var thread = fixture.Create<DomainLayer.Model.Thread>();
+            var thread = fixture.Create<DomainLayer.Models.Thread>();
             thread.Node = node;
 
             if (!push) return thread;
@@ -74,16 +70,16 @@ namespace Redack.Test.Lollipop
             return thread;
         }
 
-        public Message CreateValidMessage(
+        public Message CreateMessage(
             User user = null, 
-            DomainLayer.Model.Thread thread = null, 
+            DomainLayer.Models.Thread thread = null, 
             bool push = true)
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidMessageCustomization());
+            fixture.Customize(new MessageCustomization());
 
-            user = user ?? this.CreateValidUser();
-            thread = thread ?? this.CreateValidThread();
+            user = user ?? this.CreateUser();
+            thread = thread ?? this.CreateThread();
 
             var message = fixture.Create<Message>();
             message.Author = user;
@@ -97,10 +93,10 @@ namespace Redack.Test.Lollipop
             return message;
         }
 
-        public Permission CreateValidPermission<TEntity>(bool push = true) where TEntity : DomainLayer.Model.Entity
+        public Permission CreatePermission<TEntity>(bool push = true) where TEntity : DomainLayer.Models.Entity
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidPermissionCustomization<TEntity>());
+            fixture.Customize(new PermissionCustomization<TEntity>());
 
             var permission = fixture.Create<Permission>();
 
@@ -112,10 +108,10 @@ namespace Redack.Test.Lollipop
             return permission;
         }
 
-        public ApiKey CreateValidApiKey(bool push = true)
+        public ApiKey CreateApiKey(bool push = true)
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidApiKeyCustomization(256));
+            fixture.Customize(new ApiKeyCustomization(256));
 
             var apiKey = fixture.Create<ApiKey>();
 
@@ -127,12 +123,12 @@ namespace Redack.Test.Lollipop
             return apiKey;
         }
 
-        public Credential CreateValidCredential(ApiKey apiKey = null, bool push = true)
+        public Credential CreateCredential(ApiKey apiKey = null, bool push = true)
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidCredentialCustomization());
+            fixture.Customize(new CredentialCustomization());
 
-            apiKey = apiKey ?? this.CreateValidApiKey(push: false);
+            apiKey = apiKey ?? this.CreateApiKey(push: false);
 
             var credential = fixture.Create<Credential>();
             credential.ApiKey = apiKey;
@@ -145,12 +141,12 @@ namespace Redack.Test.Lollipop
             return credential;
         }
 
-        public User CreateValidUser(Credential credential = null, bool push = true)
+        public User CreateUser(Credential credential = null, bool push = true)
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidUserCustomization());
+            fixture.Customize(new UserCustomization());
 
-            credential = credential ?? this.CreateValidCredential(push: false);
+            credential = credential ?? this.CreateCredential(push: false);
 
             var user = fixture.Create<User>();
             user.Credential = credential;
@@ -163,12 +159,12 @@ namespace Redack.Test.Lollipop
             return user;
         }
 
-        public Client CreateValidClient(ApiKey apiKey = null, bool push = true)
+        public Client CreateClient(ApiKey apiKey = null, bool push = true)
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidClientCustomization());
+            fixture.Customize(new ClientCustomization());
 
-            apiKey = apiKey ?? this.CreateValidApiKey(push: false);
+            apiKey = apiKey ?? this.CreateApiKey(push: false);
 
             var client = fixture.Create<Client>();
             client.ApiKey = apiKey;
@@ -183,13 +179,13 @@ namespace Redack.Test.Lollipop
             return client;
         }
 
-        public Identity CreateValidIdentity(User user = null, Client client = null, bool push = true)
+        public Identity CreateIdentity(User user = null, Client client = null, bool push = true)
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidIdentityCustomization());
+            fixture.Customize(new IdentityCustomization());
 
-            user = user ?? this.CreateValidUser();
-            client = client ?? this.CreateValidClient();
+            user = user ?? this.CreateUser();
+            client = client ?? this.CreateClient();
 
             var identity = fixture.Create<Identity>();
             identity.User = user;

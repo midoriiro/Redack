@@ -1,14 +1,13 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Ploeh.AutoFixture;
-using Ploeh.AutoFixture.Xunit2;
 using Redack.DatabaseLayer.DataAccess;
+using Redack.Test.Lollipop;
+using Redack.Test.Lollipop.Customizations;
 using Redack.Test.Lollipop.Data;
-using Redack.Test.Lollipop.Customization;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
-using Redack.Test.Lollipop;
 using Xunit;
 
 namespace Redack.DatabaseLayer.Test.DataAccess

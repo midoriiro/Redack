@@ -1,5 +1,5 @@
 ﻿using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Model;
+using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models;
 using Redack.ServiceLayer.Security;
@@ -48,7 +48,7 @@ namespace Redack.ServiceLayer.Controllers
                 return this.Unauthorized();
             }
 
-            var user = DomainLayer.Model.User.Create(
+            var user = DomainLayer.Models.User.Create(
                 request.Login, 
                 request.Password, 
                 request.PasswordConfirm, 
@@ -165,7 +165,7 @@ namespace Redack.ServiceLayer.Controllers
                 return this.Unauthorized();
             }
 
-            user = DomainLayer.Model.User.Update(
+            user = DomainLayer.Models.User.Update(
                 user, 
                 request.NewPassword, 
                 request.NewPasswordConfirm, 

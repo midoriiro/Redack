@@ -1,7 +1,7 @@
-﻿using System.Data.Entity;
+﻿using Redack.DomainLayer.Models;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Threading.Tasks;
-using Redack.DomainLayer.Model;
 
 namespace Redack.DatabaseLayer.DataAccess
 {

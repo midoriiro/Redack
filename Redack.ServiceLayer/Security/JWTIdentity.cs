@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Redack.DatabaseLayer.DataAccess;
+using Redack.DomainLayer.Models;
 using System.Linq;
 using System.Security.Principal;
-using System.Web;
-using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Model;
 
 namespace Redack.ServiceLayer.Security
 {

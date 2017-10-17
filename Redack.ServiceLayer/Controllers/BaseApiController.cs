@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Http;
-using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Model;
+﻿using Redack.DatabaseLayer.DataAccess;
+using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Security;
+using System;
+using System.Linq;
+using System.Web.Http;
 
 namespace Redack.ServiceLayer.Controllers
 {

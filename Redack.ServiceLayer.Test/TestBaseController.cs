@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Http;
-using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Model;
+﻿using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Controllers;
 using Redack.ServiceLayer.Security;
 using Redack.Test.Lollipop;
+using System.Net.Http;
+using System.Security.Principal;
+using System.Web.Http;
 
 namespace Redack.ServiceLayer.Test
 {
@@ -29,10 +23,10 @@ namespace Redack.ServiceLayer.Test
 
         public JwtIdentity CreateJwtIdentity(User user = null, Client client = null)
         {
-            user = user ?? this.CreateValidUser();
-            client = client ?? this.CreateValidClient();
+            user = user ?? this.CreateUser();
+            client = client ?? this.CreateClient();
 
-            return new JwtIdentity(this.CreateValidIdentity(user, client));
+            return new JwtIdentity(this.CreateIdentity(user, client));
         }
 
         public void SetControllerIdentity(IIdentity identity)

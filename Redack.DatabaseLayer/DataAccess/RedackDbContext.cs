@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Redack.DomainLayer.Models;
 using System.Configuration;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
-using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Data.Entity.Validation;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Redack.DomainLayer.Model;
 
 namespace Redack.DatabaseLayer.DataAccess
 {

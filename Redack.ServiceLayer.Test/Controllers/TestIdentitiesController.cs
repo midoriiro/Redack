@@ -1,12 +1,12 @@
 ﻿using Ploeh.AutoFixture;
 using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Model;
+using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Controllers;
 using Redack.ServiceLayer.Models;
 using Redack.ServiceLayer.Security;
-using Redack.Test.Lollipop.Entity;
-using Redack.Test.Lollipop.Model;
+using Redack.Test.Lollipop.Entities;
 using System.Web.Http.Results;
+using Redack.Test.Lollipop.Models;
 using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
@@ -17,11 +17,11 @@ namespace Redack.ServiceLayer.Test.Controllers
         public SignUpRequest CreateValidSignUpRequest(
             User user = null, Client client = null, bool pushUser = true, bool pushClient = true)
         {
-            user = user ?? this.CreateValidUser(push: pushUser);
-            client = client ?? this.CreateValidClient(push: pushClient);
+            user = user ?? this.CreateUser(push: pushUser);
+            client = client ?? this.CreateClient(push: pushClient);
 
             var fixture = new Fixture();
-            fixture.Customize(new ValidSignUpRequestCustomization());
+            fixture.Customize(new SignUpRequestCustomization());
 
             var request = fixture.Create<SignUpRequest>();
             request.Client = client;
@@ -35,11 +35,11 @@ namespace Redack.ServiceLayer.Test.Controllers
         public SignInRequest CreateSignInRequest(
             User user = null, Client client = null, bool pushUser = true, bool pushClient = true)
         {
-            user = user ?? this.CreateValidUser(push: pushUser);
-            client = client ?? this.CreateValidClient(push: pushClient);
+            user = user ?? this.CreateUser(push: pushUser);
+            client = client ?? this.CreateClient(push: pushClient);
 
             var fixture = new Fixture();
-            fixture.Customize(new ValidSignInRequestCustomization());
+            fixture.Customize(new SignInRequestCustomization());
 
             var request = fixture.Create<SignInRequest>();
             request.Client = client;
@@ -52,11 +52,11 @@ namespace Redack.ServiceLayer.Test.Controllers
         public ForgotPasswordRequest CreateForgotPasswordRequest(
             User user = null, Client client = null, bool pushUser = true, bool pushClient = true)
         {
-            user = user ?? this.CreateValidUser(push: pushUser);
-            client = client ?? this.CreateValidClient(push: pushClient);
+            user = user ?? this.CreateUser(push: pushUser);
+            client = client ?? this.CreateClient(push: pushClient);
 
             var fixture = new Fixture();
-            fixture.Customize(new ValidForgotPasswordRequestCustomization());
+            fixture.Customize(new ForgotPasswordRequestCustomization());
 
             var request = fixture.Create<ForgotPasswordRequest>();
             request.Client = client;
@@ -91,7 +91,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         {
             var fixture = new Fixture();
 
-            var user = this.CreateValidUser(push: false);
+            var user = this.CreateUser(push: false);
             user.Credential.Password = fixture.Create<string>();
             user.Credential.PasswordConfirm = fixture.Create<string>();
 
@@ -143,8 +143,8 @@ namespace Redack.ServiceLayer.Test.Controllers
         [Fact]
         public void SignIn_WithExistingIdentity()
         {
-            var user = this.CreateValidUser();
-            var identity = this.CreateValidIdentity(user);
+            var user = this.CreateUser();
+            var identity = this.CreateIdentity(user);
 
             var request = this.CreateSignInRequest(user, identity.Client);
 
@@ -158,7 +158,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         {
             var fixture = new Fixture();
 
-            var user = this.CreateValidUser();
+            var user = this.CreateUser();
 
             var request = this.CreateSignInRequest(user);
             request.Login = fixture.Create<string>();
@@ -173,7 +173,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         {
             var fixture = new Fixture();
 
-            var user = this.CreateValidUser();
+            var user = this.CreateUser();
 
             var request = this.CreateSignInRequest(user);
             request.Password = fixture.Create<string>();
@@ -205,7 +205,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         public void SignIn_WithNonExistingClient()
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidSignInRequestCustomization());
+            fixture.Customize(new SignInRequestCustomization());
 
             var response = this.Controller.SignIn(fixture.Create<SignInRequest>()).Result;
 
@@ -215,11 +215,11 @@ namespace Redack.ServiceLayer.Test.Controllers
         [Fact]
         public void SignOut_WithValidIdentity()
         {
-            var apiKey = this.CreateValidApiKey(false);
-            var credential = this.CreateValidCredential(apiKey, false);
-            var user = this.CreateValidUser(credential);
-            var client = this.CreateValidClient();
-            var identity = this.CreateValidIdentity(user, client);
+            var apiKey = this.CreateApiKey(false);
+            var credential = this.CreateCredential(apiKey, false);
+            var user = this.CreateUser(credential);
+            var client = this.CreateClient();
+            var identity = this.CreateIdentity(user, client);
 
             this.SetControllerIdentity(new JwtIdentity(identity));
 
@@ -265,7 +265,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         public void SignOut_WithInvalidIdentity()
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidIdentityCustomization());
+            fixture.Customize(new IdentityCustomization());
 
             var identity = fixture.Create<Identity>();
 
@@ -279,7 +279,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         [Fact]
         public void Refresh_WithValidIdentity()
         {
-            this.SetControllerIdentity(new JwtIdentity(this.CreateValidIdentity()));
+            this.SetControllerIdentity(new JwtIdentity(this.CreateIdentity()));
 
             var response = this.Controller.Refresh().Result;
 
@@ -298,7 +298,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         public void Refresh_WithInvalidIdentity()
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidIdentityCustomization());
+            fixture.Customize(new IdentityCustomization());
 
             var identity = fixture.Create<Identity>();
 
@@ -313,9 +313,9 @@ namespace Redack.ServiceLayer.Test.Controllers
         public void Refresh_WithBlockedClient()
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidIdentityCustomization());
+            fixture.Customize(new IdentityCustomization());
 
-            var identity = this.CreateValidIdentity();
+            var identity = this.CreateIdentity();
 
             identity.Client.IsBlocked = true;
 
@@ -335,7 +335,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         [Fact]
         public void Refresh_WithExpiredToken()
         {
-            var identity = this.CreateValidIdentity();
+            var identity = this.CreateIdentity();
 
             identity.Access = JwtTokenizer.Encode(identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, -0.01);
             identity.Refresh = JwtTokenizer.Encode(identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, -0.01);
@@ -350,11 +350,11 @@ namespace Redack.ServiceLayer.Test.Controllers
         [Fact]
         public void SignDown_WithValidIdentity()
         {
-            var apiKey = this.CreateValidApiKey(false);
-            var credential = this.CreateValidCredential(apiKey, false);
-            var user = this.CreateValidUser(credential);
-            var client = this.CreateValidClient();
-            var identity = this.CreateValidIdentity(user, client);
+            var apiKey = this.CreateApiKey(false);
+            var credential = this.CreateCredential(apiKey, false);
+            var user = this.CreateUser(credential);
+            var client = this.CreateClient();
+            var identity = this.CreateIdentity(user, client);
 
             this.SetControllerIdentity(new JwtIdentity(identity));
 
@@ -392,7 +392,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         public void SignDown_WithInvalidIdentity()
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidIdentityCustomization());
+            fixture.Customize(new IdentityCustomization());
 
             var identity = fixture.Create<Identity>();
 
@@ -406,15 +406,15 @@ namespace Redack.ServiceLayer.Test.Controllers
         [Fact]
         public void SignOutAll_WithValidIdentity()
         {
-            var apiKey1 = this.CreateValidApiKey(false);
-            var apiKey2 = this.CreateValidApiKey(false);
-            var apiKey3 = this.CreateValidApiKey(false);
-            var credential = this.CreateValidCredential(apiKey1, false);
-            var user = this.CreateValidUser(credential);
-            var client1 = this.CreateValidClient(apiKey2);
-            var client2 = this.CreateValidClient(apiKey3);
-            var identity1 = this.CreateValidIdentity(user, client1);
-            var identity2 = this.CreateValidIdentity(user, client2);
+            var apiKey1 = this.CreateApiKey(false);
+            var apiKey2 = this.CreateApiKey(false);
+            var apiKey3 = this.CreateApiKey(false);
+            var credential = this.CreateCredential(apiKey1, false);
+            var user = this.CreateUser(credential);
+            var client1 = this.CreateClient(apiKey2);
+            var client2 = this.CreateClient(apiKey3);
+            var identity1 = this.CreateIdentity(user, client1);
+            var identity2 = this.CreateIdentity(user, client2);
 
             this.SetControllerIdentity(new JwtIdentity(identity1));
 
@@ -456,7 +456,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         public void SignOutAll_WithInvalidIdentity()
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidIdentityCustomization());
+            fixture.Customize(new IdentityCustomization());
 
             var identity = fixture.Create<Identity>();
 
@@ -470,7 +470,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         [Fact]
         public void ForgotPassword_WithValidRequestAndValidIdentity()
         {
-            var identity = this.CreateValidIdentity();
+            var identity = this.CreateIdentity();
 
             this.SetControllerIdentity(new JwtIdentity(identity));
 
@@ -501,7 +501,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         {
             var fixture = new Fixture();
 
-            var user = this.CreateValidUser();
+            var user = this.CreateUser();
 
             var request = this.CreateForgotPasswordRequest(user);
             request.Login = fixture.Create<string>();
@@ -516,7 +516,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         {
             var fixture = new Fixture();
 
-            var user = this.CreateValidUser();
+            var user = this.CreateUser();
 
             var request = this.CreateForgotPasswordRequest(user);
             request.OldPassword = fixture.Create<string>();
@@ -531,7 +531,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         {
             var fixture = new Fixture();
 
-            var user = this.CreateValidUser();
+            var user = this.CreateUser();
 
             var request = this.CreateForgotPasswordRequest(user);
             request.NewPasswordConfirm = fixture.Create<string>();
@@ -545,7 +545,7 @@ namespace Redack.ServiceLayer.Test.Controllers
         public void ForgotPassword_WithNonExistingClient()
         {
             var fixture = new Fixture();
-            fixture.Customize(new ValidForgotPasswordRequestCustomization());
+            fixture.Customize(new ForgotPasswordRequestCustomization());
 
             var response = this.Controller.SignInForgotPassword(fixture.Create<ForgotPasswordRequest>()).Result;
 

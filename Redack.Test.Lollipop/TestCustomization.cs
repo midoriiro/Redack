@@ -1,6 +1,6 @@
 ﻿using System.Net.Mail;
 using Ploeh.AutoFixture;
-using Redack.Test.Lollipop.Customization;
+using Redack.Test.Lollipop.Customizations;
 using Redack.Test.Lollipop.Data;
 using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;

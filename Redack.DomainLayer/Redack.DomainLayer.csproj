@@ -52,23 +52,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Exception\MessageException.cs" />
-    <Compile Include="Model\ApiKey.cs" />
-    <Compile Include="Model\Client.cs" />
-    <Compile Include="Model\Credential.cs" />
-    <Compile Include="Model\Entity.cs" />
-    <Compile Include="Model\Group.cs" />
-    <Compile Include="Model\IEntity.cs" />
-    <Compile Include="Model\Message.cs" />
-    <Compile Include="Model\MessageHistory.cs" />
-    <Compile Include="Model\Node.cs" />
-    <Compile Include="Model\Permission.cs" />
-    <Compile Include="Model\Thread.cs" />
-    <Compile Include="Model\Identity.cs" />
-    <Compile Include="Model\User.cs" />
-    <Compile Include="Exception\CredentialException.cs" />
-    <Compile Include="Exception\GroupException.cs" />
-    <Compile Include="Exception\UserException.cs" />
+    <Compile Include="Exceptions\MessageException.cs" />
+    <Compile Include="Models\ApiKey.cs" />
+    <Compile Include="Models\Client.cs" />
+    <Compile Include="Models\Credential.cs" />
+    <Compile Include="Models\Entity.cs" />
+    <Compile Include="Models\Group.cs" />
+    <Compile Include="Models\IEntity.cs" />
+    <Compile Include="Models\Message.cs" />
+    <Compile Include="Models\MessageHistory.cs" />
+    <Compile Include="Models\Node.cs" />
+    <Compile Include="Models\Permission.cs" />
+    <Compile Include="Models\Thread.cs" />
+    <Compile Include="Models\Identity.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="Exceptions\CredentialException.cs" />
+    <Compile Include="Exceptions\GroupException.cs" />
+    <Compile Include="Exceptions\UserException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

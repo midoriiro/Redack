@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Redack.DatabaseLayer.DataAccess;
+using Redack.DomainLayer.Models;
+using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Model;
 
 namespace Redack.ServiceLayer.Controllers
 {

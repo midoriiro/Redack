@@ -105,7 +105,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entity\TestUser.cs" />
+    <Compile Include="Models\TestUser.cs" />
     <Compile Include="DataAccess\TestRepository.cs" />
     <Compile Include="ModuleInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
