@@ -119,7 +119,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             request.Client.IsBlocked = true;
 
-            using (var repository = new Repository<Client>())
+            using (var repository = this.CreateRepository<Client>())
             {
                 repository.Update(request.Client);
                 repository.Commit();
@@ -190,7 +190,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             request.Client.IsBlocked = true;
 
-            using (var repository = new Repository<Client>())
+            using (var repository = this.CreateRepository<Client>())
             {
                 repository.Update(request.Client);
                 repository.Commit();
@@ -227,27 +227,27 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             Assert.IsInstanceOfType(response, typeof(OkResult));
 
-            using (var repository = new Repository<Identity>())
+            using (var repository = this.CreateRepository<Identity>())
             {
                 Assert.IsNull(repository.GetById(identity.Id));
             }
 
-            using (var repository = new Repository<Client>())
+            using (var repository = this.CreateRepository<Client>())
             {
                 Assert.IsNotNull(repository.GetById(client.Id));
             }
 
-            using (var repository = new Repository<User>())
+            using (var repository = this.CreateRepository<User>())
             {
                 Assert.IsNotNull(repository.GetById(user.Id));
             }
 
-            using (var repository = new Repository<Credential>())
+            using (var repository = this.CreateRepository<Credential>())
             {
                 Assert.IsNotNull(repository.GetById(credential.Id));
             }
 
-            using (var repository = new Repository<ApiKey>())
+            using (var repository = this.CreateRepository<ApiKey>())
             {
                 Assert.IsNotNull(repository.GetById(apiKey.Id));
             }
@@ -319,7 +319,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             identity.Client.IsBlocked = true;
 
-            using (var repository = new Repository<Client>())
+            using (var repository = this.CreateRepository<Client>())
             {
                 repository.Update(identity.Client);
                 repository.Commit();
@@ -362,27 +362,27 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             Assert.IsInstanceOfType(response, typeof(OkResult));
 
-            using (var repository = new Repository<Identity>())
+            using (var repository = this.CreateRepository<Identity>())
             {
                 Assert.IsNull(repository.GetById(identity.Id));
             }
 
-            using (var repository = new Repository<Client>())
+            using (var repository = this.CreateRepository<Client>())
             {
                 Assert.IsNotNull(repository.GetById(client.Id));
             }
 
-            using (var repository = new Repository<User>())
+            using (var repository = this.CreateRepository<User>())
             {
                 Assert.IsNull(repository.GetById(user.Id));
             }
 
-            using (var repository = new Repository<Credential>())
+            using (var repository = this.CreateRepository<Credential>())
             {
                 Assert.IsNull(repository.GetById(credential.Id));
             }
 
-            using (var repository = new Repository<ApiKey>())
+            using (var repository = this.CreateRepository<ApiKey>())
             {
                 Assert.IsNull(repository.GetById(apiKey.Id));
             }
@@ -422,29 +422,29 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             Assert.IsInstanceOfType(response, typeof(OkResult));
 
-            using (var repository = new Repository<Identity>())
+            using (var repository = this.CreateRepository<Identity>())
             {
                 Assert.IsNull(repository.GetById(identity1.Id));
                 Assert.IsNull(repository.GetById(identity2.Id));
             }
 
-            using (var repository = new Repository<Client>())
+            using (var repository = this.CreateRepository<Client>())
             {
                 Assert.IsNotNull(repository.GetById(client1.Id));
                 Assert.IsNotNull(repository.GetById(client2.Id));
             }
 
-            using (var repository = new Repository<User>())
+            using (var repository = this.CreateRepository<User>())
             {
                 Assert.IsNotNull(repository.GetById(user.Id));
             }
 
-            using (var repository = new Repository<Credential>())
+            using (var repository = this.CreateRepository<Credential>())
             {
                 Assert.IsNotNull(repository.GetById(credential.Id));
             }
 
-            using (var repository = new Repository<ApiKey>())
+            using (var repository = this.CreateRepository<ApiKey>())
             {
                 Assert.IsNotNull(repository.GetById(apiKey1.Id));
                 Assert.IsNotNull(repository.GetById(apiKey2.Id));
@@ -480,7 +480,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             Assert.IsInstanceOfType(response, typeof(OkResult));
 
-            using (var repository = new Repository<Identity>())
+            using (var repository = this.CreateRepository<Identity>())
             {
                 Assert.IsNull(repository.GetById(identity.Id));
             }
@@ -558,7 +558,7 @@ namespace Redack.ServiceLayer.Test.Controllers
             var request = this.CreateForgotPasswordRequest();
             request.Client.IsBlocked = true;
 
-            using (var repository = new Repository<Client>())
+            using (var repository = this.CreateRepository<Client>())
             {
                 repository.Update(request.Client);
                 repository.Commit();

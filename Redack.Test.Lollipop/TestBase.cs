@@ -4,7 +4,9 @@ using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Security;
 using Redack.Test.Lollipop.Entity;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using Redack.Test.Lollipop.Configurations;
 using Redack.Test.Lollipop.Entities;
 
@@ -20,6 +22,11 @@ namespace Redack.Test.Lollipop
 
             var factory = new EffortProviderFactory();
             this.Context = new RedackDbContext(factory.CreateConnection(""));
+        }
+
+        public Repository<TEntity> CreateRepository<TEntity>() where TEntity : DomainLayer.Models.Entity
+        {
+            return new Repository<TEntity>(this.Context);
         }
 
         public Group CreateGroup(bool push = true)

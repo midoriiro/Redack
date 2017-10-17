@@ -15,7 +15,7 @@ namespace Redack.DatabaseLayer.Test.Models
         {
             var user = this.CreateUser();
 
-            using (var repository = new Repository<User>())
+            using (var repository = this.CreateRepository<User>())
             {
                 Assert.IsNotNull(repository.GetById(user.Id));
             }
@@ -27,7 +27,7 @@ namespace Redack.DatabaseLayer.Test.Models
             var user = this.CreateUser(push: false);
             user.Alias = null;
 
-            using (var repository = new Repository<User>())
+            using (var repository = this.CreateRepository<User>())
             {
                 repository.Insert(user);
 
@@ -41,7 +41,7 @@ namespace Redack.DatabaseLayer.Test.Models
             var user = this.CreateUser(push: false);
             user.Credential = null;
 
-            using (var repository = new Repository<User>())
+            using (var repository = this.CreateRepository<User>())
             {
                 repository.Insert(user);
 
@@ -55,7 +55,7 @@ namespace Redack.DatabaseLayer.Test.Models
             var credential = this.CreateCredential(push: false);
             var user = this.CreateUser(credential);
 
-            using (var repository = new Repository<User>())
+            using (var repository = this.CreateRepository<User>())
             {
                 repository.Delete(user);
                 repository.Commit();
@@ -63,7 +63,7 @@ namespace Redack.DatabaseLayer.Test.Models
                 Assert.IsNull(repository.GetById(user.Id));
             }
 
-            using (var repository = new Repository<Credential>())
+            using (var repository = this.CreateRepository<Credential>())
             {
                 Assert.IsNull(repository.GetById(credential.Id));
             }
@@ -86,7 +86,7 @@ namespace Redack.DatabaseLayer.Test.Models
             user2.Permissions.Add(permission2);
             user2.Permissions.Add(permission3);
 
-            using (var repository = new Repository<User>())
+            using (var repository = this.CreateRepository<User>())
             {
                 repository.Update(user1);
                 repository.Update(user2);
@@ -99,7 +99,7 @@ namespace Redack.DatabaseLayer.Test.Models
                 Assert.IsNotNull(repository.GetById(user2.Id));
             }
 
-            using (var repository = new Repository<Permission>(this.Context))
+            using (var repository = this.CreateRepository<Permission>())
             {
                 Assert.IsFalse(repository.All().Any(e => e.Users.Any(p => p.Id == user1.Id)));
 
@@ -119,7 +119,7 @@ namespace Redack.DatabaseLayer.Test.Models
             var identity1 = this.CreateIdentity(user, client1);
             var identity2 = this.CreateIdentity(user, client2);
 
-            using (var repository = new Repository<User>())
+            using (var repository = this.CreateRepository<User>())
             {
                 repository.Delete(user);
                 repository.Commit();
@@ -127,13 +127,13 @@ namespace Redack.DatabaseLayer.Test.Models
                 Assert.IsNull(repository.GetById(user.Id));
             }
 
-            using (var repository = new Repository<Identity>())
+            using (var repository = this.CreateRepository<Identity>())
             {
                 Assert.IsNull(repository.GetById(identity1.Id));
                 Assert.IsNull(repository.GetById(identity2.Id));
             }
 
-            using (var repository = new Repository<Client>())
+            using (var repository = this.CreateRepository<Client>())
             {
                 Assert.IsNotNull(repository.GetById(client1.Id));
                 Assert.IsNotNull(repository.GetById(client2.Id));
@@ -149,7 +149,7 @@ namespace Redack.DatabaseLayer.Test.Models
             var message2 = this.CreateMessage(user);
             var message3 = this.CreateMessage(user);
 
-            using (var repository = new Repository<User>())
+            using (var repository = this.CreateRepository<User>())
             {
                 repository.Update(user);
                 repository.Commit();
@@ -160,7 +160,7 @@ namespace Redack.DatabaseLayer.Test.Models
                 Assert.IsNull(repository.GetById(user.Id));
             }
 
-            using (var repository = new Repository<Message>())
+            using (var repository = this.CreateRepository<Message>())
             {
                 Assert.IsNotNull(repository.GetById(message1.Id));
                 Assert.IsNotNull(repository.GetById(message2.Id));
@@ -176,7 +176,7 @@ namespace Redack.DatabaseLayer.Test.Models
             var user = this.CreateUser();
             user.Groups.Add(group);
 
-            using (var repository = new Repository<User>(this.Context))
+            using (var repository = this.CreateRepository<User>())
             {
                 repository.Update(user);
                 repository.Commit();
@@ -187,7 +187,7 @@ namespace Redack.DatabaseLayer.Test.Models
                 Assert.IsNull(repository.GetById(user.Id));
             }
 
-            using (var repository = new Repository<Group>())
+            using (var repository = this.CreateRepository<Group>())
             {
                 Assert.IsNotNull(repository.GetById(group.Id));
             }
