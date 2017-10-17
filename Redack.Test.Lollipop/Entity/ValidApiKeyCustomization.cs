@@ -4,7 +4,7 @@ using Thread = System.Threading.Thread;
 
 namespace Redack.Test.Lollipop.Entity
 {
-    public class ValidApiKeyCustomization : ICustomization
+    public class ValidApiKeyCustomization : BaseValidEntityCustomization, ICustomization
     {
         private readonly int _keySize;
 
@@ -13,11 +13,9 @@ namespace Redack.Test.Lollipop.Entity
             this._keySize = keySize;
         }
 
-        public void Customize(IFixture fixture)
+        public override void Customize(IFixture fixture)
         {
-            // TODO: fix this workaround
-
-            Thread.Sleep(25);
+            base.Customize(fixture);
 
             fixture.Customize<ApiKey>(e => e.With(p => p.Key, ApiKey.GenerateKey(this._keySize)));
         }

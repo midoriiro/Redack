@@ -9,14 +9,17 @@ using Redack.Test.Lollipop.Customization;
 
 namespace Redack.Test.Lollipop.Entity
 {
-    public class ValidClientCustomization : BaseValidEntityCustomization, ICustomization
+    class ValidNodeCustomization : BaseValidEntityCustomization, ICustomization
     {
         public override void Customize(IFixture fixture)
         {
             base.Customize(fixture);
 
-            fixture.Customize(new ValidApiKeyCustomization(256));
-            fixture.Customize<Client>(e => e.With(p => p.IsBlocked, false));
+            fixture.Customize(new IgnorePropertiesCustomization(new []
+            {
+                "Threads"
+            }));
+            fixture.Customize(new StringMaxLengthCustomization<Node>("Name", 30));
         }
     }
 }

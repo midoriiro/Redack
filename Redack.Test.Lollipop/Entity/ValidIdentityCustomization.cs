@@ -9,10 +9,12 @@ using Redack.ServiceLayer.Security;
 
 namespace Redack.Test.Lollipop.Entity
 {
-    public class ValidIdentityCustomization : ICustomization
+    public class ValidIdentityCustomization : BaseValidEntityCustomization, ICustomization
     {
-        public void Customize(IFixture fixture)
+        public override void Customize(IFixture fixture)
         {
+            base.Customize(fixture);
+
             Fixture fixtureUser = new Fixture();
             fixtureUser.Customize(new ValidUserCustomization());
 
