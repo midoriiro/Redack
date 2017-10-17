@@ -12,9 +12,14 @@ namespace Redack.DatabaseLayer.DataAccess
     {
         private readonly IDbContext _context;
         private readonly DbSet<TEntity> _entities;
+        private readonly bool _disposable;
+
+        public bool Disposed { get; private set; } = false;
 
         public Repository(IDbContext context = null)
         {
+            this._disposable = context == null;
+
             if (context is null)
                 this._context = new RedackDbContext();
             else
@@ -126,25 +131,24 @@ namespace Redack.DatabaseLayer.DataAccess
             return await this._entities.CountAsync(e => e.Id == entity.Id) == 1;
         }
 
-        #region IDisposable Support
-        private bool _disposed = false;
-
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (!this.Disposed)
             {
                 if (disposing)
                     this._context.Dispose();
 
-                _disposed = true;
+                this.Disposed = true;
             }
         }
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (this._disposable)
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
         }
-        #endregion
     }
 }

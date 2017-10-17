@@ -512,13 +512,29 @@ namespace Redack.DatabaseLayer.Test.DataAccess
         }
 
         [Fact]
-        public void Disposed()
+        public void Disposed_WithContext()
         {
             var context = new Mock<IDbContext>();
+            context.Setup(e => e.Dispose());
 
-            using (var sut = new Repository<DummyEntity>(context.Object)) {}
+            Repository<DummyEntity> sut;
 
-            context.Verify(e => e.Dispose(), Times.Once);
+            using (sut = new Repository<DummyEntity>(context.Object)) { }
+
+            Assert.IsFalse(sut.Disposed);
+        }
+
+        [Fact]
+        public void Disposed_WithoutContext()
+        {
+            var context = new Mock<IDbContext>();
+            context.Setup(e => e.Dispose());
+
+            Repository<DummyEntity> sut;
+
+            using (sut = new Repository<DummyEntity>()) { }
+
+            Assert.IsTrue(sut.Disposed);
         }
 
         [Fact]
