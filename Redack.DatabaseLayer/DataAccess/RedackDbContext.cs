@@ -1,10 +1,12 @@
-﻿using System.Configuration;
+﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Data.Entity.Validation;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Redack.DomainLayer.Model;
 
@@ -18,6 +20,7 @@ namespace Redack.DatabaseLayer.DataAccess
         public virtual DbSet<Group> Groups { get; set; }
         public virtual DbSet<Identity> Identities { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
+        public virtual DbSet<MessageHistory> MessageHistories { get; set; }
         public virtual DbSet<Node> Nodes { get; set; }
         public virtual DbSet<Permission> Permissions { get; set; }
         public virtual DbSet<Thread> Threads { get; set; }
@@ -39,6 +42,12 @@ namespace Redack.DatabaseLayer.DataAccess
                 .WithRequiredPrincipal()
                 .WillCascadeOnDelete(true);
 
+            modelBuilder.Entity<User>()
+                .HasMany(e => e.Messages)
+                .WithOptional(e => e.Author)
+                .Map(e => e.MapKey("Author_Id"))
+                .WillCascadeOnDelete(false);
+
             modelBuilder.Entity<Credential>()
                 .HasOptional(e => e.ApiKey)
                 .WithOptionalPrincipal()
@@ -50,6 +59,30 @@ namespace Redack.DatabaseLayer.DataAccess
                 .WithOptionalPrincipal()
                 .Map(e => e.MapKey("Client_Id"))
                 .WillCascadeOnDelete(true);
+
+            modelBuilder.Entity<User>()
+                .HasMany(e => e.Permissions)
+                .WithMany(e => e.Users)
+                .Map(e => e
+                    .MapLeftKey("User_Id")
+                    .MapRightKey("Permission_Id")
+                    .ToTable("UserPermissions"));
+
+            modelBuilder.Entity<Group>()
+                .HasMany(e => e.Permissions)
+                .WithMany(e => e.Groups)
+                .Map(e => e
+                    .MapLeftKey("Group_Id")
+                    .MapRightKey("Permission_Id")
+                    .ToTable("GroupPermissions"));
+
+            modelBuilder.Entity<Group>()
+                .HasMany(e => e.Users)
+                .WithMany(e => e.Groups)
+                .Map(e => e
+                    .MapLeftKey("Group_Id")
+                    .MapRightKey("User_Id")
+                    .ToTable("GroupUsers"));
         }
 
         public new DbSet<TEntity> Set<TEntity>() where TEntity : Entity
