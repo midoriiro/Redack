@@ -52,12 +52,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exception\MessageException.cs" />
     <Compile Include="Model\ApiKey.cs" />
     <Compile Include="Model\Client.cs" />
     <Compile Include="Model\Credential.cs" />
     <Compile Include="Model\Entity.cs" />
     <Compile Include="Model\Group.cs" />
+    <Compile Include="Model\IEntity.cs" />
     <Compile Include="Model\Message.cs" />
+    <Compile Include="Model\MessageHistory.cs" />
     <Compile Include="Model\Node.cs" />
     <Compile Include="Model\Permission.cs" />
     <Compile Include="Model\Thread.cs" />

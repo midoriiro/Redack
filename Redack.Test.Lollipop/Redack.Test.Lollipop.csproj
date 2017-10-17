@@ -136,9 +136,16 @@
     <Compile Include="Data\DummyEntity.cs" />
     <Compile Include="Data\DummyObject.cs" />
     <Compile Include="Data\DummyObjectWithRecursion.cs" />
+    <Compile Include="Entity\BaseValidEntityCustomization.cs" />
+    <Compile Include="Entity\ValidGroupCustomization.cs" />
     <Compile Include="Entity\ValidApiKeyCustomization.cs" />
     <Compile Include="Entity\ValidClientCustomization.cs" />
     <Compile Include="Entity\ValidIdentityCustomization.cs" />
+    <Compile Include="Entity\ValidNodeCustomization.cs" />
+    <Compile Include="Entity\ValidThreadCustomization.cs" />
+    <Compile Include="Entity\ValidMessageCustomization.cs" />
+    <Compile Include="Entity\ValidPermissionCustomization.cs" />
+    <Compile Include="Model\ValidForgotPasswordRequestCustomization.cs" />
     <Compile Include="Model\ValidSignUpRequestCustomization.cs" />
     <Compile Include="Model\ValidSignInRequestCustomization.cs" />
     <Compile Include="Entity\ValidCredentialCustomization.cs" />
