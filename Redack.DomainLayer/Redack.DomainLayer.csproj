@@ -60,7 +60,7 @@
     <Compile Include="Models\Group.cs" />
     <Compile Include="Models\IEntity.cs" />
     <Compile Include="Models\Message.cs" />
-    <Compile Include="Models\MessageHistory.cs" />
+    <Compile Include="Models\MessageRevision.cs" />
     <Compile Include="Models\Node.cs" />
     <Compile Include="Models\Permission.cs" />
     <Compile Include="Models\Thread.cs" />

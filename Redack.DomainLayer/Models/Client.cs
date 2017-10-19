@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Redack.DomainLayer.Models
@@ -17,14 +18,11 @@ namespace Redack.DomainLayer.Models
         [Required]
         public virtual ApiKey ApiKey { get; set; }
 
+        public virtual ICollection<Identity> Identities { get; set; }
+
         public Client()
         {
             this.IsBlocked = false;
-        }
-
-        public override void Update()
-        {
-            throw new NotImplementedException();
         }
 
         public override void Delete()

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Redack.DomainLayer.Models
 {
@@ -20,10 +21,10 @@ namespace Redack.DomainLayer.Models
         [Required(ErrorMessage = "The credential field is required")]
         public virtual Credential Credential { get; set; }
 
-        public virtual ICollection<Identity> Identities { get; set; } = new List<Identity>();
-        public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
-        public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
-        public virtual ICollection<Permission> Permissions { get; set; } = new List<Permission>();
+        public virtual ICollection<Identity> Identities { get; set; }
+        public virtual IList<Message> Messages { get; set; } = new List<Message>();
+        public virtual IList<Group> Groups { get; set; } = new List<Group>();
+        public virtual IList<Permission> Permissions { get; set; } = new List<Permission>();
 
         public static User Create(string login, string password, string passwordConfirm, int keySize)
         {
@@ -58,17 +59,35 @@ namespace Redack.DomainLayer.Models
             return user;
         }
 
-        public override void Update()
-        {
-            throw new NotImplementedException();
-        }
-
         public override void Delete()
         {
+            foreach (var group in this.Groups)
+            {
+                for (int i = 0; i < group.Users.Count; i++)
+                {
+                    var user = group.Users.ElementAt(i);
+
+                    if (user.Id == this.Id)
+                        group.Users.RemoveAt(i);
+                }
+            }
+
             this.Groups.Clear();
-            this.Messages.Clear();
-            this.Identities.Clear();
+
+            foreach (var permission in this.Permissions)
+            {
+                for (int i = 0; i < permission.Users.Count; i++)
+                {
+                    var user = permission.Users.ElementAt(i);
+
+                    if (user.Id == this.Id)
+                        permission.Users.RemoveAt(i);
+                }
+            }
+
             this.Permissions.Clear();
+
+            this.Messages.Clear();
         }
     }
 }

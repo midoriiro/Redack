@@ -4,24 +4,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Redack.DomainLayer.Models
 {
-    [Table("MessageHistories")]
-    public class MessageHistory : Entity
+    [Table("MessageRevisions")]
+    public class MessageRevision : Entity
     {
+        [Key]
         [Required(ErrorMessage = "The date field is required")]
         public DateTime Date { get; set; }
 
         // Navigation properties
         [Required(ErrorMessage = "The editor field is required")]
         public virtual User Editor { get; set; }
+        
+        [Required(ErrorMessage = "The message field is required")]
+        public virtual Message Message { get; set; }
 
-        public MessageHistory()
+        public MessageRevision()
         {
             this.Date = DateTime.Now;
-        }
-
-        public override void Update()
-        {
-            throw new NotImplementedException();
         }
 
         public override void Delete()

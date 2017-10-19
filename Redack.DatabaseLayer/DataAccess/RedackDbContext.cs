@@ -17,7 +17,7 @@ namespace Redack.DatabaseLayer.DataAccess
         public virtual DbSet<Group> Groups { get; set; }
         public virtual DbSet<Identity> Identities { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
-        public virtual DbSet<MessageHistory> MessageHistories { get; set; }
+        public virtual DbSet<MessageRevision> MessageRevisions { get; set; }
         public virtual DbSet<Node> Nodes { get; set; }
         public virtual DbSet<Permission> Permissions { get; set; }
         public virtual DbSet<Thread> Threads { get; set; }
@@ -44,6 +44,11 @@ namespace Redack.DatabaseLayer.DataAccess
                 .WithOptional(e => e.Author)
                 .Map(e => e.MapKey("Author_Id"))
                 .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Identity>()
+                .HasRequired(e => e.User)
+                .WithMany(e => e.Identities)
+                .WillCascadeOnDelete(true);
 
             modelBuilder.Entity<Credential>()
                 .HasOptional(e => e.ApiKey)
@@ -80,6 +85,12 @@ namespace Redack.DatabaseLayer.DataAccess
                     .MapLeftKey("Group_Id")
                     .MapRightKey("User_Id")
                     .ToTable("GroupUsers"));
+
+            modelBuilder.Entity<Message>()
+                .HasRequired(e => e.Thread)
+                .WithMany(e => e.Messages)
+                .Map(e => e.MapKey("Thread_Id"))
+                .WillCascadeOnDelete(true);
         }
 
         public new DbSet<TEntity> Set<TEntity>() where TEntity : Entity

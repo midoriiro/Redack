@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Redack.DomainLayer.Models
 {
@@ -19,19 +20,22 @@ namespace Redack.DomainLayer.Models
         public string Description { get; set; }
 
         // Navigation properties
-        public virtual ICollection<Message> Messages { get; set; }
+        public virtual IList<Message> Messages { get; set; }
 
         [Required(ErrorMessage = "The node field is required")]
         public virtual Node Node { get; set; }
 
-        public override void Update()
-        {
-            throw new System.NotImplementedException();
-        }
-
         public override void Delete()
         {
-            throw new System.NotImplementedException();
+            for (int i = 0; i < this.Node.Threads.Count; i++)
+            {
+                var thread = this.Node.Threads.ElementAt(i);
+
+                if (thread.Id == this.Id)
+                    this.Node.Threads.RemoveAt(i);
+            }
+
+            this.Messages.Clear();
         }
     }
 }

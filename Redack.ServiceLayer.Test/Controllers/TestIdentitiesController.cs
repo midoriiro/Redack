@@ -12,7 +12,7 @@ using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace Redack.ServiceLayer.Test.Controllers
 {
-    public class TestIdentitiesController : TestBaseController<IdentitiesController>
+    public class TestIdentitiesController : BaseTestController<IdentitiesController>
     {
         public SignUpRequest CreateValidSignUpRequest(
             User user = null, Client client = null, bool pushUser = true, bool pushClient = true)

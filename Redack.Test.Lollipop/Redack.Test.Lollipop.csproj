@@ -141,6 +141,7 @@
     <Compile Include="Entities\ApiKeyCustomization.cs" />
     <Compile Include="Entities\ClientCustomization.cs" />
     <Compile Include="Entities\IdentityCustomization.cs" />
+    <Compile Include="Entities\MessageRevisionCustomization.cs" />
     <Compile Include="Entities\NodeCustomization.cs" />
     <Compile Include="Entities\ThreadCustomization.cs" />
     <Compile Include="Entities\MessageCustomization.cs" />
@@ -156,7 +157,7 @@
     <Compile Include="Specimens\IgnoreVirtualPropertiesSpecimen.cs" />
     <Compile Include="Specimens\PropertiesHasSameValuesSpecimen.cs" />
     <Compile Include="Specimens\StringMaxLengthSpecimen.cs" />
-    <Compile Include="TestBase.cs" />
+    <Compile Include="BaseTest.cs" />
     <Compile Include="TestCustomization.cs" />
   </ItemGroup>
   <ItemGroup>

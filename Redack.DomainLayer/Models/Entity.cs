@@ -31,7 +31,6 @@ namespace Redack.DomainLayer.Models
 			return true;
 		}
 
-		public abstract void Update();
 		public abstract void Delete();
 	}
 }

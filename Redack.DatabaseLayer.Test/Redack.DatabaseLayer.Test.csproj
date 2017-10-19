@@ -105,6 +105,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\TestApiKey.cs" />
+    <Compile Include="Models\TestClient.cs" />
+    <Compile Include="Models\TestCredential.cs" />
+    <Compile Include="Models\TestGroup.cs" />
+    <Compile Include="Models\TestIdentity.cs" />
+    <Compile Include="Models\TestMessage.cs" />
+    <Compile Include="Models\TestMessageRevision.cs" />
+    <Compile Include="Models\TestNode.cs" />
+    <Compile Include="Models\TestPermission.cs" />
+    <Compile Include="Models\TestThread.cs" />
     <Compile Include="Models\TestUser.cs" />
     <Compile Include="DataAccess\TestRepository.cs" />
     <Compile Include="ModuleInitializer.cs" />

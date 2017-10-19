@@ -17,11 +17,6 @@ namespace Redack.DomainLayer.Models
 
         public static byte[] ToBytes(string key) => Convert.FromBase64String(key);
 
-        public override void Update()
-        {
-            throw new NotImplementedException();
-        }
-
         public override void Delete()
         {
             throw new NotImplementedException();

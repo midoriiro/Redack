@@ -7,11 +7,6 @@
         // Navigation properties
         public virtual DummyEntity Property2 { get; set; }
 
-        public override void Update()
-        {
-            throw new System.NotImplementedException();
-        }
-
         public override void Delete()
         {
             throw new System.NotImplementedException();

@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Redack.DatabaseLayer.Test.DataAccess
 {
-    public class TestRepository : TestBase
+    public class TestRepository : BaseTest
     {
         [Fact]
         public void Insert_WithValidEntity()

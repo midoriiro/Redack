@@ -48,14 +48,14 @@ namespace Redack.DatabaseLayer.DataAccess
             return await this._entities.ToListAsync();
         }
 
-        public TEntity GetById(int id)
+        public TEntity GetById(params object[] ids)
         {
-            return this._entities.Find(id);
+            return this._entities.Find(ids);
         }
 
-        public async Task<TEntity> GetByIdAsync(int id)
+        public async Task<TEntity> GetByIdAsync(params object[] ids)
         {
-            return await this._entities.FindAsync(id);
+            return await this._entities.FindAsync(ids);
         }
 
         public TEntity GetOrInsert(TEntity entity)
@@ -84,25 +84,22 @@ namespace Redack.DatabaseLayer.DataAccess
 
         public void Update(TEntity entity)
         {
-            try
-            {
-                entity.Update();
-            }
-            catch (NotImplementedException){}
+            if (this._context.Entry(entity).State == EntityState.Detached)
+                this._entities.Attach(entity);
 
-            this._entities.Attach(entity);
             this._context.SetEntityState(entity, EntityState.Modified);
         }
 
         public void Delete(TEntity entity)
         {
+            if(this._context.Entry(entity).State == EntityState.Detached)
+                this._entities.Attach(entity);
             try
             {
                 entity.Delete();
             }
-            catch (NotImplementedException){}
+            catch (NotImplementedException) { }
 
-            this._entities.Attach(entity);
             this._entities.Remove(entity);
         }
 

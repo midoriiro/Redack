@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Redack.DomainLayer.Models
 {
@@ -20,8 +21,8 @@ namespace Redack.DomainLayer.Models
         public string ContentType { get; set; }
 
         // Navigation properties
-        public virtual ICollection<User> Users { get; set; }
-        public virtual ICollection<Group> Groups { get; set; }
+        public virtual IList<User> Users { get; set; } = new List<User>();
+        public virtual IList<Group> Groups { get; set; } = new List<Group>();
 
         public static Permission Create<T>(string codename, string helpText) where T : Entity
         {
@@ -38,14 +39,33 @@ namespace Redack.DomainLayer.Models
             return $"{this.ContentType}.{this.Codename}";
         }
 
-        public override void Update()
-        {
-            throw new System.NotImplementedException();
-        }
-
         public override void Delete()
         {
-            throw new System.NotImplementedException();
+            foreach (var user in this.Users)
+            {
+                for (int i = 0; i < user.Permissions.Count; i++)
+                {
+                    var permission = user.Permissions.ElementAt(i);
+
+                    if (permission.Id == this.Id)
+                        user.Permissions.RemoveAt(i);
+                }
+            }
+
+            this.Users.Clear();
+
+            foreach (var group in this.Groups)
+            {
+                for (int i = 0; i < group.Permissions.Count; i++)
+                {
+                    var permission = group.Permissions.ElementAt(i);
+
+                    if (permission.Id == this.Id)
+                        group.Permissions.RemoveAt(i);
+                }
+            }
+
+            this.Groups.Clear();
         }
     }
 

@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 using Redack.Test.Lollipop;
 using System.Data.Entity.Validation;
@@ -8,7 +7,7 @@ using Xunit;
 
 namespace Redack.DatabaseLayer.Test.Models
 {
-    public class TestUser : TestBase
+    public class TestUser : BaseTest
     {
         [Fact]
         public void Valid()
@@ -101,12 +100,18 @@ namespace Redack.DatabaseLayer.Test.Models
 
             using (var repository = this.CreateRepository<Permission>())
             {
-                Assert.IsFalse(repository.All().Any(e => e.Users.Any(p => p.Id == user1.Id)));
+                Assert.IsFalse(repository.All().Any(
+                    e => e.Users.Any(
+                        p => p.Id == user1.Id)));
 
                 Assert.IsNotNull(repository.GetById(permission1.Id));
                 Assert.IsNotNull(repository.GetById(permission2.Id));
                 Assert.IsNotNull(repository.GetById(permission3.Id));
             }
+
+            Assert.AreEqual(1, permission1.Users.Count);
+            Assert.AreEqual(1, permission2.Users.Count);
+            Assert.AreEqual(1, permission3.Users.Count);
         }
 
         [Fact]
@@ -127,16 +132,19 @@ namespace Redack.DatabaseLayer.Test.Models
                 Assert.IsNull(repository.GetById(user.Id));
             }
 
-            using (var repository = this.CreateRepository<Identity>())
-            {
-                Assert.IsNull(repository.GetById(identity1.Id));
-                Assert.IsNull(repository.GetById(identity2.Id));
-            }
-
             using (var repository = this.CreateRepository<Client>())
             {
                 Assert.IsNotNull(repository.GetById(client1.Id));
                 Assert.IsNotNull(repository.GetById(client2.Id));
+            }
+
+            using (var repository = this.CreateRepository<Identity>())
+            {
+                Assert.IsFalse(repository.All().Any(
+                    e => e.User.Id == user.Id));
+
+                Assert.IsNull(repository.GetById(identity1.Id));
+                Assert.IsNull(repository.GetById(identity2.Id));
             }
         }
 
@@ -162,6 +170,9 @@ namespace Redack.DatabaseLayer.Test.Models
 
             using (var repository = this.CreateRepository<Message>())
             {
+                Assert.IsFalse(repository.All().Any(
+                    e => e.Author.Id == user.Id));
+
                 Assert.IsNotNull(repository.GetById(message1.Id));
                 Assert.IsNotNull(repository.GetById(message2.Id));
                 Assert.IsNotNull(repository.GetById(message3.Id));
@@ -169,28 +180,86 @@ namespace Redack.DatabaseLayer.Test.Models
         }
 
         [Fact]
-        public void WithGroupCascadeDelete()
+        public void WithGroupsCascadeDelete()
         {
-            var group = this.CreateGroup();
+            var user1 = this.CreateUser();
+            var user2 = this.CreateUser();
+            var user3 = this.CreateUser();
 
-            var user = this.CreateUser();
-            user.Groups.Add(group);
+            var group1 = this.CreateGroup();
+            group1.Users.Add(user1);
+            group1.Users.Add(user2);
+
+            var group2 = this.CreateGroup();
+            group2.Users.Add(user2);
+            group2.Users.Add(user3);
 
             using (var repository = this.CreateRepository<User>())
             {
-                repository.Update(user);
+                repository.Update(user1);
+                repository.Update(user2);
+                repository.Update(user3);
                 repository.Commit();
 
-                repository.Delete(user);
+                repository.Delete(user1);
                 repository.Commit();
 
-                Assert.IsNull(repository.GetById(user.Id));
+                Assert.IsNull(repository.GetById(user1.Id));
+                Assert.IsNotNull(repository.GetById(user2.Id));
+                Assert.IsNotNull(repository.GetById(user3.Id));
             }
 
             using (var repository = this.CreateRepository<Group>())
             {
-                Assert.IsNotNull(repository.GetById(group.Id));
+                Assert.IsTrue(repository.All().Any(
+                    e => e.Id == group1.Id));
+
+                Assert.IsNotNull(repository.GetById(group1.Id));
+                Assert.IsNotNull(repository.GetById(group2.Id));
             }
+
+            Assert.AreEqual(1, group1.Users.Count);
+            Assert.AreEqual(2, group2.Users.Count);
+        }
+
+        [Fact]
+        public void WithMessageRevisionsCascadeDelete()
+        {
+            /*var user1 = this.CreateUser();
+            var user2 = this.CreateUser();
+
+            var message1 = this.CreateMessage(user1);
+            var message2 = this.CreateMessage(user2);
+
+            var revision1 = this.CreateMessageRevision(user1, message1);
+            var revision2 = this.CreateMessageRevision(user1, message1);
+            var revision3 = this.CreateMessageRevision(user2, message2);
+
+            using (var repository = this.CreateRepository<User>())
+            {
+                repository.Delete(user1);
+                repository.Commit();
+
+                Assert.IsNull(repository.GetById(user1.Id));
+                Assert.IsNotNull(repository.GetById(user2.Id));
+            }
+
+            using (var repository = this.CreateRepository<MessageRevision>())
+            {
+                Assert.IsFalse(repository.All().Any(
+                    e => e.Editor.Id == user1.Id));
+
+                var lol = repository.GetById(revision1.Id, revision1.EditorId, revision1.MessageId, revision1.Date);
+
+                Assert.IsTrue(repository.All().Any(e => e.Id == revision1.Id));
+                Assert.IsTrue(repository.All().Any(e => e.Id == revision2.Id));
+                Assert.IsTrue(repository.All().Any(e => e.Id == revision3.Id));
+            }
+
+            Assert.AreEqual(0, message1.Revisions.Count);
+            Assert.AreEqual(1, message2.Revisions.Count);*/
+
+            Assert.IsTrue(false);
         }
     }
 }

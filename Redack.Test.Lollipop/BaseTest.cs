@@ -12,11 +12,11 @@ using Redack.Test.Lollipop.Entities;
 
 namespace Redack.Test.Lollipop
 {
-    public class TestBase : IDisposable
+    public class BaseTest : IDisposable
     {
         protected readonly RedackDbContext Context;
 
-        public TestBase()
+        public BaseTest()
         {
             EffortProviderFactory.ResetDb();
 
@@ -98,6 +98,29 @@ namespace Redack.Test.Lollipop
             this.Context.SaveChanges();
 
             return message;
+        }
+
+        public MessageRevision CreateMessageRevision(
+            User user = null, 
+            Message message = null, 
+            bool push = true)
+        {
+            var fixture = new Fixture();
+            fixture.Customize(new MessageRevisionCustomization());
+
+            user = user ?? this.CreateUser();
+            message = message ?? this.CreateMessage();
+
+            var revision = fixture.Create<MessageRevision>();
+            revision.Editor = user;
+            revision.Message = message;
+
+            if (!push) return revision;
+
+            this.Context.MessageRevisions.Add(revision);
+            this.Context.SaveChanges();
+
+            return revision;
         }
 
         public Permission CreatePermission<TEntity>(bool push = true) where TEntity : DomainLayer.Models.Entity
@@ -186,7 +209,10 @@ namespace Redack.Test.Lollipop
             return client;
         }
 
-        public Identity CreateIdentity(User user = null, Client client = null, bool push = true)
+        public Identity CreateIdentity(
+            User user = null, 
+            Client client = null, 
+            bool push = true)
         {
             var fixture = new Fixture();
             fixture.Customize(new IdentityCustomization());

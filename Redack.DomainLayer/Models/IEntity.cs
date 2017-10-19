@@ -2,7 +2,6 @@
 {
     public interface IEntity
     {
-        void Update();
         void Delete();
     }
 }

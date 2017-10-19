@@ -3,18 +3,13 @@ using Redack.Test.Lollipop.Customizations;
 
 namespace Redack.Test.Lollipop.Entities
 {
-    class MessageCustomization : BaseEntityCustomization
+    public class MessageRevisionCustomization : BaseEntityCustomization
     {
         public override void Customize(IFixture fixture)
         {
             base.Customize(fixture);
 
-            fixture.Customize(new IgnorePropertiesCustomization(new []
-            {
-                "Thread",
-                "Author",
-                "Revisions"
-            }));
+            fixture.Customize(new UserCustomization());
         }
     }
 }

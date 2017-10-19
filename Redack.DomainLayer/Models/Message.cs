@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Redack.DomainLayer.Models
 {
@@ -23,21 +24,22 @@ namespace Redack.DomainLayer.Models
         [Index]
         public virtual User Author { get; set; }
 
-        public virtual ICollection<MessageHistory> RevisionHistory { get; set; }
+        public virtual ICollection<MessageRevision> Revisions { get; set; }
 
         public Message()
         {
             this.Date = DateTime.Now;
         }
 
-        public override void Update()
-        {
-            throw new NotImplementedException();
-        }
-
         public override void Delete()
         {
-            throw new NotImplementedException();
+            /*for (int i = 0; i < this.Author.Messages.Count; i++)
+            {
+                var message = this.Author.Messages.ElementAt(i);
+
+                if (message.Id == this.Id)
+                    this.Author.Messages.RemoveAt(i);
+            }*/
         }
     }
 }

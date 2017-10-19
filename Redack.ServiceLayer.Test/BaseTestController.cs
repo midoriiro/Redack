@@ -8,11 +8,11 @@ using System.Web.Http;
 
 namespace Redack.ServiceLayer.Test
 {
-    public class TestBaseController<TController> : TestBase where TController : BaseApiController, new ()
+    public class BaseTestController<TController> : BaseTest where TController : BaseApiController, new ()
     {
         protected TController Controller;
 
-        public TestBaseController() : base()
+        public BaseTestController() : base()
         {
             this.Controller = new TController()
             {
