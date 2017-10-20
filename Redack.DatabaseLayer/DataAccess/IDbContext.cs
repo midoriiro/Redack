@@ -7,6 +7,8 @@ namespace Redack.DatabaseLayer.DataAccess
 {
     public interface IDbContext
     {
+        DbContextConfiguration Configuration { get; }
+
         DbSet<TEntity> Set<TEntity>() where TEntity : Entity;
         DbEntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : Entity;
         int SaveChanges();
