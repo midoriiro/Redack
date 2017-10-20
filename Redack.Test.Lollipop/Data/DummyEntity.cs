@@ -1,4 +1,7 @@
-﻿namespace Redack.Test.Lollipop.Data
+﻿using System.Collections.Generic;
+using Redack.DomainLayer.Filters;
+
+namespace Redack.Test.Lollipop.Data
 {
     public class DummyEntity : DomainLayer.Models.Entity
     {
@@ -7,7 +10,12 @@
         // Navigation properties
         public virtual DummyEntity Property2 { get; set; }
 
-        public override void Delete()
+        public override List<QueryFilter<DomainLayer.Models.Entity>> Retrieve()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override List<DomainLayer.Models.Entity> Delete()
         {
             throw new System.NotImplementedException();
         }
