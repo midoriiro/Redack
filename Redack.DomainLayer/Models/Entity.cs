@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+using Redack.DomainLayer.Filters;
 
 #pragma warning disable 659
 
@@ -31,6 +33,8 @@ namespace Redack.DomainLayer.Models
 			return true;
 		}
 
-		public abstract void Delete();
+	    public abstract List<QueryFilter<Entity>> Retrieve();
+
+	    public abstract List<Entity> Delete();
 	}
 }

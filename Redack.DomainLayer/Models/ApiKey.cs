@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Security.Cryptography;
+using Redack.DomainLayer.Filters;
 
 namespace Redack.DomainLayer.Models
 {
@@ -17,7 +19,12 @@ namespace Redack.DomainLayer.Models
 
         public static byte[] ToBytes(string key) => Convert.FromBase64String(key);
 
-        public override void Delete()
+        public override List<QueryFilter<Entity>> Retrieve()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override List<Entity> Delete()
         {
             throw new NotImplementedException();
         }

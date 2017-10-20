@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Redack.DomainLayer.Filters;
 
 namespace Redack.DomainLayer.Models
 {
@@ -39,7 +40,12 @@ namespace Redack.DomainLayer.Models
             return $"{this.ContentType}.{this.Codename}";
         }
 
-        public override void Delete()
+        public override List<QueryFilter<Entity>> Retrieve()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override List<Entity> Delete()
         {
             foreach (var user in this.Users)
             {
@@ -66,6 +72,8 @@ namespace Redack.DomainLayer.Models
             }
 
             this.Groups.Clear();
+
+            return null;
         }
     }
 

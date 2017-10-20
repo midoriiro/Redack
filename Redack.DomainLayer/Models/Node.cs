@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Redack.DomainLayer.Filters;
 
 namespace Redack.DomainLayer.Models
 {
@@ -16,9 +18,19 @@ namespace Redack.DomainLayer.Models
         // Navigation properties
         public virtual IList<Thread> Threads { get; set; }
 
-        public override void Delete()
+        public override List<QueryFilter<Entity>> Retrieve()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        public override List<Entity> Delete()
+        {
+            List<Entity> result = new List<Entity>();
+            result.AddRange(this.Threads);
+
+            this.Threads.Clear();
+
+            return result;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Redack.DomainLayer.Filters;
 
 namespace Redack.DomainLayer.Models
 {
@@ -59,7 +60,12 @@ namespace Redack.DomainLayer.Models
             return user;
         }
 
-        public override void Delete()
+        public override List<QueryFilter<Entity>> Retrieve()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override List<Entity> Delete()
         {
             foreach (var group in this.Groups)
             {
@@ -88,6 +94,8 @@ namespace Redack.DomainLayer.Models
             this.Permissions.Clear();
 
             this.Messages.Clear();
+
+            return null;
         }
     }
 }

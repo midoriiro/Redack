@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Redack.DomainLayer.Filters;
 
 namespace Redack.DomainLayer.Models
 {
@@ -20,12 +21,17 @@ namespace Redack.DomainLayer.Models
         public string Description { get; set; }
 
         // Navigation properties
-        public virtual IList<Message> Messages { get; set; }
+        public virtual IList<Message> Messages { get; set; } = new List<Message>();
 
         [Required(ErrorMessage = "The node field is required")]
         public virtual Node Node { get; set; }
 
-        public override void Delete()
+        public override List<QueryFilter<Entity>> Retrieve()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override List<Entity> Delete()
         {
             for (int i = 0; i < this.Node.Threads.Count; i++)
             {
@@ -35,7 +41,27 @@ namespace Redack.DomainLayer.Models
                     this.Node.Threads.RemoveAt(i);
             }
 
+            foreach (var message in this.Messages)
+            {
+                for (int i = 0; i < message.Author.Messages.Count; i++)
+                {
+                    var m = message.Author.Messages.ElementAt(i);
+
+                    if (m.Id == message.Id)
+                        message.Author.Messages.RemoveAt(i);
+                }
+            }
+
+            this.Node = null;
+
+            List<Entity> result = new List<Entity>();
+            result.AddRange(this.Messages);
+
+            
+
             this.Messages.Clear();
+
+            return result;
         }
     }
 }

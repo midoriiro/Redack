@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Redack.DomainLayer.Filters;
 
 namespace Redack.DomainLayer.Models
 {
@@ -18,7 +19,12 @@ namespace Redack.DomainLayer.Models
         public virtual IList<User> Users { get; set; } = new List<User>();
         public virtual IList<Permission> Permissions { get; set; } = new List<Permission>();
 
-        public override void Delete()
+        public override List<QueryFilter<Entity>> Retrieve()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override List<Entity> Delete()
         {
             foreach (var user in this.Users)
             {
@@ -45,6 +51,8 @@ namespace Redack.DomainLayer.Models
             }
 
             this.Permissions.Clear();
+
+            return null;
         }
     }
 }
