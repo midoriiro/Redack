@@ -54,7 +54,7 @@ namespace Redack.DatabaseLayer.Test.Models
         [Fact]
         public void WithEditorCascadeDelete()
         {
-            /*var user1 = this.CreateUser();
+            var user1 = this.CreateUser();
             var user2 = this.CreateUser();
 
             var message1 = this.CreateMessage(user1);
@@ -84,7 +84,7 @@ namespace Redack.DatabaseLayer.Test.Models
             }
 
             Assert.AreEqual(0, message1.Revisions.Count);
-            Assert.AreEqual(1, message2.Revisions.Count);*/
+            Assert.AreEqual(1, message2.Revisions.Count);
 
             Assert.IsTrue(false);
         }

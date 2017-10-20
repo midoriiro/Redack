@@ -1,6 +1,7 @@
 ﻿using System.Data.Entity.Validation;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 using Redack.Test.Lollipop;
 using Xunit;

@@ -111,7 +111,7 @@ namespace Redack.DatabaseLayer.Test.Models
 
                 Assert.IsNull(repository.GetById(message1.Id));
                 Assert.IsNull(repository.GetById(message2.Id));
-                Assert.IsNull(repository.GetById(message3.Id));
+                Assert.IsNotNull(repository.GetById(message3.Id));
             }
 
             Assert.AreEqual(0, thread1.Messages.Count);

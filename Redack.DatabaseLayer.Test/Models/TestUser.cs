@@ -225,7 +225,7 @@ namespace Redack.DatabaseLayer.Test.Models
         [Fact]
         public void WithMessageRevisionsCascadeDelete()
         {
-            /*var user1 = this.CreateUser();
+            var user1 = this.CreateUser();
             var user2 = this.CreateUser();
 
             var message1 = this.CreateMessage(user1);
@@ -249,15 +249,13 @@ namespace Redack.DatabaseLayer.Test.Models
                 Assert.IsFalse(repository.All().Any(
                     e => e.Editor.Id == user1.Id));
 
-                var lol = repository.GetById(revision1.Id, revision1.EditorId, revision1.MessageId, revision1.Date);
-
                 Assert.IsTrue(repository.All().Any(e => e.Id == revision1.Id));
                 Assert.IsTrue(repository.All().Any(e => e.Id == revision2.Id));
                 Assert.IsTrue(repository.All().Any(e => e.Id == revision3.Id));
             }
 
             Assert.AreEqual(0, message1.Revisions.Count);
-            Assert.AreEqual(1, message2.Revisions.Count);*/
+            Assert.AreEqual(1, message2.Revisions.Count);
 
             Assert.IsTrue(false);
         }
