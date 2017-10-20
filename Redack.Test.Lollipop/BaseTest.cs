@@ -1,32 +1,40 @@
-﻿using Ploeh.AutoFixture;
+﻿using System;
+using Ploeh.AutoFixture;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Security;
-using Redack.Test.Lollipop.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using Redack.Test.Lollipop.Configurations;
 using Redack.Test.Lollipop.Entities;
+using Redack.Test.Lollipop.Entity;
 
 namespace Redack.Test.Lollipop
 {
-    public class BaseTest : IDisposable
+    public class BaseTest
     {
-        protected readonly RedackDbContext Context;
+        protected readonly EffortProviderFactory Factory;
+        protected RedackDbContext Context;
 
         public BaseTest()
         {
             EffortProviderFactory.ResetDb();
 
-            var factory = new EffortProviderFactory();
-            this.Context = new RedackDbContext(factory.CreateConnection(""));
+            this.Factory = new EffortProviderFactory();
+            this.Context = new RedackDbContext(this.Factory.CreateConnection(""));
+        }
+
+        public RedackDbContext CreateContext()
+        {
+            return new RedackDbContext(this.Factory.CreateConnection(""));
         }
 
         public Repository<TEntity> CreateRepository<TEntity>() where TEntity : DomainLayer.Models.Entity
         {
-            return new Repository<TEntity>(this.Context);
+            return new Repository<TEntity>(this.CreateContext());
+        }
+
+        public Repository<TEntity> CreateRepository<TEntity>(RedackDbContext context, bool disposable = true) where TEntity : DomainLayer.Models.Entity
+        {
+            return new Repository<TEntity>(context, disposable);
         }
 
         public Group CreateGroup(bool push = true)
@@ -38,8 +46,11 @@ namespace Redack.Test.Lollipop
 
             if (!push) return group;
 
-            this.Context.Groups.Add(group);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<Group>(this.Context, false))
+            {
+                repository.Insert(group);
+                repository.Commit();
+            }
 
             return group;
         }
@@ -53,33 +64,39 @@ namespace Redack.Test.Lollipop
 
             if (!push) return node;
 
-            this.Context.Nodes.Add(node);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<Node>(this.Context, false))
+            {
+                repository.Insert(node);
+                repository.Commit();
+            }
 
             return node;
         }
 
-        public DomainLayer.Models.Thread CreateThread(Node node = null, bool push = true)
+        public Thread CreateThread(Node node = null, bool push = true)
         {
             var fixture = new Fixture();
             fixture.Customize(new ThreadCustomization());
 
             node = node ?? this.CreateNode();
 
-            var thread = fixture.Create<DomainLayer.Models.Thread>();
+            var thread = fixture.Create<Thread>();
             thread.Node = node;
 
             if (!push) return thread;
 
-            this.Context.Threads.Add(thread);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<Thread>(this.Context, false))
+            {
+                repository.Insert(thread);
+                repository.Commit();
+            }
 
             return thread;
         }
 
         public Message CreateMessage(
             User user = null, 
-            DomainLayer.Models.Thread thread = null, 
+            Thread thread = null, 
             bool push = true)
         {
             var fixture = new Fixture();
@@ -94,8 +111,11 @@ namespace Redack.Test.Lollipop
 
             if (!push) return message;
 
-            this.Context.Messages.Add(message);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<Message>(this.Context, false))
+            {
+                repository.Insert(message);
+                repository.Commit();
+            }
 
             return message;
         }
@@ -117,8 +137,11 @@ namespace Redack.Test.Lollipop
 
             if (!push) return revision;
 
-            this.Context.MessageRevisions.Add(revision);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<MessageRevision>(this.Context, false))
+            {
+                repository.Insert(revision);
+                repository.Commit();
+            }
 
             return revision;
         }
@@ -132,8 +155,11 @@ namespace Redack.Test.Lollipop
 
             if (!push) return permission;
 
-            this.Context.Permissions.Add(permission);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<Permission>(this.Context, false))
+            {
+                repository.Insert(permission);
+                repository.Commit();
+            }
 
             return permission;
         }
@@ -147,8 +173,11 @@ namespace Redack.Test.Lollipop
 
             if (!push) return apiKey;
 
-            this.Context.ApiKeys.Add(apiKey);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<ApiKey>(this.Context, false))
+            {
+                repository.Insert(apiKey);
+                repository.Commit();
+            }
 
             return apiKey;
         }
@@ -165,8 +194,11 @@ namespace Redack.Test.Lollipop
 
             if (!push) return credential;
 
-            this.Context.Credentials.Add(credential);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<Credential>(this.Context, false))
+            {
+                repository.Insert(credential);
+                repository.Commit();
+            }
 
             return credential;
         }
@@ -183,8 +215,11 @@ namespace Redack.Test.Lollipop
 
             if (!push) return user;
 
-            this.Context.Users.Add(user);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<User>(this.Context, false))
+            {
+                repository.Insert(user);
+                repository.Commit();
+            }
 
             return user;
         }
@@ -201,10 +236,11 @@ namespace Redack.Test.Lollipop
 
             if (!push) return client;
 
-            var ll = this.Context.Clients.ToList();
-
-            this.Context.Clients.Add(client);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<Client>(this.Context, false))
+            {
+                repository.Insert(client);
+                repository.Commit();
+            }
 
             return client;
         }
@@ -228,8 +264,11 @@ namespace Redack.Test.Lollipop
 
             if (!push) return identity;
 
-            this.Context.Identities.Add(identity);
-            this.Context.SaveChanges();
+            using (var repository = this.CreateRepository<Identity>(this.Context, false))
+            {
+                repository.Insert(identity);
+                repository.Commit();
+            }
 
             return identity;
         }
