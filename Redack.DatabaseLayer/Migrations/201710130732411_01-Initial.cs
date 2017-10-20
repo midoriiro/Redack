@@ -117,15 +117,15 @@ namespace Redack.DatabaseLayer.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false),
-                        MessageId = c.Int(nullable: false),
-                        EditorId = c.Int(nullable: false),
                         Date = c.DateTime(nullable: false),
+                        Editor_Id = c.Int(nullable: false),
+                        Message_Id = c.Int(nullable: false),
                     })
-                .PrimaryKey(t => new { t.Id, t.MessageId, t.EditorId, t.Date })
-                .ForeignKey("dbo.Users", t => t.EditorId, cascadeDelete: true)
-                .ForeignKey("dbo.Messages", t => t.MessageId, cascadeDelete: true)
-                .Index(t => t.MessageId)
-                .Index(t => t.EditorId);
+                .PrimaryKey(t => t.Id)
+                .ForeignKey("dbo.Users", t => t.Editor_Id, cascadeDelete: true)
+                .ForeignKey("dbo.Messages", t => t.Message_Id, cascadeDelete: true)
+                .Index(t => t.Editor_Id)
+                .Index(t => t.Message_Id);
             
             CreateTable(
                 "dbo.Threads",
@@ -201,8 +201,8 @@ namespace Redack.DatabaseLayer.Migrations
             DropForeignKey("dbo.Messages", "Author_Id", "dbo.Users");
             DropForeignKey("dbo.Messages", "Thread_Id", "dbo.Threads");
             DropForeignKey("dbo.Threads", "Node_Id", "dbo.Nodes");
-            DropForeignKey("dbo.MessageRevisions", "MessageId", "dbo.Messages");
-            DropForeignKey("dbo.MessageRevisions", "EditorId", "dbo.Users");
+            DropForeignKey("dbo.MessageRevisions", "Message_Id", "dbo.Messages");
+            DropForeignKey("dbo.MessageRevisions", "Editor_Id", "dbo.Users");
             DropForeignKey("dbo.GroupUsers", "User_Id", "dbo.Users");
             DropForeignKey("dbo.GroupUsers", "Group_Id", "dbo.Groups");
             DropForeignKey("dbo.GroupPermissions", "Permission_Id", "dbo.Permissions");
@@ -221,8 +221,8 @@ namespace Redack.DatabaseLayer.Migrations
             DropIndex("dbo.Threads", new[] { "Node_Id" });
             DropIndex("dbo.Threads", new[] { "Description" });
             DropIndex("dbo.Threads", new[] { "Title" });
-            DropIndex("dbo.MessageRevisions", new[] { "EditorId" });
-            DropIndex("dbo.MessageRevisions", new[] { "MessageId" });
+            DropIndex("dbo.MessageRevisions", new[] { "Message_Id" });
+            DropIndex("dbo.MessageRevisions", new[] { "Editor_Id" });
             DropIndex("dbo.Messages", new[] { "Author_Id" });
             DropIndex("dbo.Messages", new[] { "Thread_Id" });
             DropIndex("dbo.Permissions", "UIX_ContentTypeAndCodename");
