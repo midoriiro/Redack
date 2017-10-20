@@ -1,4 +1,5 @@
-﻿using Redack.DomainLayer.Models;
+﻿using System;
+using Redack.DomainLayer.Models;
 using System.Configuration;
 using System.Data.Common;
 using System.Data.Entity;
@@ -90,6 +91,11 @@ namespace Redack.DatabaseLayer.DataAccess
                 .HasRequired(e => e.Thread)
                 .WithMany(e => e.Messages)
                 .Map(e => e.MapKey("Thread_Id"))
+                .WillCascadeOnDelete(true);
+
+            modelBuilder.Entity<Node>()
+                .HasMany(e => e.Threads)
+                .WithRequired(e => e.Node)
                 .WillCascadeOnDelete(true);
         }
 
