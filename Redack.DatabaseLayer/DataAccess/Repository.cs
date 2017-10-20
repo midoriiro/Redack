@@ -12,18 +12,24 @@ namespace Redack.DatabaseLayer.DataAccess
     {
         private readonly IDbContext _context;
         private readonly DbSet<TEntity> _entities;
-        private readonly bool _disposable;
 
+        private bool _disposable { get; set; } = true;
         public bool Disposed { get; private set; } = false;
 
         public Repository(IDbContext context = null)
         {
-            this._disposable = context == null;
-
             if (context is null)
                 this._context = new RedackDbContext();
             else
                 this._context = context;
+
+            this._entities = this._context.Set<TEntity>();
+        }
+
+        public Repository(IDbContext context, bool disposable)
+        {
+            this._disposable = disposable;
+            this._context = context;
 
             this._entities = this._context.Set<TEntity>();
         }
@@ -96,7 +102,16 @@ namespace Redack.DatabaseLayer.DataAccess
                 this._entities.Attach(entity);
             try
             {
-                entity.Delete();
+                List<Entity> entities = entity.Delete();
+
+                if (entities != null)
+                {
+                    foreach (var e in entities)
+                    {
+                        this._context.Entry(e).State = EntityState.Unchanged;
+                        this._context.Entry(e).State = EntityState.Deleted;
+                    }
+                }
             }
             catch (NotImplementedException) { }
 
