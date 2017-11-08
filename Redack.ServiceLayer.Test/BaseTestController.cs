@@ -34,7 +34,7 @@ namespace Redack.ServiceLayer.Test
             this.Controller.User = new GenericPrincipal(identity, null);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             this.Controller.Dispose();
 
