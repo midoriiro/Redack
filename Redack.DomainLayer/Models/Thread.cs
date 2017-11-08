@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Redack.DomainLayer.Filters;
 
 namespace Redack.DomainLayer.Models
 {
@@ -26,9 +26,9 @@ namespace Redack.DomainLayer.Models
         [Required(ErrorMessage = "The node field is required")]
         public virtual Node Node { get; set; }
 
-        public override List<QueryFilter<Entity>> Retrieve()
+        public override IQueryable<Entity> Filter(IQueryable<Entity> query)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override List<Entity> Delete()

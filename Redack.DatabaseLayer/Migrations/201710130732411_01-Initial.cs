@@ -56,6 +56,7 @@ namespace Redack.DatabaseLayer.Migrations
                         Id = c.Int(nullable: false),
                         Alias = c.String(nullable: false, maxLength: 15),
                         IdentIcon = c.String(),
+                        Enabled = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)
                 .Index(t => t.Alias);
@@ -195,6 +196,8 @@ namespace Redack.DatabaseLayer.Migrations
         
         public override void Down()
         {
+            DropForeignKey("dbo.ApiKeys", "Credential_Id", "dbo.Credentials");
+            DropForeignKey("dbo.ApiKeys", "Client_Id", "dbo.Clients");
             DropForeignKey("dbo.Identities", "User_Id", "dbo.Users");
             DropForeignKey("dbo.UserPermissions", "Permission_Id", "dbo.Permissions");
             DropForeignKey("dbo.UserPermissions", "User_Id", "dbo.Users");
@@ -208,9 +211,7 @@ namespace Redack.DatabaseLayer.Migrations
             DropForeignKey("dbo.GroupPermissions", "Permission_Id", "dbo.Permissions");
             DropForeignKey("dbo.GroupPermissions", "Group_Id", "dbo.Groups");
             DropForeignKey("dbo.Credentials", "Id", "dbo.Users");
-            DropForeignKey("dbo.ApiKeys", "Credential_Id", "dbo.Credentials");
             DropForeignKey("dbo.Identities", "Client_Id", "dbo.Clients");
-            DropForeignKey("dbo.ApiKeys", "Client_Id", "dbo.Clients");
             DropIndex("dbo.UserPermissions", new[] { "Permission_Id" });
             DropIndex("dbo.UserPermissions", new[] { "User_Id" });
             DropIndex("dbo.GroupUsers", new[] { "User_Id" });

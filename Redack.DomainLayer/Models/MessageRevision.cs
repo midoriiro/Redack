@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Redack.DomainLayer.Filters;
+using System.Linq;
 
 namespace Redack.DomainLayer.Models
 {
@@ -24,9 +24,11 @@ namespace Redack.DomainLayer.Models
             this.Date = DateTime.Now;
         }
 
-        public override List<QueryFilter<Entity>> Retrieve()
+        public override IQueryable<Entity> Filter(IQueryable<Entity> query)
         {
-            throw new NotImplementedException();
+            var q = query as IQueryable<MessageRevision>;
+
+            return (q ?? throw new InvalidOperationException()).Where(e => e.Editor.IsEnabled);
         }
 
         public override List<Entity> Delete()

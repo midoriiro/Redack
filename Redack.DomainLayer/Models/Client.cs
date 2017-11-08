@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Redack.DomainLayer.Filters;
+using System.Linq;
 
 namespace Redack.DomainLayer.Models
 {
@@ -26,7 +26,7 @@ namespace Redack.DomainLayer.Models
             this.IsBlocked = false;
         }
 
-        public override List<QueryFilter<Entity>> Retrieve()
+        public override IQueryable<Entity> Filter(IQueryable<Entity> query)
         {
             throw new NotImplementedException();
         }

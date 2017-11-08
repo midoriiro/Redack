@@ -20,6 +20,7 @@ namespace Redack.Test.Lollipop.Entities
                 "Identities"
             }));
             fixture.Customize(new StringMaxLengthCustomization<User>("Alias", 15));
+            fixture.Customize<User>(e => e.With(p => p.IsEnabled, true));
         }
     }
 }

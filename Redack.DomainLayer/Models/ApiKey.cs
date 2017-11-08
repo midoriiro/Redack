@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Security.Cryptography;
-using Redack.DomainLayer.Filters;
+using LinqKit;
 
 namespace Redack.DomainLayer.Models
 {
@@ -15,13 +16,26 @@ namespace Redack.DomainLayer.Models
         [Index(IsUnique = true)]
         public string Key { get; set; }
 
+        // Navigation properties
+        [InverseProperty("ApiKey")]
+        public Credential Credential { get; set; }
+
+        [InverseProperty("ApiKey")]
+        public Client Client { get; set; }
+
         public static string GenerateKey(int size) => Convert.ToBase64String(new AesCryptoServiceProvider { KeySize = size }.Key);
 
         public static byte[] ToBytes(string key) => Convert.FromBase64String(key);
 
-        public override List<QueryFilter<Entity>> Retrieve()
+        public override IQueryable<Entity> Filter(IQueryable<Entity> query)
         {
-            throw new NotImplementedException();
+            var predicate = PredicateBuilder.New<ApiKey>();
+            predicate.Or(e => e.Credential != null && e.Credential.User.IsEnabled);
+            predicate.Or(e => e.Client != null && !e.Client.IsBlocked);
+
+            var q = query as IQueryable<ApiKey>;
+
+            return (q ?? throw new InvalidOperationException()).AsExpandable().Where(predicate);
         }
 
         public override List<Entity> Delete()

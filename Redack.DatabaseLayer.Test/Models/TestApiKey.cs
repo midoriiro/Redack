@@ -12,6 +12,7 @@ namespace Redack.DatabaseLayer.Test.Models
         public void Valid()
         {
             var apikey = this.CreateApiKey();
+            this.CreateClient(apikey);
 
             using (var repository = this.CreateRepository<ApiKey>())
             {

@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Reflection;
-using Redack.DomainLayer.Filters;
 
 #pragma warning disable 659
 
@@ -33,8 +34,10 @@ namespace Redack.DomainLayer.Models
 			return true;
 		}
 
-	    public abstract List<QueryFilter<Entity>> Retrieve();
+		[NotMapped]
+		public bool CanBeDeleted { get; protected set; } = true;
 
-	    public abstract List<Entity> Delete();
+		public abstract IQueryable<Entity> Filter(IQueryable<Entity> query);
+		public abstract List<Entity> Delete();
 	}
 }

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Redack.DomainLayer.Filters;
 
 namespace Redack.DomainLayer.Models
 {
@@ -33,6 +33,9 @@ namespace Redack.DomainLayer.Models
         [Required(ErrorMessage = "The api key field is required")]
         public virtual ApiKey ApiKey { get; set; }
 
+        [InverseProperty("Credential")]
+        public virtual User User { get; set; }
+
         public static string ToHash(string data, byte[] salt)
         {
             byte[] bytes = KeyDerivation.Pbkdf2(
@@ -57,9 +60,11 @@ namespace Redack.DomainLayer.Models
             this.PasswordConfirm = ToHash(this.PasswordConfirm, salt);
         }
 
-        public override List<QueryFilter<Entity>> Retrieve()
+        public override IQueryable<Entity> Filter(IQueryable<Entity> query)
         {
-            throw new NotImplementedException();
+            var q = query as IQueryable<Credential>;
+
+            return (q ?? throw new InvalidOperationException()).Where(e => e.User.IsEnabled);
         }
 
         public override List<Entity> Delete()

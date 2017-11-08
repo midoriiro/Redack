@@ -511,17 +511,26 @@ namespace Redack.DatabaseLayer.Test.DataAccess
             Assert.AreEqual(1, sut.All().Count());
         }
 
-        [Fact]
-        public void Disposed_WithContext()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        [InlineData(null)]
+        public void Disposed_WithContext(bool? disposable)
         {
             var context = new Mock<IDbContext>();
             context.Setup(e => e.Dispose());
 
             Repository<DummyEntity> sut;
 
-            using (sut = new Repository<DummyEntity>(context.Object)) { }
+            if(disposable == null)
+                using (sut = new Repository<DummyEntity>(context.Object)) { }
+            else
+                using (sut = new Repository<DummyEntity>(context.Object, (bool)disposable)) { }
 
-            Assert.IsFalse(sut.Disposed);
+            if ((disposable != null && (bool) disposable) || disposable == null)
+                Assert.IsTrue(sut.Disposed);
+            else if(disposable != null && (bool) !disposable)
+                Assert.IsFalse(sut.Disposed);
         }
 
         [Fact]

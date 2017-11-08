@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Redack.DomainLayer.Filters;
+using System.Linq;
 
 namespace Redack.Test.Lollipop.Data
 {
@@ -10,7 +10,7 @@ namespace Redack.Test.Lollipop.Data
         // Navigation properties
         public virtual DummyEntity Property2 { get; set; }
 
-        public override List<QueryFilter<DomainLayer.Models.Entity>> Retrieve()
+        public override IQueryable<DomainLayer.Models.Entity> Filter(IQueryable<DomainLayer.Models.Entity> query)
         {
             throw new System.NotImplementedException();
         }

@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Redack.DomainLayer.Filters;
 
 namespace Redack.DomainLayer.Models
 {
@@ -19,9 +19,11 @@ namespace Redack.DomainLayer.Models
         public virtual IList<User> Users { get; set; } = new List<User>();
         public virtual IList<Permission> Permissions { get; set; } = new List<Permission>();
 
-        public override List<QueryFilter<Entity>> Retrieve()
+        public override IQueryable<Entity> Filter(IQueryable<Entity> query)
         {
-            throw new System.NotImplementedException();
+            var q = query as IQueryable<Group>;
+
+            return (q ?? throw new InvalidOperationException()).Where(e => e.Users.All(p => p.IsEnabled));
         }
 
         public override List<Entity> Delete()

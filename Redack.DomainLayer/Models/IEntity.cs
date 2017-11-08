@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using Redack.DomainLayer.Filters;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Redack.DomainLayer.Models
 {
     public interface IEntity
     {
-        List<QueryFilter<Entity>> Retrieve();
+        bool CanBeDeleted { get; }
+
+        IQueryable<Entity> Filter(IQueryable<Entity> query);
         List<Entity> Delete();
     }
 }

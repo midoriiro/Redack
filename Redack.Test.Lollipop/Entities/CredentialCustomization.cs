@@ -15,6 +15,7 @@ namespace Redack.Test.Lollipop.Entities
             fixture.Customize(new CopyPropertyValueToAnother<Credential>(
                 "Password", "PasswordConfirm"));
             fixture.Customize(new ApiKeyCustomization(256));
+            fixture.Customize(new IgnorePropertiesCustomization(new[] {"User"}));
         }
     }
 }

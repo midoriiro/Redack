@@ -60,10 +60,14 @@ namespace Redack.DatabaseLayer.Test.Models
                 repository.Commit();
 
                 Assert.IsNull(repository.GetById(user.Id));
+                Assert.IsFalse(repository.All().Any(e => e.Id == user.Id));
             }
 
             using (var repository = this.CreateRepository<Credential>())
             {
+                Assert.IsFalse(repository.All().Any(
+                    e => e.User.Id == user.Id));
+
                 Assert.IsNull(repository.GetById(credential.Id));
             }
         }
@@ -95,6 +99,8 @@ namespace Redack.DatabaseLayer.Test.Models
                 repository.Commit();
 
                 Assert.IsNull(repository.GetById(user1.Id));
+                Assert.IsFalse(repository.All().Any(e => e.Id == user1.Id));
+
                 Assert.IsNotNull(repository.GetById(user2.Id));
             }
 
@@ -130,6 +136,7 @@ namespace Redack.DatabaseLayer.Test.Models
                 repository.Commit();
 
                 Assert.IsNull(repository.GetById(user.Id));
+                Assert.IsFalse(repository.All().Any(e => e.Id == user.Id));
             }
 
             using (var repository = this.CreateRepository<Client>())
@@ -166,6 +173,7 @@ namespace Redack.DatabaseLayer.Test.Models
                 repository.Commit();
 
                 Assert.IsNull(repository.GetById(user.Id));
+                Assert.IsFalse(repository.All().Any(e => e.Id == user.Id));
             }
 
             using (var repository = this.CreateRepository<Message>())
@@ -173,9 +181,9 @@ namespace Redack.DatabaseLayer.Test.Models
                 Assert.IsFalse(repository.All().Any(
                     e => e.Author.Id == user.Id));
 
-                Assert.IsNotNull(repository.GetById(message1.Id));
-                Assert.IsNotNull(repository.GetById(message2.Id));
-                Assert.IsNotNull(repository.GetById(message3.Id));
+                Assert.IsNull(repository.GetById(message1.Id));
+                Assert.IsNull(repository.GetById(message2.Id));
+                Assert.IsNull(repository.GetById(message3.Id));
             }
         }
 
@@ -205,14 +213,17 @@ namespace Redack.DatabaseLayer.Test.Models
                 repository.Commit();
 
                 Assert.IsNull(repository.GetById(user1.Id));
+                Assert.IsFalse(repository.All().Any(e => e.Id == user1.Id));
+
                 Assert.IsNotNull(repository.GetById(user2.Id));
                 Assert.IsNotNull(repository.GetById(user3.Id));
             }
 
             using (var repository = this.CreateRepository<Group>())
             {
-                Assert.IsTrue(repository.All().Any(
-                    e => e.Id == group1.Id));
+                Assert.IsFalse(repository.All().Any(
+                    e => e.Users.Any(
+                        p => p.Id == user1.Id)));
 
                 Assert.IsNotNull(repository.GetById(group1.Id));
                 Assert.IsNotNull(repository.GetById(group2.Id));
@@ -241,6 +252,8 @@ namespace Redack.DatabaseLayer.Test.Models
                 repository.Commit();
 
                 Assert.IsNull(repository.GetById(user1.Id));
+                Assert.IsFalse(repository.All().Any(e => e.Id == user1.Id));
+
                 Assert.IsNotNull(repository.GetById(user2.Id));
             }
 
@@ -249,15 +262,10 @@ namespace Redack.DatabaseLayer.Test.Models
                 Assert.IsFalse(repository.All().Any(
                     e => e.Editor.Id == user1.Id));
 
-                Assert.IsTrue(repository.All().Any(e => e.Id == revision1.Id));
-                Assert.IsTrue(repository.All().Any(e => e.Id == revision2.Id));
-                Assert.IsTrue(repository.All().Any(e => e.Id == revision3.Id));
+                Assert.IsNull(repository.GetById(revision1.Id));
+                Assert.IsNull(repository.GetById(revision2.Id));
+                Assert.IsNotNull(repository.GetById(revision3.Id));
             }
-
-            Assert.AreEqual(0, message1.Revisions.Count);
-            Assert.AreEqual(1, message2.Revisions.Count);
-
-            Assert.IsTrue(false);
         }
     }
 }

@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Redack.DomainLayer.Filters;
+using System.Linq;
 
 namespace Redack.DomainLayer.Models
 {
@@ -21,14 +22,16 @@ namespace Redack.DomainLayer.Models
         [Required(ErrorMessage = "The client field is required")]
         public virtual Client Client { get; set; }
 
-        public override List<QueryFilter<Entity>> Retrieve()
+        public override IQueryable<Entity> Filter(IQueryable<Entity> query)
         {
-            throw new System.NotImplementedException();
+            var q = query as IQueryable<Identity>;
+
+            return (q ?? throw new InvalidOperationException()).Where(e => e.User.IsEnabled);
         }
 
         public override List<Entity> Delete()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

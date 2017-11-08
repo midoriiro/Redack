@@ -13,7 +13,7 @@ namespace Redack.DatabaseLayer.DataAccess
         private readonly IDbContext _context;
         private readonly DbSet<TEntity> _entities;
 
-        private bool _disposable { get; set; } = true;
+        private bool Disposable { get;} = true;
         public bool Disposed { get; private set; } = false;
 
         public Repository(IDbContext context = null)
@@ -28,7 +28,7 @@ namespace Redack.DatabaseLayer.DataAccess
 
         public Repository(IDbContext context, bool disposable)
         {
-            this._disposable = disposable;
+            this.Disposable = disposable;
             this._context = context;
 
             this._entities = this._context.Set<TEntity>();
@@ -36,32 +36,45 @@ namespace Redack.DatabaseLayer.DataAccess
 
         public IQueryable<TEntity> All()
         {
-            return this._entities;
+            try
+            {
+                var entity = (TEntity) Activator.CreateInstance<TEntity>();
+
+                return entity.Filter(this._entities) as IQueryable<TEntity>;
+            }
+            catch (NotImplementedException)
+            {
+                return this._entities;
+            }
         }
 
         public IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> predicate)
         {
-            return this._entities.Where(predicate);
+            return this.All().Where(predicate);
         }
 
         public List<TEntity> GetAll()
         {
-            return this._entities.ToList<TEntity>();
+            return this.All().ToList<TEntity>();
         }
 
         public async Task<List<TEntity>> GetAllAsync()
         {
-            return await this._entities.ToListAsync();
+            return await this.All().ToListAsync();
         }
 
-        public TEntity GetById(params object[] ids)
+        public TEntity GetById(int id)
         {
-            return this._entities.Find(ids);
+            var s = this.All().ToList();
+
+            return this.All().Where(e => e.Id == id).ToList().Find(e => e.Id == id);
         }
 
-        public async Task<TEntity> GetByIdAsync(params object[] ids)
+        public async Task<TEntity> GetByIdAsync(int id)
         {
-            return await this._entities.FindAsync(ids);
+            var q = await this.All().Where(e => e.Id == id).ToListAsync();
+
+            return q.Find(e => e.Id == id);
         }
 
         public TEntity GetOrInsert(TEntity entity)
@@ -115,7 +128,8 @@ namespace Redack.DatabaseLayer.DataAccess
             }
             catch (NotImplementedException) { }
 
-            this._entities.Remove(entity);
+            if(entity.CanBeDeleted)
+                this._entities.Remove(entity);
         }
 
         public void Commit()
@@ -135,12 +149,12 @@ namespace Redack.DatabaseLayer.DataAccess
 
         public bool Exists(TEntity entity)
         {
-            return this._entities.Count(e => e.Id == entity.Id) == 1;
+            return this._entities.Any(e => e.Id == entity.Id);
         }
 
         public async Task<bool> ExistsAsync(TEntity entity)
         {
-            return await this._entities.CountAsync(e => e.Id == entity.Id) == 1;
+            return await this._entities.AnyAsync(e => e.Id == entity.Id);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -156,7 +170,7 @@ namespace Redack.DatabaseLayer.DataAccess
 
         public void Dispose()
         {
-            if (this._disposable)
+            if (this.Disposable)
             {
                 Dispose(true);
                 GC.SuppressFinalize(this);

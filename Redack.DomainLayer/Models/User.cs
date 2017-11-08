@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using Redack.DomainLayer.Filters;
 
 namespace Redack.DomainLayer.Models
 {
@@ -18,6 +17,9 @@ namespace Redack.DomainLayer.Models
 
         public string IdentIcon { get; set; }
 
+        [Required(ErrorMessage = "The state field is required")]
+        public bool IsEnabled { get; set; }
+
         // Navigation properties
         [Required(ErrorMessage = "The credential field is required")]
         public virtual Credential Credential { get; set; }
@@ -26,6 +28,11 @@ namespace Redack.DomainLayer.Models
         public virtual IList<Message> Messages { get; set; } = new List<Message>();
         public virtual IList<Group> Groups { get; set; } = new List<Group>();
         public virtual IList<Permission> Permissions { get; set; } = new List<Permission>();
+
+        public User()
+        {
+            this.IsEnabled = true;
+        }
 
         public static User Create(string login, string password, string passwordConfirm, int keySize)
         {
@@ -60,9 +67,11 @@ namespace Redack.DomainLayer.Models
             return user;
         }
 
-        public override List<QueryFilter<Entity>> Retrieve()
+        public override IQueryable<Entity> Filter(IQueryable<Entity> query)
         {
-            throw new NotImplementedException();
+            var q = query as IQueryable<User>;
+
+            return (q ?? throw new InvalidOperationException()).Where(e => e.IsEnabled);
         }
 
         public override List<Entity> Delete()
@@ -94,6 +103,9 @@ namespace Redack.DomainLayer.Models
             this.Permissions.Clear();
 
             this.Messages.Clear();
+
+            this.IsEnabled = false;
+            this.CanBeDeleted = false;
 
             return null;
         }

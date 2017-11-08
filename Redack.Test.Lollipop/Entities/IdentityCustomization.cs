@@ -14,8 +14,12 @@ namespace Redack.Test.Lollipop.Entities
             Fixture fixtureUser = new Fixture();
             fixtureUser.Customize(new UserCustomization());
 
+            var user = fixtureUser.Create<User>();
+
             Fixture fixtureClient = new Fixture();
             fixtureClient.Customize(new ClientCustomization());
+
+            var client = fixtureClient.Create<Client>();
 
             fixture.Customize<Identity>(e => e
             .Without(p => p.User)
@@ -24,8 +28,8 @@ namespace Redack.Test.Lollipop.Entities
             .Without(p => p.Refresh)
             .Do(o =>
                 {
-                    o.User = fixtureUser.Create<User>();
-                    o.Client = fixtureClient.Create<Client>();
+                    o.User = user;
+                    o.Client = client;
                     o.Access = JwtTokenizer.Encode(o.User.Credential.ApiKey.Key, o.Client.ApiKey.Key, 10);
                     o.Refresh = JwtTokenizer.Encode(o.User.Credential.ApiKey.Key, o.Client.ApiKey.Key, 100);
                 }));
