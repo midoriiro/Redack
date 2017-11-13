@@ -38,6 +38,7 @@ namespace Redack.DatabaseLayer.DataAccess
             modelBuilder.Entity<User>()
                 .HasRequired(e => e.Credential)
                 .WithRequiredPrincipal()
+                .Map(e => e.MapKey("User_Id"))
                 .WillCascadeOnDelete(true);
 
             modelBuilder.Entity<User>()
