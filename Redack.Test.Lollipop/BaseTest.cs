@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Ploeh.AutoFixture;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
@@ -146,12 +147,13 @@ namespace Redack.Test.Lollipop
             return revision;
         }
 
-        public Permission CreatePermission<TEntity>(bool push = true) where TEntity : DomainLayer.Models.Entity
+        public Permission CreatePermission<TEntity>(string codename = null, bool push = true) where TEntity : DomainLayer.Models.Entity
         {
             var fixture = new Fixture();
             fixture.Customize(new PermissionCustomization<TEntity>());
 
             var permission = fixture.Create<Permission>();
+            permission.Codename = codename ?? permission.Codename;
 
             if (!push) return permission;
 
@@ -162,6 +164,19 @@ namespace Redack.Test.Lollipop
             }
 
             return permission;
+        }
+
+        public Dictionary<string, Permission> CreatePermissions<TEntity>(bool push = true) where TEntity : DomainLayer.Models.Entity
+        {
+            Dictionary<string, Permission> result = new Dictionary<string, Permission>
+            {
+                {"Create", this.CreatePermission<TEntity>("Create", push)},
+                {"Retrieve", this.CreatePermission<TEntity>("Retrieve", push)},
+                {"Update", this.CreatePermission<TEntity>("Update", push)},
+                {"Delete", this.CreatePermission<TEntity>("Delete", push)}
+            };
+
+            return result;
         }
 
         public ApiKey CreateApiKey(bool push = true)
