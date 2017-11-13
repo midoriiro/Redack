@@ -107,12 +107,12 @@ namespace Redack.DatabaseLayer.Test.Models
                 repository.Delete(credential);
                 repository.Commit();
 
-                Assert.IsNull(repository.GetById(credential.Id));
+                Assert.IsNotNull(repository.GetById(credential.Id));
             }
 
             using (var repository = this.CreateRepository<ApiKey>())
             {
-                Assert.IsNull(repository.GetById(apikey.Id));
+                Assert.IsNotNull(repository.GetById(apikey.Id));
             }
 
             using (var repository = this.CreateRepository<User>())
