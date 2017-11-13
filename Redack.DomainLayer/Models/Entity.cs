@@ -12,7 +12,7 @@ namespace Redack.DomainLayer.Models
 	public abstract class Entity : IEntity
 	{
 		[Key]
-		[DatabaseGenerated(DatabaseGeneratedOption.None)]
+		[DatabaseGenerated(DatabaseGeneratedOption.None | DatabaseGeneratedOption.Identity)]
 		public int Id { get; set; }
 
 		public override bool Equals(object obj)
