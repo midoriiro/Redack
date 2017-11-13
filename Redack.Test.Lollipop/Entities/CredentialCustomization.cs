@@ -10,7 +10,7 @@ namespace Redack.Test.Lollipop.Entities
         {
             base.Customize(fixture);
 
-            fixture.Customize(new OmitOnRecursionCustomization(1));
+            fixture.Customize(new OmitOnRecursionCustomization());
             fixture.Customize(new EmailAddressCustomization<Credential>("Login"));
             fixture.Customize(new CopyPropertyValueToAnother<Credential>(
                 "Password", "PasswordConfirm"));
