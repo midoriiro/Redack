@@ -1,4 +1,6 @@
-﻿using Redack.DatabaseLayer.DataAccess;
+﻿using System;
+using System.Data.Entity;
+using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Security;
 using System.Linq;
@@ -10,51 +12,56 @@ using System.Web.Http.Filters;
 
 namespace Redack.ServiceLayer.Filters
 {
-    public class JwtAuthorizationFilterAttribute : AuthorizationFilterAttribute
-    {
-        public override void OnAuthorization(HttpActionContext actionContext)
-        {
-            AuthenticationHeaderValue authorization = actionContext.Request.Headers.Authorization;
+	public class JwtAuthorizationFilterAttribute : AuthorizationFilterAttribute
+	{
+		public override void OnAuthorization(HttpActionContext actionContext)
+		{
+			AuthenticationHeaderValue authorization = actionContext.Request.Headers.Authorization;
 
-            if (authorization == null || authorization.Scheme != "Basic")
-            {
-                this.Unauthorized(actionContext);
-                return;
-            }
+			if (authorization == null || authorization.Scheme != "Basic")
+			{
+				this.Unauthorized(actionContext);
+				return;
+			}
 
-            Identity identity = this.GetIdentity(authorization.Parameter);
+			Identity identity = this.GetIdentity(authorization.Parameter);
 
-            if(identity == null || !this.ValidIdentity(identity) || identity.Client.IsBlocked)
-            {
-                this.Unauthorized(actionContext);
-                return;
-            }
+			if(identity == null || !this.ValidIdentity(identity) || identity.Client.IsBlocked)
+			{
+				this.Unauthorized(actionContext);
+				return;
+			}
 
-            JwtIdentity jwtIdentity = new JwtIdentity(identity);
+			JwtIdentity jwtIdentity = new JwtIdentity(identity);
 
-            actionContext.RequestContext.Principal = jwtIdentity.GetPrincipal();
-        }
+			actionContext.RequestContext.Principal = jwtIdentity.GetPrincipal();
+		}
 
-        public void Unauthorized(HttpActionContext actionContext)
-        {
-            actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized);
-        }
+		public void Unauthorized(HttpActionContext actionContext)
+		{
+			actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized);
+		}
 
-        public Identity GetIdentity(string token)
-        {
-            Identity identity;
+		public Identity GetIdentity(string token)
+		{
+			Identity identity;
 
-            using (var repository = new Repository<Identity>())
-            {
-                identity = repository.Query(e => e.Access == token).Single();
-            }
+			using (var repository = new Repository<Identity>())
+			{
+				identity = repository
+					.All()
+					.Where(e => e.Access == token)
+					.Include(e => e.User.Credential.ApiKey)
+					.Include(e => e.Client.ApiKey)
+					.Single();
+			}
 
-            return identity;
-        }
+			return identity;
+		}
 
-        public bool ValidIdentity(Identity identity)
-        {
-            return JwtTokenizer.IsValid(identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, identity.Access);
-        }
-    }
+		public bool ValidIdentity(Identity identity)
+		{
+			return JwtTokenizer.IsValid(identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, identity.Access);
+		}
+	}
 }

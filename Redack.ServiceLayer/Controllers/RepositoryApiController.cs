@@ -1,7 +1,10 @@
-﻿using Redack.DatabaseLayer.DataAccess;
+﻿using System;
+using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
+using Redack.ServiceLayer.Models.Request;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Validation;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -10,122 +13,148 @@ using System.Web.Http.Description;
 
 namespace Redack.ServiceLayer.Controllers
 {
-    public abstract class RepositoryApiController<TEntity> : BaseApiController where TEntity : Entity
-    {
-        private readonly IRepository<TEntity> _repository;
+	public abstract class RepositoryApiController<TEntity> : 
+		BaseApiController, 
+		IOwnerFilter,
+		IRepositoryApiController<TEntity> 
+		where TEntity : Entity
+	{
+		public IRepository<TEntity> Repository { get; }
 
-        public RepositoryApiController() : base()
-        {
-            this._repository = new Repository<TEntity>(this.Context);
-        }
+		protected RepositoryApiController() : base()
+		{
+			this.Repository = new Repository<TEntity>(this.Context);
+		}
 
-        // GET: api/Entities
-        [HttpGet]
-        [Route("")]
-        public virtual IEnumerable<TEntity> GetAll()
-        {
-            return this._repository.GetAll();
-        }
+		public abstract bool IsOwner(int id);
 
-        // GET: api/Entities/5
-        [HttpGet]
-        [Route("{id:int:min(1)}")]
-        [ResponseType(typeof(Entity))]
-        public virtual async Task<IHttpActionResult> Get(int id)
-        {
-            var entity = await this._repository.GetByIdAsync(id);
+		// GET: api/Entities
+		[HttpGet]
+		[Route("")]
+		[ResponseType(typeof(ICollection<Entity>))]
+		public virtual async Task<IHttpActionResult> GetAll()
+		{
+			var entities = await this.Repository.GetAllAsync();
 
-            if (entity == null)
-                return NotFound();
+			return this.Ok(entities);
+		}
 
-            return this.Ok(entity);
-        }
+		// GET: api/Entities/5
+		[HttpGet]
+		[Route("{id:int:min(1)}")]
+		[ResponseType(typeof(Entity))]
+		public virtual async Task<IHttpActionResult> Get(int id)
+		{
+			var entity = await this.Repository.GetByIdAsync(id);
 
-        // PUT: api/Entities/5
-        [HttpPut]
-        [Route("{id:int:min(1)}")]
-        [ResponseType(typeof(void))]
-        public virtual async Task<IHttpActionResult> Put(int id, TEntity entity)
-        {
-            if (!this.ModelState.IsValid)
-                return this.BadRequest(this.ModelState);
+			if (entity == null)
+				return NotFound();
 
-            if (id != entity.Id)
-                return this.BadRequest();
+			return this.Ok(entity);
+		}
 
-            this._repository.Update(entity);
+		// POST: api/Entities
+		[HttpPost]
+		[Route("")]
+		[ResponseType(typeof(Entity))]
+		public virtual async Task<IHttpActionResult> Post([FromBody] BaseRequest<TEntity> request)
+		{
+			if (!this.ModelState.IsValid)
+				return this.BadRequest(ModelState);
 
-            try
-            {
-                await this._repository.CommitAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!this.EntityExists(id))
-                    return this.NotFound();
+			TEntity entity = (TEntity)request.ToEntity(this.Context);
 
-                throw;
-            }
+			this.Repository.Insert(entity);
 
-            return this.StatusCode(HttpStatusCode.NoContent);
-        }
+			try
+			{
+			   await this.Repository.CommitAsync();
+			}
+			catch (DbEntityValidationException)
+			{
+				return this.BadRequest(ModelState);
+			}
+			catch (DbUpdateException)
+			{
+				return this.Conflict();
+			}
 
-        // POST: api/Entities
-        [HttpPost]
-        [Route("")]
-        [ResponseType(typeof(Entity))]
-        public virtual async Task<IHttpActionResult> Post(TEntity entity)
-        {
-            if (!this.ModelState.IsValid)
-                return BadRequest(ModelState);
+			var result = this.CreatedAtRoute(
+				WebApiConfig.DefaultRouteName, 
+				new
+				{
+					controller = this.GetControllerRouteName(),
+					id = entity.Id
+				}, 
+				entity);
 
-            this._repository.Insert(entity);
+			return result;
+		}
 
-            try
-            {
-                await _repository.CommitAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (this.EntityExists(entity.Id))
-                    return this.Conflict();
+		// PUT: api/Entities/5
+		[HttpPut]
+		[Route("{id:int:min(1)}")]
+		[ResponseType(typeof(void))]
+		public virtual async Task<IHttpActionResult> Put(int id, [FromBody] BasePutRequest<TEntity> request)
+		{
+			if (!this.ModelState.IsValid)
+				return this.BadRequest(this.ModelState);
 
-                throw;
-            }
+			TEntity entity = (TEntity)request.ToEntity(this.Context);
 
-            return this.CreatedAtRoute(WebApiConfig.DefaultRouteName, new { id = entity.Id }, entity);
-        }
+			if (entity == null)
+				return this.NotFound();
 
-        // DELETE: api/Entities/5
-        [HttpDelete]
-        [Route("{id:int:min(1)}")]
-        [ResponseType(typeof(Entity))]
-        public virtual async Task<IHttpActionResult> Delete(int id)
-        {
-            TEntity entity = await _repository.GetByIdAsync(id);
+			if (id != entity.Id)
+				return this.BadRequest();
 
-            if (entity == null)
-                return this.NotFound();
+			this.Repository.Update(entity);
 
-            this._repository.Delete(entity);
-            await _repository.CommitAsync();
+			try
+			{
+				await this.Repository.CommitAsync();
+			}
+			catch (DbUpdateConcurrencyException)
+			{
+				if (!this.EntityExists(id))
+					return this.NotFound();
 
-            return this.Ok(entity);
-        }
+				throw;
+			}
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                this._repository.Dispose();
-            }
+			return this.StatusCode(HttpStatusCode.NoContent);
+		}
 
-            base.Dispose(disposing);
-        }
+		// DELETE: api/Entities/5
+		[HttpDelete]
+		[Route("{id:int:min(1)}")]
+		[ResponseType(typeof(Entity))]
+		public virtual async Task<IHttpActionResult> Delete(int id)
+		{
+			TEntity entity = await Repository.GetByIdAsync(id);
 
-        protected bool EntityExists(int id)
-        {
-            return this._repository.Query(e => e.Id == id).Count() == 1;
-        }
-    }
+			if (entity == null)
+				return this.NotFound();
+
+			this.Repository.Delete(entity);
+			await Repository.CommitAsync();
+
+			return this.Ok(entity);
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				this.Repository.Dispose();
+			}
+
+			base.Dispose(disposing);
+		}
+
+		protected bool EntityExists(int id)
+		{
+			return this.Repository.All().Any(e => e.Id == id);
+		}
+	}
 }
