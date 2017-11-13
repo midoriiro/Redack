@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Redack.ServiceLayer.Models
 {
-    public class SignInRequest : Model
+    public class SignInRequest : BaseModel
     {
         [Required]
         public Client Client { get; set; }

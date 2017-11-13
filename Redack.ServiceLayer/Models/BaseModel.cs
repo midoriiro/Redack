@@ -1,6 +1,6 @@
 ﻿namespace Redack.ServiceLayer.Models
 {
-    public abstract class Model
+    public abstract class BaseModel
     {
     }
 }

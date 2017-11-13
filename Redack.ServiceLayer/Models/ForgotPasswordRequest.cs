@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Redack.ServiceLayer.Models
 {
-    public class ForgotPasswordRequest : Model
+    public class ForgotPasswordRequest : BaseModel
     {
         [Required]
         public Client Client { get; set; }
