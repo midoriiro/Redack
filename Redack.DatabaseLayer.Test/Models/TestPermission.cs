@@ -23,7 +23,7 @@ namespace Redack.DatabaseLayer.Test.Models
         [Fact]
         public void WithoutCodename()
         {
-            var permission = this.CreatePermission<Permission>(false);
+            var permission = this.CreatePermission<Permission>(push: false);
             permission.Codename = null;
 
             using (var repository = this.CreateRepository<Permission>())
@@ -37,7 +37,7 @@ namespace Redack.DatabaseLayer.Test.Models
         [Fact]
         public void WithoutHelpText()
         {
-            var permission = this.CreatePermission<Permission>(false);
+            var permission = this.CreatePermission<Permission>(push: false);
             permission.HelpText = null;
 
             using (var repository = this.CreateRepository<Permission>())
@@ -51,7 +51,7 @@ namespace Redack.DatabaseLayer.Test.Models
         [Fact]
         public void WithoutContentType()
         {
-            var permission = this.CreatePermission<Permission>(false);
+            var permission = this.CreatePermission<Permission>(push: false);
             permission.ContentType = null;
 
             using (var repository = this.CreateRepository<Permission>())
