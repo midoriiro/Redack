@@ -33,9 +33,7 @@ namespace Redack.ServiceLayer.Controllers
 		[JwtAuthorizationFilter]
 		public override async Task<IHttpActionResult> Post([FromBody] BaseRequest<Message> request)
 		{
-			var result = await base.Post(request);
-
-			return result;
+			return await base.Post(request);
 		}
 
 		[JwtAuthorizationFilter]
