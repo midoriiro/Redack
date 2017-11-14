@@ -136,9 +136,12 @@
     <Compile Include="Models\Request\ClientPutRequest.cs" />
     <Compile Include="Models\Request\ClientPostRequest.cs" />
     <Compile Include="Models\Request\CredentialPutRequest.cs" />
+    <Compile Include="Models\Request\GroupPutRequest.cs" />
+    <Compile Include="Models\Request\GroupPostRequest.cs" />
     <Compile Include="Models\Request\IRequest.cs" />
     <Compile Include="Models\Request\MessagePutRequest.cs" />
     <Compile Include="Models\Request\MessagePostRequest.cs" />
+    <Compile Include="Models\Request\UserPutRequest.cs" />
     <Compile Include="Models\SignInRequest.cs" />
     <Compile Include="Models\SignUpRequest.cs" />
     <Compile Include="Models\BaseModel.cs" />

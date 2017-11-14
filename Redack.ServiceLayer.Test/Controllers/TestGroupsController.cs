@@ -2,7 +2,10 @@
 using Redack.ServiceLayer.Controllers;
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Web.Http.Results;
+using Redack.ServiceLayer.Models.Request;
 using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
@@ -10,21 +13,24 @@ namespace Redack.ServiceLayer.Test.Controllers
 {
 	public class TestGroupsController : BaseTestController<GroupsController>
 	{
-		/*[Fact]
+		[Fact]
 		public void GetAll_WithAuthentifiedUser()
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var response = this.Call(e => e.GetAll()).Result;
+			var request = this.CreateRequest(HttpMethod.Get);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(OkNegotiatedContentResult<List<Group>>));
+			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 		}
 
 		[Fact]
 		public void GetAll_WithUnauthentifiedUser()
 		{
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.GetAll()).Result);
+			var request = this.CreateRequest(HttpMethod.Get);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -32,8 +38,10 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["lambda"] as User);
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.GetAll()).Result);
+			var request = this.CreateRequest(HttpMethod.Get);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -41,30 +49,34 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var request = this.GetDataSet<Group>()["groups"]["lambda"].Id;
+			var parameter = this.GetDataSet<Group>()["groups"]["lambda"].Id;
 
-			var response = this.Call(e => e.Get(request)).Result;
+			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(OkNegotiatedContentResult<Group>));
+			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 		}
 
 		[Fact]
-		public void Get_WithInvalidRequest()
+		public void Get_WithInvalidId()
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var response = this.Call(e => e.Get(int.MaxValue)).Result;
+			var request = this.CreateRequest(HttpMethod.Get, int.MaxValue);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(NotFoundResult));
+			Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
 		}
 
 		[Fact]
 		public void Get_WithUnauthentifiedUser()
 		{
-			var request = this.GetDataSet<Group>()["groups"]["lambda"].Id;
+			var parameter = this.GetDataSet<Group>()["groups"]["lambda"].Id;
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Get(request)).Result);
+			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -72,10 +84,12 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["lambda"] as User);
 
-			var request = this.GetDataSet<Group>()["groups"]["lambda"].Id;
+			var parameter = this.GetDataSet<Group>()["groups"]["lambda"].Id;
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Get(request)).Result);
+			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -83,11 +97,14 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var request = this.CreateGroup(false);
+			var group = this.CreateGroup(false);
 
-			var response = this.Call(e => e.Post(request)).Result;
+			var body = this.CreateBodyRequest<GroupPostRequest, Group>(group);
 
-			Assert.IsInstanceOfType(response, typeof(CreatedAtRouteNegotiatedContentResult<Group>));
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
 		}
 
 		[Fact]
@@ -95,12 +112,15 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var request = this.CreateGroup(false);
-			request.Name = null;
+			var group = this.CreateGroup(false);
+			group.Name = null;
 
-			var response = this.Call(e => e.Post(request)).Result;
+			var body = this.CreateBodyRequest<GroupPostRequest, Group>(group);
 
-			Assert.IsInstanceOfType(response, typeof(InvalidModelStateResult));
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
 		}
 
 		[Fact]
@@ -108,18 +128,27 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var request = this.GetDataSet<Group>()["groups"]["lambda"] as Group;
+			var group = (Group)this.GetDataSet<Group>()["groups"]["lambda"];
 
-			var response = this.Call(e => e.Post(request)).Result;
+			var body = this.CreateBodyRequest<GroupPostRequest, Group>(group);
 
-			Assert.IsInstanceOfType(response, typeof(ConflictResult));
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Conflict, response.StatusCode);
 		}
 
 		[Fact]
 		public void Post_WithUnauthentifiedUser()
 		{
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Post(this.CreateGroup(false))).Result);
+			var group = this.CreateGroup(false);
+
+			var body = this.CreateBodyRequest<GroupPostRequest, Group>(group);
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -127,8 +156,14 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["lambda"] as User);
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Post(this.CreateGroup(false))).Result);
+			var group = this.CreateGroup();
+
+			var body = this.CreateBodyRequest<GroupPostRequest, Group>(group);
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -136,23 +171,29 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var request = this.GetDataSet<Group>()["groups"]["lambda"] as Group;
+			var group = (Group)this.GetDataSet<Group>()["groups"]["lambda"];
 
-			var response = this.Call(e => e.Put(request.Id, request)).Result;
+			var body = this.CreateBodyRequest<GroupPutRequest, Group>(group);
 
-			Assert.IsInstanceOfType(response, typeof(StatusCodeResult));
+			var request = this.CreateRequest(HttpMethod.Put, group.Id, body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 		}
 
 		[Fact]
-		public void Put_WithInvalidRequest()
+		public void Put_WithInvalidId()
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var request = this.GetDataSet<Group>()["groups"]["lambda"] as Group;
+			var group = (Group)this.GetDataSet<Group>()["groups"]["lambda"];
 
-			var response = this.Call(e => e.Put(request.Id + 1, request)).Result;
+			var body = this.CreateBodyRequest<GroupPutRequest, Group>(group);
 
-			Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+			var request = this.CreateRequest(HttpMethod.Put, int.MaxValue, body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
 		}
 
 		[Fact]
@@ -160,20 +201,27 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var request = this.CreateGroup(false);
+			var group = this.CreateGroup(false);
 
-			var response = this.Call(e => e.Put(request.Id, request)).Result;
+			var body = this.CreateBodyRequest<GroupPutRequest, Group>(group);
 
-			Assert.IsInstanceOfType(response, typeof(NotFoundResult));
+			var request = this.CreateRequest(HttpMethod.Put, group.Id, body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
 		}
 
 		[Fact]
 		public void Put_WithUnauthentifiedUser()
 		{
-			var request = this.GetDataSet<Group>()["groups"]["lambda"] as Group;
+			var group = (Group)this.GetDataSet<Group>()["groups"]["lambda"];
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Put(request.Id, request)).Result);
+			var body = this.CreateBodyRequest<GroupPutRequest, Group>(group);
+
+			var request = this.CreateRequest(HttpMethod.Put, group.Id, body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -181,41 +229,49 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["lambda"] as User);
 
-			var request = this.GetDataSet<Group>()["groups"]["lambda"] as Group;
+			var group = (Group)this.GetDataSet<Group>()["groups"]["lambda"];
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Put(request.Id, request)).Result);
+			var body = this.CreateBodyRequest<GroupPutRequest, Group>(group);
+
+			var request = this.CreateRequest(HttpMethod.Put, group.Id, body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
-
+		
 		[Fact]
 		public void Delete_WithAuthentifiedUser()
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var request = this.GetDataSet<Group>()["groups"]["lambda"].Id;
+			var parameter = this.GetDataSet<Group>()["groups"]["lambda"].Id;
 
-			var response = this.Call(e => e.Delete(request)).Result;
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(OkNegotiatedContentResult<Group>));
+			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 		}
 
 		[Fact]
-		public void Delete_WithInvalidRequest()
+		public void Delete_WithInvalidId()
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var response = this.Call(e => e.Delete(int.MaxValue)).Result;
+			var request = this.CreateRequest(HttpMethod.Delete, int.MaxValue);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(NotFoundResult));
+			Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
 		}
 
 		[Fact]
 		public void Delete_WithUnauthentifiedUser()
 		{
-			var request = this.GetDataSet<Group>()["groups"]["lambda"].Id;
+			var parameter = this.GetDataSet<Group>()["groups"]["lambda"].Id;
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Delete(request)).Result);
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -223,10 +279,12 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["lambda"] as User);
 
-			var request = this.GetDataSet<Group>()["groups"]["lambda"].Id;
+			var parameter = this.GetDataSet<Group>()["groups"]["lambda"].Id;
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Delete(request)).Result);
-		}*/
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+		}
 	}
 }

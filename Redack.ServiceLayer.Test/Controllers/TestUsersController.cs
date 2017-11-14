@@ -2,7 +2,10 @@
 using Redack.ServiceLayer.Controllers;
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Web.Http.Results;
+using Redack.ServiceLayer.Models.Request;
 using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
@@ -10,21 +13,24 @@ namespace Redack.ServiceLayer.Test.Controllers
 {
 	public class TestUsersController : BaseTestController<UsersController>
 	{
-		/*[Fact]
+		[Fact]
 		public void GetAll_WithAuthentifiedUser()
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<User>()["users"]["admin"] as User);
 
-			var response = this.Call(e => e.GetAll()).Result;
+			var request = this.CreateRequest(HttpMethod.Get);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(OkNegotiatedContentResult<List<User>>));
+			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 		}
 
 		[Fact]
 		public void GetAll_WithUnauthentifiedUser()
 		{
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.GetAll()).Result);
+			var request = this.CreateRequest(HttpMethod.Get);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -32,8 +38,10 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<User>()["users"]["lambda"] as User);
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.GetAll()).Result);
+			var request = this.CreateRequest(HttpMethod.Get);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -43,30 +51,34 @@ namespace Redack.ServiceLayer.Test.Controllers
 
 			this.CreateAuthentifiedUser(user);
 
-			var request = user.Id;
+			var parameter = user.Id;
 
-			var response = this.Call(e => e.Get(request)).Result;
+			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(OkNegotiatedContentResult<User>));
+			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 		}
 
 		[Fact]
-		public void Get_WithInvalidRequest()
+		public void Get_WithInvalidId()
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<User>()["users"]["admin"] as User);
 
-			var response = this.Call(e => e.Get(int.MaxValue)).Result;
+			var request = this.CreateRequest(HttpMethod.Get, int.MaxValue);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
 		public void Get_WithUnauthentifiedUser()
 		{
-			var request = this.GetDataSet<User>()["users"]["admin"];
+			var parameter = this.GetDataSet<User>()["users"]["admin"].Id;
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Get(request.Id)).Result);
+			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -74,20 +86,19 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<User>()["users"]["admin"] as User);
 
-			var request = this.CreateUser(push: false);
+			var request = this.CreateRequest(HttpMethod.Post);
+			var response = this.Client.SendAsync(request).Result;
 
-			var response = this.Call(e => e.Post(request)).Result;
-
-			Assert.IsInstanceOfType(response, typeof(NotFoundResult));
+			Assert.AreEqual(HttpStatusCode.MethodNotAllowed, response.StatusCode);
 		}
 
 		[Fact]
 		public void Post_WithUnauthentifiedUser()
 		{
-			var request = this.CreateUser(push: false);
+			var request = this.CreateRequest(HttpMethod.Post);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Post(request)).Result);
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -97,25 +108,27 @@ namespace Redack.ServiceLayer.Test.Controllers
 
 			this.CreateAuthentifiedUser(user);
 
-			var request = user;
+			var body = this.CreateBodyRequest<UserPutRequest, User>(user);
 
-			var response = this.Call(e => e.Put(request.Id, request)).Result;
+			var request = this.CreateRequest(HttpMethod.Put, user.Id, body);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(StatusCodeResult));
+			Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 		}
 
 		[Fact]
-		public void Put_WithInvalidRequest()
+		public void Put_WithInvalidId()
 		{
 			var user = (User)this.GetDataSet<User>()["users"]["admin"];
 
 			this.CreateAuthentifiedUser(user);
 
-			var request = user;
+			var body = this.CreateBodyRequest<UserPutRequest, User>(user);
 
-			var response = this.Call(e => e.Put(request.Id + 1, request)).Result;
+			var request = this.CreateRequest(HttpMethod.Put, int.MaxValue, body);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -123,11 +136,14 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<User>()["users"]["admin"] as User);
 
-			var request = this.CreateUser(push: false);
+			var user = this.CreateUser(push: false);
 
-			var response = this.Call(e => e.Put(request.Id, request)).Result;
+			var body = this.CreateBodyRequest<UserPutRequest, User>(user);
 
-			Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+			var request = this.CreateRequest(HttpMethod.Put, user.Id, body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -135,10 +151,12 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			var user = (User)this.GetDataSet<User>()["users"]["lambda"];
 
-			var request = user;
+			var body = this.CreateBodyRequest<UserPutRequest, User>(user);
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Put(request.Id, request)).Result);
+			var request = this.CreateRequest(HttpMethod.Put, user.Id, body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
 		}
 
 		[Fact]
@@ -148,20 +166,23 @@ namespace Redack.ServiceLayer.Test.Controllers
 
 			this.CreateAuthentifiedUser(user);
 
-			var request = user.Id;
+			var parameter = user.Id;
 
-			var response = this.Call(e => e.Delete(request)).Result;
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
+			var response = this.Client.SendAsync(request).Result;
 
-			Assert.IsInstanceOfType(response, typeof(NotFoundResult));
+			Assert.AreEqual(HttpStatusCode.MethodNotAllowed, response.StatusCode);
 		}
 
 		[Fact]
 		public void Delete_WithUnauthentifiedUser()
 		{
-			var request = this.CreateUser(push: false);
+			var parameter = this.CreateUser(push: false).Id;
 
-			Assert.ThrowsException<InvalidOperationException>(() => this.Call(
-				e => e.Delete(request.Id)).Result);
-		}*/
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+		}
 	}
 }
