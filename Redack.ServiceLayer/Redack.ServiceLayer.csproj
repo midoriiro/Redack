@@ -108,7 +108,8 @@
     <Compile Include="Controllers\IdentitiesController.cs" />
     <Compile Include="Controllers\IOwnerFilter.cs" />
     <Compile Include="Controllers\IRepositoryApiController.cs" />
-    <Compile Include="Controllers\ThreadController.cs" />
+    <Compile Include="Controllers\MessageRevisionsController.cs" />
+    <Compile Include="Controllers\ThreadsController.cs" />
     <Compile Include="Controllers\PermissionsController.cs" />
     <Compile Include="Controllers\NodesController.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
@@ -141,10 +142,13 @@
     <Compile Include="Models\Request\IRequest.cs" />
     <Compile Include="Models\Request\MessagePutRequest.cs" />
     <Compile Include="Models\Request\MessagePostRequest.cs" />
+    <Compile Include="Models\Request\MessageRevisionPostRequest.cs" />
     <Compile Include="Models\Request\NodePutRequest.cs" />
     <Compile Include="Models\Request\NodePostRequest.cs" />
     <Compile Include="Models\Request\PermissionPutRequest.cs" />
     <Compile Include="Models\Request\PermissionPostRequest.cs" />
+    <Compile Include="Models\Request\ThreadPutRequest.cs" />
+    <Compile Include="Models\Request\ThreadPostRequest.cs" />
     <Compile Include="Models\Request\UserPutRequest.cs" />
     <Compile Include="Models\SignInRequest.cs" />
     <Compile Include="Models\SignUpRequest.cs" />
