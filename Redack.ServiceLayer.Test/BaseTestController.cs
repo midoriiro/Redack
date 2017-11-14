@@ -61,6 +61,7 @@ namespace Redack.ServiceLayer.Test
 			var credentialLambda = this.CreateCredential(apikeys[1], push: false);
 
 			var userAdmin = this.CreateUser(credentialAdmin);
+			var userMod = this.CreateUser();
 			var userLambda = this.CreateUser(credentialLambda);
 
 			var groupAdmin = this.CreateGroup();
@@ -77,6 +78,7 @@ namespace Redack.ServiceLayer.Test
 			groupModerator.Permissions.Add(permissions["Retrieve"]);
 			groupModerator.Permissions.Add(permissions["Update"]);
 			groupModerator.Permissions.Add(permissions["Delete"]);
+			groupModerator.Users.Add(userMod);
 
 			var groupLambda = this.CreateGroup();
 			groupLambda.Name = "Lambda";
@@ -85,6 +87,7 @@ namespace Redack.ServiceLayer.Test
 			using (var repository = new Repository<Group>())
 			{
 				repository.Update(groupAdmin);
+				repository.Update(groupModerator);
 				repository.Update(groupLambda);
 
 				repository.Commit();
@@ -108,6 +111,7 @@ namespace Redack.ServiceLayer.Test
 					"users", new Dictionary<string, Entity>()
 					{
 						{ "admin", userAdmin },
+						{ "mod", userMod },
 						{ "lambda", userLambda }
 					}
 				},
