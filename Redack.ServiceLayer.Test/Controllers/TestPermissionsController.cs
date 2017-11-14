@@ -246,7 +246,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 
 			var parameter = this.CreatePermission<Permission>().Id;
 
-			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
 			var response = this.Client.SendAsync(request).Result;
 
 			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
@@ -257,7 +257,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Permission>()["users"]["admin"] as User);
 
-			var request = this.CreateRequest(HttpMethod.Get, int.MaxValue);
+			var request = this.CreateRequest(HttpMethod.Delete, int.MaxValue);
 			var response = this.Client.SendAsync(request).Result;
 
 			Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
@@ -268,7 +268,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			var parameter = this.CreatePermission<Permission>().Id;
 
-			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
 			var response = this.Client.SendAsync(request).Result;
 
 			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -281,7 +281,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 
 			var parameter = this.CreatePermission<Permission>().Id;
 
-			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
 			var response = this.Client.SendAsync(request).Result;
 
 			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
