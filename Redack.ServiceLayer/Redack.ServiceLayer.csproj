@@ -141,6 +141,10 @@
     <Compile Include="Models\Request\IRequest.cs" />
     <Compile Include="Models\Request\MessagePutRequest.cs" />
     <Compile Include="Models\Request\MessagePostRequest.cs" />
+    <Compile Include="Models\Request\NodePutRequest.cs" />
+    <Compile Include="Models\Request\NodePostRequest.cs" />
+    <Compile Include="Models\Request\PermissionPutRequest.cs" />
+    <Compile Include="Models\Request\PermissionPostRequest.cs" />
     <Compile Include="Models\Request\UserPutRequest.cs" />
     <Compile Include="Models\SignInRequest.cs" />
     <Compile Include="Models\SignUpRequest.cs" />
