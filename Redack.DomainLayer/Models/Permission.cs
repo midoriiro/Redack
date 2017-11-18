@@ -10,6 +10,7 @@ namespace Redack.DomainLayer.Models
     public class Permission : Entity
     {
         [Required(ErrorMessage = "The codename field is required")]
+        [StringLength(25)]
         [Index("UIX_ContentTypeAndCodename", IsUnique = true, Order = 2)]
         public string Codename { get; set; }
 
@@ -18,6 +19,7 @@ namespace Redack.DomainLayer.Models
         public string HelpText { get; set; }
 
         [Required(ErrorMessage = "The content type field is required")]
+        [StringLength(25)]
         [Index("UIX_ContentTypeAndCodename", IsUnique = true, Order = 1)]
         public string ContentType { get; set; }
 
