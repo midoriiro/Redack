@@ -92,9 +92,9 @@ namespace Redack.DatabaseLayer.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Codename = c.String(nullable: false),
+                        Codename = c.String(nullable: false, maxLength: 25),
                         HelpText = c.String(nullable: false),
-                        ContentType = c.String(nullable: false),
+                        ContentType = c.String(nullable: false, maxLength: 25),
                     })
                 .PrimaryKey(t => t.Id)
                 .Index(t => new { t.ContentType, t.Codename }, unique: true, name: "UIX_ContentTypeAndCodename");
@@ -112,7 +112,6 @@ namespace Redack.DatabaseLayer.Migrations
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.Threads", t => t.Thread_Id, cascadeDelete: true)
                 .ForeignKey("dbo.Users", t => t.Author_Id)
-                .Index(t => t.Date)
                 .Index(t => t.Thread_Id)
                 .Index(t => t.Author_Id);
             
@@ -229,7 +228,6 @@ namespace Redack.DatabaseLayer.Migrations
             DropIndex("dbo.MessageRevisions", new[] { "Editor_Id" });
             DropIndex("dbo.Messages", new[] { "Author_Id" });
             DropIndex("dbo.Messages", new[] { "Thread_Id" });
-            DropIndex("dbo.Messages", new[] { "Date" });
             DropIndex("dbo.Permissions", "UIX_ContentTypeAndCodename");
             DropIndex("dbo.Groups", new[] { "Name" });
             DropIndex("dbo.Credentials", new[] { "User_Id" });
