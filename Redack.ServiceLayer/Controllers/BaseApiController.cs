@@ -18,12 +18,15 @@ namespace Redack.ServiceLayer.Controllers
 
 		public Identity GetIdentity()
 		{
-			var jwtIdentity = this.User.Identity as JwtIdentity;
+			var jwtIdentity = (JwtIdentity)this.User.Identity;
 
-			Identity identity = jwtIdentity?.Identity;
+            if (jwtIdentity == null)
+                return null;
 
-			if (identity == null || !this.Context.Identities.Any(e => e.Id == identity.Id))
-				throw new InvalidOperationException();
+			Identity identity = jwtIdentity.Identity;
+
+            if (identity == null)
+                return null;
 
 			return identity;
 		}

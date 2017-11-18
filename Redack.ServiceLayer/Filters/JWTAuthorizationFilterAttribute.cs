@@ -53,7 +53,7 @@ namespace Redack.ServiceLayer.Filters
 					.Where(e => e.Access == token)
 					.Include(e => e.User.Credential.ApiKey)
 					.Include(e => e.Client.ApiKey)
-					.Single();
+					.SingleOrDefault();
 			}
 
 			return identity;

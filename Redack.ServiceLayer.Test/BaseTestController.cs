@@ -164,12 +164,17 @@ namespace Redack.ServiceLayer.Test
 			return new AuthenticationHeaderValue("Basic", identity.Access);
 		}
 
-		public void CreateAuthentifiedUser(User user)
+		public void CreateAuthentifiedUser(User user, Client client = null)
 		{
-			this._auth = this.CreateAuthenticationHeader(this.CreateIdentity(user));
+			this._auth = this.CreateAuthenticationHeader(this.CreateIdentity(user, client));
 		}
 
-		public IRequest CreateBodyRequest<TRequest, TEntity>(TEntity entity) where TRequest : BaseRequest<TEntity>, new () where TEntity : Entity
+        public void CreateAuthentifiedUser(Identity identity)
+        {
+            this._auth = this.CreateAuthenticationHeader(identity);
+        }
+
+        public IRequest CreateBodyRequest<TRequest, TEntity>(TEntity entity) where TRequest : BaseRequest<TEntity>, new () where TEntity : Entity
 		{
 			var request = new TRequest();
 			request.FromEntity(entity);
@@ -177,11 +182,11 @@ namespace Redack.ServiceLayer.Test
 			return request;
 		}
 
-		public HttpRequestMessage CreateRequest(HttpMethod method, int? id = null, IRequest body = null)
+		public HttpRequestMessage CreateRequest(HttpMethod method, int? id = null, IRequest body = null, string uriEndPoint = null)
 		{
 			var request = new HttpRequestMessage()
 			{
-				RequestUri = new Uri(this.GetUrIFromMethodName(method, this.GetEntityNameFromClassName(), id)),
+				RequestUri = new Uri(this.GetUrIFromMethodName(method, this.GetEntityNameFromClassName(), id) + "/" + uriEndPoint),
 				Method = method,
 			};
 

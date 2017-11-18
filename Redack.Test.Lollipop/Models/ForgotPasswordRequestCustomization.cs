@@ -1,5 +1,5 @@
 ﻿using Ploeh.AutoFixture;
-using Redack.ServiceLayer.Models;
+using Redack.ServiceLayer.Models.Request;
 using Redack.Test.Lollipop.Customizations;
 using Redack.Test.Lollipop.Entities;
 

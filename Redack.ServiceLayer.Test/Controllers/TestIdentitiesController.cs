@@ -1,6 +1,5 @@
 ﻿using Ploeh.AutoFixture;
 using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Controllers;
 using Redack.ServiceLayer.Models;
 using Redack.ServiceLayer.Security;
@@ -9,6 +8,10 @@ using System.Web.Http.Results;
 using Redack.Test.Lollipop.Models;
 using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Redack.ServiceLayer.Models.Request;
+using Redack.DomainLayer.Models;
+using System.Net.Http;
+using System.Net;
 
 namespace Redack.ServiceLayer.Test.Controllers
 {
@@ -24,7 +27,7 @@ namespace Redack.ServiceLayer.Test.Controllers
             fixture.Customize(new SignUpRequestCustomization());
 
             var request = fixture.Create<SignUpRequest>();
-            request.Client = client;
+            request.Client = client.Id;
             request.Login = user.Credential.Login;
             request.Password = user.Credential.Password;
             request.PasswordConfirm = user.Credential.PasswordConfirm;
@@ -42,7 +45,7 @@ namespace Redack.ServiceLayer.Test.Controllers
             fixture.Customize(new SignInRequestCustomization());
 
             var request = fixture.Create<SignInRequest>();
-            request.Client = client;
+            request.Client = client.Id;
             request.Login = user.Credential.Login;
             request.Password = user.Credential.Password;
 
@@ -59,7 +62,7 @@ namespace Redack.ServiceLayer.Test.Controllers
             fixture.Customize(new ForgotPasswordRequestCustomization());
 
             var request = fixture.Create<ForgotPasswordRequest>();
-            request.Client = client;
+            request.Client = client.Id;
             request.Login = user.Credential.Login;
             request.OldPassword = user.Credential.Password;
 
@@ -69,21 +72,23 @@ namespace Redack.ServiceLayer.Test.Controllers
         [Fact]
         public void SignUp_WithValidRequest()
         {
-            var request = this.CreateValidSignUpRequest(pushUser: false);
+            var signUpRequest = this.CreateValidSignUpRequest(pushUser: false);
 
-            var response = this.Controller.SignUp(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: signUpRequest, uriEndPoint: "signup");            
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(CreatedAtRouteNegotiatedContentResult<User>));
+            Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
         }
 
         [Fact]
         public void SignUp_WithExistingUser()
         {
-            var request = this.CreateValidSignUpRequest();
+            var signUpRequest = this.CreateValidSignUpRequest();
 
-            var response = this.Controller.SignUp(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: signUpRequest, uriEndPoint: "signup");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(ConflictResult));
+            Assert.AreEqual(HttpStatusCode.Conflict, response.StatusCode);
         }
 
         [Fact]
@@ -95,49 +100,54 @@ namespace Redack.ServiceLayer.Test.Controllers
             user.Credential.Password = fixture.Create<string>();
             user.Credential.PasswordConfirm = fixture.Create<string>();
 
-            var request = this.CreateValidSignUpRequest(user, pushUser: false);
+            var signUpRequest = this.CreateValidSignUpRequest(user, pushUser: false);
 
-            var response = this.Controller.SignUp(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: signUpRequest, uriEndPoint: "signup");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(InvalidModelStateResult));
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
         public void SignUp_WithNonExistingClient()
         {
-            var request = this.CreateValidSignUpRequest(pushClient: false);
+            var signUpRequest = this.CreateValidSignUpRequest(pushClient: false);
 
-            var response = this.Controller.SignUp(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: signUpRequest, uriEndPoint: "signup");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
         public void SignUp_WithBlockedClient()
         {
-            var request = this.CreateValidSignUpRequest();
+            var client = this.CreateClient();
+            client.IsBlocked = true;
 
-            request.Client.IsBlocked = true;
-
-            using (var repository = this.CreateRepository<Client>())
+            using (var repository = new Repository<Client>())
             {
-                repository.Update(request.Client);
+                repository.Update(client);
                 repository.Commit();
             }
 
-            var response = this.Controller.SignUp(request).Result;
+            var signUpRequest = this.CreateValidSignUpRequest(client: client);
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            var request = this.CreateRequest(HttpMethod.Post, body: signUpRequest, uriEndPoint: "signup");
+            var response = this.Client.SendAsync(request).Result;
+
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
         public void SignIn_WithValidRequest()
         {
-            var request = this.CreateSignInRequest();
+            var signInRequest = this.CreateSignInRequest();
 
-            var response = this.Controller.SignIn(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: signInRequest, uriEndPoint: "signin");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(OkNegotiatedContentResult<TokenResponse>));
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [Fact]
@@ -146,11 +156,12 @@ namespace Redack.ServiceLayer.Test.Controllers
             var user = this.CreateUser();
             var identity = this.CreateIdentity(user);
 
-            var request = this.CreateSignInRequest(user, identity.Client);
+            var signInRequest = this.CreateSignInRequest(user, identity.Client);
 
-            var response = this.Controller.SignIn(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: signInRequest, uriEndPoint: "signin");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(ConflictResult));
+            Assert.AreEqual(HttpStatusCode.Conflict, response.StatusCode);
         }
 
         [Fact]
@@ -160,12 +171,13 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             var user = this.CreateUser();
 
-            var request = this.CreateSignInRequest(user);
-            request.Login = fixture.Create<string>();
+            var signInRequest = this.CreateSignInRequest(user);
+            signInRequest.Login = fixture.Create<string>();
 
-            var response = this.Controller.SignIn(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: signInRequest, uriEndPoint: "signin");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -175,41 +187,44 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             var user = this.CreateUser();
 
-            var request = this.CreateSignInRequest(user);
-            request.Password = fixture.Create<string>();
+            var signInRequest = this.CreateSignInRequest(user);
+            signInRequest.Password = fixture.Create<string>();
 
-            var response = this.Controller.SignIn(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: signInRequest, uriEndPoint: "signin");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
         public void SignIn_WithBlockedClient()
         {
-            var request = this.CreateSignInRequest();
-
-            request.Client.IsBlocked = true;
+            var client = this.CreateClient();
+            client.IsBlocked = true;
 
             using (var repository = this.CreateRepository<Client>())
             {
-                repository.Update(request.Client);
+                repository.Update(client);
                 repository.Commit();
             }
 
-            var response = this.Controller.SignIn(request).Result;
+            var signInRequest = this.CreateSignInRequest(client: client);
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            var request = this.CreateRequest(HttpMethod.Post, body: signInRequest, uriEndPoint: "signin");
+            var response = this.Client.SendAsync(request).Result;
+
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
         public void SignIn_WithNonExistingClient()
         {
-            var fixture = new Fixture();
-            fixture.Customize(new SignInRequestCustomization());
+            var signInRequest = this.CreateSignInRequest(pushClient: false);
 
-            var response = this.Controller.SignIn(fixture.Create<SignInRequest>()).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: signInRequest, uriEndPoint: "signin");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -221,11 +236,12 @@ namespace Redack.ServiceLayer.Test.Controllers
             var client = this.CreateClient();
             var identity = this.CreateIdentity(user, client);
 
-            this.SetControllerIdentity(new JwtIdentity(identity));
+            this.CreateAuthentifiedUser(identity);
 
-            var response = this.Controller.SignOut().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "signout");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(OkResult));
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             using (var repository = this.CreateRepository<Identity>())
             {
@@ -256,9 +272,10 @@ namespace Redack.ServiceLayer.Test.Controllers
         [Fact]
         public void SignOut_WithNonExistingIdentity()
         {
-            var response = this.Controller.SignOut().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "signout");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -269,29 +286,32 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             var identity = fixture.Create<Identity>();
 
-            this.SetControllerIdentity(new JwtIdentity(identity));
+            this.CreateAuthentifiedUser(identity);
 
-            var response = this.Controller.SignOut().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "signout");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
         public void Refresh_WithValidIdentity()
         {
-            this.SetControllerIdentity(new JwtIdentity(this.CreateIdentity()));
+            this.CreateAuthentifiedUser(this.CreateIdentity());
 
-            var response = this.Controller.Refresh().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "refresh");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(OkNegotiatedContentResult<TokenResponse>));
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [Fact]
         public void Refresh_WithNonExistingIdentity()
         {
-            var response = this.Controller.Refresh().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "refresh");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -302,11 +322,12 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             var identity = fixture.Create<Identity>();
 
-            this.SetControllerIdentity(new JwtIdentity(identity));
+            this.CreateAuthentifiedUser(identity);
 
-            var response = this.Controller.Refresh().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "refresh");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -325,11 +346,12 @@ namespace Redack.ServiceLayer.Test.Controllers
                 repository.Commit();
             }
 
-            this.SetControllerIdentity(new JwtIdentity(identity));
+            this.CreateAuthentifiedUser(identity);
 
-            var response = this.Controller.Refresh().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "refresh");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -340,11 +362,12 @@ namespace Redack.ServiceLayer.Test.Controllers
             identity.Access = JwtTokenizer.Encode(identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, -0.01);
             identity.Refresh = JwtTokenizer.Encode(identity.User.Credential.ApiKey.Key, identity.Client.ApiKey.Key, -0.01);
 
-            this.SetControllerIdentity(new JwtIdentity(identity));
+            this.CreateAuthentifiedUser(identity);
 
-            var response = this.Controller.Refresh().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "refresh");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -354,17 +377,20 @@ namespace Redack.ServiceLayer.Test.Controllers
             var credential = this.CreateCredential(apiKey, false);
             var user = this.CreateUser(credential);
             var client = this.CreateClient();
-            var identity = this.CreateIdentity(user, client);
+            var identity1 = this.CreateIdentity(user, client);
+            var identity2 = this.CreateIdentity(user);
 
-            this.SetControllerIdentity(new JwtIdentity(identity));
+            this.CreateAuthentifiedUser(identity1);
 
-            var response = this.Controller.SignDown().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "signdown");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(OkResult));
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             using (var repository = this.CreateRepository<Identity>())
             {
-                Assert.IsNull(repository.GetById(identity.Id));
+                Assert.IsNull(repository.GetById(identity1.Id));
+                Assert.IsNull(repository.GetById(identity2.Id));
             }
 
             using (var repository = this.CreateRepository<Client>())
@@ -396,11 +422,12 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             var identity = fixture.Create<Identity>();
 
-            this.SetControllerIdentity(new JwtIdentity(identity));
+            this.CreateAuthentifiedUser(identity);
 
-            var response = this.Controller.SignDown().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "signdown");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -416,11 +443,12 @@ namespace Redack.ServiceLayer.Test.Controllers
             var identity1 = this.CreateIdentity(user, client1);
             var identity2 = this.CreateIdentity(user, client2);
 
-            this.SetControllerIdentity(new JwtIdentity(identity1));
+            this.CreateAuthentifiedUser(identity1);
 
-            var response = this.Controller.SignOutAll().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "signout/all");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(OkResult));
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             using (var repository = this.CreateRepository<Identity>())
             {
@@ -460,11 +488,12 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             var identity = fixture.Create<Identity>();
 
-            this.SetControllerIdentity(new JwtIdentity(identity));
+            this.CreateAuthentifiedUser(identity);
 
-            var response = this.Controller.SignDown().Result;
+            var request = this.CreateRequest(HttpMethod.Get, uriEndPoint: "signout/all");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(BadRequestResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -472,13 +501,14 @@ namespace Redack.ServiceLayer.Test.Controllers
         {
             var identity = this.CreateIdentity();
 
-            this.SetControllerIdentity(new JwtIdentity(identity));
+            this.CreateAuthentifiedUser(identity);
 
-            var request = this.CreateForgotPasswordRequest(identity.User);
+            var passwordRequest = this.CreateForgotPasswordRequest(identity.User);
 
-            var response = this.Controller.SignInForgotPassword(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: passwordRequest, uriEndPoint: "signin/forgotpassword");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(OkResult));
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
             using (var repository = this.CreateRepository<Identity>())
             {
@@ -489,11 +519,12 @@ namespace Redack.ServiceLayer.Test.Controllers
         [Fact]
         public void ForgotPassword_WithValidRequestAndZeroIdentity()
         {
-            var request = this.CreateForgotPasswordRequest();
+            var passwordRequest = this.CreateForgotPasswordRequest();
 
-            var response = this.Controller.SignInForgotPassword(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: passwordRequest, uriEndPoint: "signin/forgotpassword");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(OkResult));
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [Fact]
@@ -503,12 +534,13 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             var user = this.CreateUser();
 
-            var request = this.CreateForgotPasswordRequest(user);
-            request.Login = fixture.Create<string>();
+            var passwordRequest = this.CreateForgotPasswordRequest(user);
+            passwordRequest.Login = fixture.Create<string>();
 
-            var response = this.Controller.SignInForgotPassword(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: passwordRequest, uriEndPoint: "signin/forgotpassword");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -518,12 +550,13 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             var user = this.CreateUser();
 
-            var request = this.CreateForgotPasswordRequest(user);
-            request.OldPassword = fixture.Create<string>();
+            var passwordRequest = this.CreateForgotPasswordRequest(user);
+            passwordRequest.OldPassword = fixture.Create<string>();
 
-            var response = this.Controller.SignInForgotPassword(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: passwordRequest, uriEndPoint: "signin/forgotpassword");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
@@ -533,12 +566,13 @@ namespace Redack.ServiceLayer.Test.Controllers
 
             var user = this.CreateUser();
 
-            var request = this.CreateForgotPasswordRequest(user);
-            request.NewPasswordConfirm = fixture.Create<string>();
+            var passwordRequest = this.CreateForgotPasswordRequest(user);
+            passwordRequest.NewPasswordConfirm = fixture.Create<string>();
 
-            var response = this.Controller.SignInForgotPassword(request).Result;
+            var request = this.CreateRequest(HttpMethod.Post, body: passwordRequest, uriEndPoint: "signin/forgotpassword");
+            var response = this.Client.SendAsync(request).Result;
 
-            Assert.IsInstanceOfType(response, typeof(InvalidModelStateResult));
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
@@ -547,26 +581,32 @@ namespace Redack.ServiceLayer.Test.Controllers
             var fixture = new Fixture();
             fixture.Customize(new ForgotPasswordRequestCustomization());
 
-            var response = this.Controller.SignInForgotPassword(fixture.Create<ForgotPasswordRequest>()).Result;
+            var passwordRequest = fixture.Create<ForgotPasswordRequest>();
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            var request = this.CreateRequest(HttpMethod.Post, body: passwordRequest, uriEndPoint: "signin/forgotpassword");
+            var response = this.Client.SendAsync(request).Result;
+
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
         public void ForgotPassword_WithBlockedClient()
         {
-            var request = this.CreateForgotPasswordRequest();
-            request.Client.IsBlocked = true;
+            var client = this.CreateClient();
+            client.IsBlocked = true;
 
             using (var repository = this.CreateRepository<Client>())
             {
-                repository.Update(request.Client);
+                repository.Update(client);
                 repository.Commit();
             }
 
-            var response = this.Controller.SignInForgotPassword(request).Result;
+            var passwordRequest = this.CreateForgotPasswordRequest(client: client);
 
-            Assert.IsInstanceOfType(response, typeof(UnauthorizedResult));
+            var request = this.CreateRequest(HttpMethod.Post, body: passwordRequest, uriEndPoint: "signin/forgotpassword");
+            var response = this.Client.SendAsync(request).Result;
+
+            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
         }
     }
 }

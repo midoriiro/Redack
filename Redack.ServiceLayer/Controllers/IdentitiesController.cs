@@ -2,6 +2,7 @@
 using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models;
+using Redack.ServiceLayer.Models.Request;
 using Redack.ServiceLayer.Security;
 using System;
 using System.Data.Entity.Infrastructure;
@@ -16,7 +17,7 @@ namespace Redack.ServiceLayer.Controllers
     [RoutePrefix("api/identities")]
     public class IdentitiesController : BaseApiController
     {
-        private readonly int _keySize = 256;
+        public static readonly int KeySize = 256;
         private readonly int _expirationTimeAccess = 5;
         private readonly int _expirationTimeRefresh = 604800;
 
@@ -35,44 +36,39 @@ namespace Redack.ServiceLayer.Controllers
         [HttpPost]
         [Route("signup")]
         [ResponseType(typeof(void))]
-        public virtual async Task<IHttpActionResult> SignUp([FromBody]SignUpRequest request)
+        public virtual async Task<IHttpActionResult> SignUp([FromBody] SignUpRequest request)
         {
-            try
-            {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                this._repositoryClient.Query(
-                    e => e.ApiKey.Id == request.Client.ApiKey.Id && e.IsBlocked == false).Single();
-            }
-            catch (InvalidOperationException)
-            {
+            if (!this.ModelState.IsValid)
+                return this.BadRequest(this.ModelState);
+
+            Identity identity = (Identity)request.ToEntity(this.Context);
+
+            if(identity.Client == null || identity.Client.IsBlocked)
                 return this.Unauthorized();
-            }
 
-            var user = DomainLayer.Models.User.Create(
-                request.Login, 
-                request.Password, 
-                request.PasswordConfirm, 
-                this._keySize);
-
-            this._repositoryUser.Insert(user);
+            this._repositoryUser.Insert(identity.User);
 
             try
             {
                 await this._repositoryUser.CommitAsync();
             }
-            catch (DbEntityValidationException)
+            catch (DbEntityValidationException e)
             {
+                this.Validate<User>(identity.User);
                 return this.BadRequest(this.ModelState);
             }
             catch (DbUpdateException)
             {
-                if (this._repositoryUser.Query(e => e.Credential.Login == request.Login).Count() == 1)
-                    return this.Conflict();
-
-                throw;
+                return this.Conflict();
             }
 
-            return this.CreatedAtRoute(WebApiConfig.DefaultRouteName, new { id = user.Id }, user);
+            return this.CreatedAtRoute(
+                WebApiConfig.DefaultRouteName, 
+                new {
+                    controller = "users",
+                    id = identity.User.Id
+                }, 
+                identity.User);
         }
 
         // GET: api/Identities/
@@ -82,16 +78,12 @@ namespace Redack.ServiceLayer.Controllers
         [ResponseType(typeof(void))]
         public virtual async Task<IHttpActionResult> SignDown()
         {
-            Identity identity;
+            Identity identity = identity = this.GetIdentity();
 
-            try
-            {
-                identity = this.GetIdentity();
-            }
-            catch (InvalidOperationException)
-            {
-                return this.BadRequest();
-            }
+            if (identity == null)
+                return this.Unauthorized();
+
+            await this.SignOutAll();
 
             this._repositoryUser.Delete(identity.User);
             await this._repositoryUser.CommitAsync();
@@ -103,37 +95,22 @@ namespace Redack.ServiceLayer.Controllers
         [HttpPost]
         [Route("signin")]
         [ResponseType(typeof(TokenResponse))]
-        public virtual async Task<IHttpActionResult> SignIn([FromBody]SignInRequest request)
+        public virtual async Task<IHttpActionResult> SignIn([FromBody] SignInRequest request)
         {
-            User user;
-            Client client;
+            if (!this.ModelState.IsValid)
+                return this.BadRequest(this.ModelState);
 
-            try
-            {
-                user = this._repositoryUser.Query(
-                    e => e.Credential.Login == request.Login && e.Credential.Password == request.Password).Single();
+            var identity = (Identity)request.ToEntity(this.Context);
 
-                client = this._repositoryClient.Query(
-                    e => e.ApiKey.Id == request.Client.ApiKey.Id && e.IsBlocked == false).Single();
-            }
-            catch (InvalidOperationException)
-            {
+            if (identity.User == null || identity.Client == null || identity.Client.IsBlocked)
                 return this.Unauthorized();
-            }
 
-            var exist = this._repository.Query(
-                    e => e.User.Credential.ApiKey.Id == user.Credential.ApiKey.Id &&
-                         e.Client.Id == request.Client.Id)
-                .Any();
+            bool exist = this._repository
+                .All()
+                .Any(e => e.User.Id == identity.User.Id && e.Client.Id == identity.Client.Id);
 
             if(exist)
                 return this.Conflict();
-
-            Identity identity = new Identity
-            {
-                Client = client,
-                User = user
-            };
 
             this.GetToken(identity);
 
@@ -149,29 +126,15 @@ namespace Redack.ServiceLayer.Controllers
         [ResponseType(typeof(void))]
         public virtual async Task<IHttpActionResult> SignInForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            User user;
+            if(!this.ModelState.IsValid)
+                return this.BadRequest(this.ModelState);
 
-            try
-            {
-                user = this._repositoryUser.Query(
-                    e => e.Credential.Login == request.Login && e.Credential.Password == request.OldPassword).Single();
+            Identity identity = (Identity)request.ToEntity(this.Context);
 
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                this._repositoryClient.Query(
-                    e => e.ApiKey.Id == request.Client.ApiKey.Id && e.IsBlocked == false).Single();
-            }
-            catch (InvalidOperationException)
-            {
+            if (identity == null || identity.Client == null || identity.Client.IsBlocked)
                 return this.Unauthorized();
-            }
 
-            user = DomainLayer.Models.User.Update(
-                user, 
-                request.NewPassword, 
-                request.NewPasswordConfirm, 
-                this._keySize);
-
-            this._repositoryUser.Update(user);
+            this._repositoryUser.Update(identity.User);
 
             try
             {
@@ -179,15 +142,12 @@ namespace Redack.ServiceLayer.Controllers
             }
             catch (DbEntityValidationException)
             {
+                this.Validate<User>(identity.User);
                 return this.BadRequest(this.ModelState);
             }
 
-            var identities = this._repository.Query(e => e.User.Id == user.Id).ToList();
-
-            foreach (var id in identities)
-            {
-                this._repository.Delete(id);
-            }
+            var identities = this._repository.Query(e => e.User.Id == identity.User.Id).ToList();
+            identities.ForEach(e => this._repository.Delete(e));
 
             await this._repository.CommitAsync();
 
@@ -201,16 +161,10 @@ namespace Redack.ServiceLayer.Controllers
         [ResponseType(typeof(void))]
         public virtual async Task<IHttpActionResult> SignOut()
         {
-            Identity identity;
+            Identity identity = this.GetIdentity();
 
-            try
-            {
-                identity = this.GetIdentity();
-            }
-            catch (InvalidOperationException)
-            {
-                return this.BadRequest();
-            }
+            if (identity == null)
+                return this.Unauthorized();
 
             this._repository.Delete(identity);
             await this._repository.CommitAsync();
@@ -225,23 +179,13 @@ namespace Redack.ServiceLayer.Controllers
         [ResponseType(typeof(void))]
         public virtual async Task<IHttpActionResult> SignOutAll()
         {
-            Identity identity;
+            Identity identity = this.GetIdentity();
 
-            try
-            {
-                identity = this.GetIdentity();
-            }
-            catch (InvalidOperationException)
-            {
-                return this.BadRequest();
-            }
+            if (identity == null)
+                return this.Unauthorized();
 
             var identities = this._repository.Query(e => e.User.Id == identity.User.Id).ToList();
-
-            foreach (var id in identities)
-            {
-                this._repository.Delete(id);
-            }
+            identities.ForEach(e => this._repository.Delete(e));
 
             await this._repository.CommitAsync();
 
@@ -255,19 +199,12 @@ namespace Redack.ServiceLayer.Controllers
         [ResponseType(typeof(TokenResponse))]
         public virtual async Task<IHttpActionResult> Refresh()
         {
-            Identity identity;
+            Identity identity = this.GetIdentity();
 
-            try
-            {
-                identity = this.GetIdentity();
-            }
-            catch (InvalidOperationException)
-            {
-                return this.BadRequest();
-            }
+            if (identity == null || identity.Client.IsBlocked)
+                return this.Unauthorized();
 
-            if (identity.Client.IsBlocked || 
-                !JwtTokenizer.IsValid(
+            if (!JwtTokenizer.IsValid(
                     identity.User.Credential.ApiKey.Key, 
                     identity.Client.ApiKey.Key, 
                     identity.Refresh))
