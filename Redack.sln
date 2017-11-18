@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.15
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.DomainLayer", "Redack.DomainLayer\Redack.DomainLayer.csproj", "{24A7BD77-65DB-4BE9-BD2B-DCDA1A4B3E0C}"
 EndProject
@@ -32,7 +32,6 @@ Global
 		{93588A82-B7BE-4732-BC94-0CE12AF37C96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{93588A82-B7BE-4732-BC94-0CE12AF37C96}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93588A82-B7BE-4732-BC94-0CE12AF37C96}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93588A82-B7BE-4732-BC94-0CE12AF37C96}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3B68FAE3-84FD-4CE1-8357-9F5A93AB1F34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3B68FAE3-84FD-4CE1-8357-9F5A93AB1F34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B68FAE3-84FD-4CE1-8357-9F5A93AB1F34}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -40,11 +39,9 @@ Global
 		{B4A03248-01D0-4049-B068-E1A0CD4108F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B4A03248-01D0-4049-B068-E1A0CD4108F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4A03248-01D0-4049-B068-E1A0CD4108F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B4A03248-01D0-4049-B068-E1A0CD4108F3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0D96D605-583F-4531-98B9-298110974B41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0D96D605-583F-4531-98B9-298110974B41}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D96D605-583F-4531-98B9-298110974B41}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0D96D605-583F-4531-98B9-298110974B41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
