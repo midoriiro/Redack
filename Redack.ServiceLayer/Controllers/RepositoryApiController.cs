@@ -72,6 +72,7 @@ namespace Redack.ServiceLayer.Controllers
 			}
 			catch (DbEntityValidationException)
 			{
+                this.Validate<TEntity>(entity);
 				return this.BadRequest(ModelState);
 			}
 			catch (DbUpdateException)
