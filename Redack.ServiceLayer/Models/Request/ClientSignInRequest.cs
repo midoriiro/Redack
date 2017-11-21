@@ -8,7 +8,7 @@ using Redack.DomainLayer.Models;
 
 namespace Redack.ServiceLayer.Models.Request
 {
-	public class ClientPostRequest : BaseRequest<Client>
+	public class ClientSignInRequest : BaseRequest<Client>
 	{
 		[Required]
 		public string Name { get; set; }
@@ -16,19 +16,21 @@ namespace Redack.ServiceLayer.Models.Request
 		[Required]
 		public string PassPhrase { get; set; }
 
-		[Required]
-		public int ApiKey { get; set; }
-
 		public override Entity ToEntity(RedackDbContext context)
 		{
-			ApiKey apikey;
+			Client client;
 
-			using (var repository = new Repository<ApiKey>(context, false))
-				apikey = repository
-					.Query(e => e.Id == this.ApiKey)
+			using (var repository = new Repository<Client>(context, false))
+			{
+				client = repository
+					.Query(e => e.Name == this.Name)
 					.SingleOrDefault();
 
-			return Client.Create(this.Name, this.PassPhrase, apikey);
+				if (client == null || !client.IsValid(this.PassPhrase))
+					return null;
+			}
+
+			return client;
 		}
 
 		public override void FromEntity(Entity entity)
@@ -37,7 +39,6 @@ namespace Redack.ServiceLayer.Models.Request
 
 			this.Name = client.Name;
 			this.PassPhrase = client.PassPhrase;
-			this.ApiKey = client.ApiKey.Id;
 		}
 	}
 }
