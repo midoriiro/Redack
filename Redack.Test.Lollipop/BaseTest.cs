@@ -249,7 +249,13 @@ namespace Redack.Test.Lollipop
             var client = fixture.Create<Client>();
             client.ApiKey = apiKey;
 
-            if (!push) return client;
+			int id = client.Id;
+
+			client = Client.Create(client.Name, client.PassPhrase, client.ApiKey);
+			client.Id = id;
+			client.IsBlocked = false;
+
+			if (!push) return client;
 
             using (var repository = this.CreateRepository<Client>(this.Context, false))
             {
