@@ -15,6 +15,7 @@ namespace Redack.DomainLayer.Models
         [Index]
         public string Alias { get; set; }
 
+		[Required]
         public string IdentIcon { get; set; }
 
         [Required(ErrorMessage = "The state field is required")]
