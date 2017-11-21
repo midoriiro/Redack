@@ -46,7 +46,7 @@ namespace Redack.ServiceLayer.Models.Request
                 user, 
                 this.NewPassword, 
                 this.NewPasswordConfirm, 
-                IdentitiesController.KeySize);
+                ApiKey.KeySize);
 
             return new Identity()
             {

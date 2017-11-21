@@ -130,12 +130,11 @@
     </Compile>
     <Compile Include="Models\Request\ApiKeyCredentialPutRequest.cs" />
     <Compile Include="Models\Request\ApiKeyClientPutRequest.cs" />
-    <Compile Include="Models\Request\ApiKeyCredentialPostRequest.cs" />
-    <Compile Include="Models\Request\ApiKeyClientPostRequest.cs" />
     <Compile Include="Models\Request\ApiKeyPutRequest.cs" />
     <Compile Include="Models\Request\ApiKeyPostRequest.cs" />
     <Compile Include="Models\Request\BasePutRequest.cs" />
     <Compile Include="Models\Request\BaseRequest.cs" />
+    <Compile Include="Models\Request\ClientSignInRequest.cs" />
     <Compile Include="Models\Request\ForgotPasswordRequest.cs" />
     <Compile Include="Models\Request\ClientPutRequest.cs" />
     <Compile Include="Models\Request\ClientPostRequest.cs" />

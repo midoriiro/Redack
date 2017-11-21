@@ -26,7 +26,7 @@ namespace Redack.ServiceLayer.Models.Request
                 this.Login, 
                 this.Password, 
                 this.PasswordConfirm, 
-                IdentitiesController.KeySize);
+                ApiKey.KeySize);
 
             Client client;
 
