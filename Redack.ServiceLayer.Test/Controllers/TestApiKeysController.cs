@@ -93,23 +93,77 @@ namespace Redack.ServiceLayer.Test.Controllers
 		}
 
 		[Fact]
-		public void Post_WithDisabledAction()
+		public void Post_WithAuthentifiedUser()
 		{
-			this.CreateAuthentifiedUser(this.GetDataSet<ApiKey>()["users"]["lambda"] as User);
+			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
 
-			var request = this.CreateRequest(HttpMethod.Post);
+			var apikey = this.CreateApiKey(false);
+
+			var body = this.CreateBodyRequest<ApiKeyPostRequest, ApiKey>(apikey);
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.MethodNotAllowed, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+		}
+
+		[Fact]
+		public void Post_WithInvalidRequest()
+		{
+			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
+
+			var apikey = this.CreateApiKey(false);
+			apikey.Key = null;
+
+			var body = this.CreateBodyRequest<ApiKeyPostRequest, ApiKey>(apikey);
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+		}
+
+		[Fact]
+		public void Post_WithExistingEntity()
+		{
+			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["admin"] as User);
+
+			var apikey = this.CreateApiKey();
+
+			var body = this.CreateBodyRequest<ApiKeyPostRequest, ApiKey>(apikey);
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Conflict, response.StatusCode);
 		}
 
 		[Fact]
 		public void Post_WithUnauthentifiedUser()
 		{
-			var request = this.CreateRequest(HttpMethod.Post);
+			var apikey = this.CreateApiKey(false);
+
+			var body = this.CreateBodyRequest<ApiKeyPostRequest, ApiKey>(apikey);
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+		}
+
+		[Fact]
+		public void Post_WithAuthentifiedUserAndWithoutPermissions()
+		{
+			this.CreateAuthentifiedUser(this.GetDataSet<Group>()["users"]["lambda"] as User);
+
+			var apikey = this.CreateApiKey(false);
+
+			var body = this.CreateBodyRequest<ApiKeyPostRequest, ApiKey>(apikey);
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
 		}
 
 		[Fact]

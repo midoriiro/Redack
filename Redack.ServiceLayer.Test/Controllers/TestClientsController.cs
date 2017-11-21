@@ -143,14 +143,15 @@ namespace Redack.ServiceLayer.Test.Controllers
 		[Fact]
 		public void Post_WithUnauthentifiedUser()
 		{
-			var client = this.CreateClient(push: false);
+			var apikey = (ApiKey)this.GetDataSet<Client>()["apikeys"]["apikey1"];
+			var client = this.CreateClient(apikey, false);
 
 			var body = this.CreateBodyRequest<ClientPostRequest, Client>(client);
 
 			var request = this.CreateRequest(HttpMethod.Post, body: body);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
 		}
 
 		[Fact]
@@ -158,14 +159,15 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Client>()["users"]["lambda"] as User);
 
-			var client = this.CreateClient(push: false);
+			var apikey = (ApiKey)this.GetDataSet<Client>()["apikeys"]["apikey1"];
+			var client = this.CreateClient(apikey, false);
 
 			var body = this.CreateBodyRequest<ClientPostRequest, Client>(client);
 
 			var request = this.CreateRequest(HttpMethod.Post, body: body);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
 		}
 
 		[Fact]
@@ -284,6 +286,97 @@ namespace Redack.ServiceLayer.Test.Controllers
 			var parameter = this.GetDataSet<Client>()["clients"]["client1"].Id;
 
 			var request = this.CreateRequest(HttpMethod.Delete, parameter);
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+		}
+
+		[Fact]
+		public void SignIn_WithValidRequest()
+		{
+			var apikey = (ApiKey)this.GetDataSet<Client>()["apikeys"]["apikey1"];
+			var client = this.CreateClient(apikey);
+
+			var body = this.CreateBodyRequest<ClientSignInRequest, Client>(client);
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			request.RequestUri = new Uri("http://localhost/api/clients/signin");
+
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+		}
+
+		[Fact]
+		public void SignIn_WithInvalidRequest()
+		{
+			var apikey = (ApiKey)this.GetDataSet<Client>()["apikeys"]["apikey1"];
+			var client = this.CreateClient(apikey);
+
+			var body = this.CreateBodyRequest<ClientSignInRequest, Client>(client) as ClientSignInRequest;
+			body.Name = null;
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			request.RequestUri = new Uri("http://localhost/api/clients/signin");
+
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+		}
+
+		[Fact]
+		public void SignIn_WithInvalidName()
+		{
+			var apikey = (ApiKey)this.GetDataSet<Client>()["apikeys"]["apikey1"];
+			var client = this.CreateClient(apikey);
+
+			var body = this.CreateBodyRequest<ClientSignInRequest, Client>(client) as ClientSignInRequest;
+			body.Name = "Redack";
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			request.RequestUri = new Uri("http://localhost/api/clients/signin");
+
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+		}
+
+		[Fact]
+		public void SignIn_WithInvalidPassPhrase()
+		{
+			var apikey = (ApiKey)this.GetDataSet<Client>()["apikeys"]["apikey1"];
+			var client = this.CreateClient(apikey);
+
+			var body = this.CreateBodyRequest<ClientSignInRequest, Client>(client) as ClientSignInRequest;
+			body.PassPhrase = "Redack";
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			request.RequestUri = new Uri("http://localhost/api/clients/signin");
+
+			var response = this.Client.SendAsync(request).Result;
+
+			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+		}
+
+		[Fact]
+		public void SignIn_WithBlocked()
+		{
+			var apikey = (ApiKey)this.GetDataSet<Client>()["apikeys"]["apikey1"];
+			var client = this.CreateClient(apikey);
+
+			client.IsBlocked = true;
+
+			using (var repository = new Repository<Client>())
+			{
+				repository.Update(client);
+				repository.Commit();
+			}
+
+			var body = this.CreateBodyRequest<ClientSignInRequest, Client>(client) as ClientSignInRequest;
+
+			var request = this.CreateRequest(HttpMethod.Post, body: body);
+			request.RequestUri = new Uri("http://localhost/api/clients/signin");
+
 			var response = this.Client.SendAsync(request).Result;
 
 			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
