@@ -17,7 +17,6 @@ namespace Redack.ServiceLayer.Controllers
     [RoutePrefix("api/identities")]
     public class IdentitiesController : BaseApiController
     {
-        public static readonly int KeySize = 256;
         private readonly int _expirationTimeAccess = 5;
         private readonly int _expirationTimeRefresh = 604800;
 
@@ -102,10 +101,10 @@ namespace Redack.ServiceLayer.Controllers
 
             var identity = (Identity)request.ToEntity(this.Context);
 
-            if (identity.User == null || identity.Client == null || identity.Client.IsBlocked)
-                return this.Unauthorized();
+			if (identity.User == null || identity.Client == null || identity.Client.IsBlocked)
+				return this.Unauthorized();
 
-            bool exist = this._repository
+			bool exist = this._repository
                 .All()
                 .Any(e => e.User.Id == identity.User.Id && e.Client.Id == identity.Client.Id);
 
