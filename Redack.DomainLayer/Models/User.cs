@@ -15,11 +15,14 @@ namespace Redack.DomainLayer.Models
         [Index]
         public string Alias { get; set; }
 
-		[Required]
+		[Required(ErrorMessage = "The identicon field is required")]
         public string IdentIcon { get; set; }
 
         [Required(ErrorMessage = "The state field is required")]
         public bool IsEnabled { get; set; }
+
+		[Required(ErrorMessage = "The administrator field is required")]
+		public bool IsAdministrator { get; set; }
 
         // Navigation properties
         [Required(ErrorMessage = "The credential field is required")]
@@ -33,6 +36,7 @@ namespace Redack.DomainLayer.Models
         public User()
         {
             this.IsEnabled = true;
+			this.IsAdministrator = false;
         }
 
         public static User Create(string login, string password, string passwordConfirm, int keySize)
@@ -53,6 +57,8 @@ namespace Redack.DomainLayer.Models
             };
 
             user.Credential.ToHash();
+
+			user.IdentIcon = user.Credential.Login.GetHashCode().ToString();
 
             return user;
         }
