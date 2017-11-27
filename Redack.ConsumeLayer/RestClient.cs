@@ -1,26 +1,35 @@
 ﻿using Redack.DomainLayer.Models;
-using Redack.ServiceLayer.Controllers;
-using RestSharp;
 using System;
 using System.IO.IsolatedStorage;
+using System.Net.Http;
+using System.Net.Http.Formatting;
+using System.Threading.Tasks;
+using System.Web.Http;
+using Redack.ServiceLayer.Models.Request;
+using Redack.ServiceLayer.Models.Request.Post;
 
 namespace Redack.ConsumeLayer
 {
-	public sealed class RedackClient : RestClient
+	public sealed class RedackClient : HttpClient
 	{
-		private static readonly IsolatedStorageFile _store = = IsolatedStorageFile.GetStore(
-			IsolatedStorageScope.User |
-			IsolatedStorageScope.Assembly |
-			IsolatedStorageScope.Application,
-			null,
-			null);
+		private readonly IsolatedStorageFile _store;
 
-		public RedackClient(string name, string host, bool forceSSL = true)
+		public RedackClient(
+			string name, 
+			string host, 
+			bool forceSSL = true, 
+			HttpServer server = null) : base(server)
 		{
 			string protocol = forceSSL ? "https" : "http";
 
-			this.BaseHost = host;
-			this.BaseUrl = new Uri($"{protocol}://{this.BaseHost}/api");
+			this.BaseAddress = new Uri($"{protocol}://{host}/api");
+
+			this._store = IsolatedStorageFile.GetStore(
+				IsolatedStorageScope.User | 
+				IsolatedStorageScope.Domain | 
+				IsolatedStorageScope.Assembly, 
+				null, 
+				null);
 
 			if (!_store.FileExists("client_informations"))
 			{
@@ -28,15 +37,30 @@ namespace Redack.ConsumeLayer
 			}
 		}
 
+		public async Task<HttpResponseMessage> SendAsync(RestRequest request)
+		{
+			var builder = new UriBuilder(this.BaseAddress);
+			builder.Path = $"{builder.Path}/{request.Resource}";
+
+			request.Message.RequestUri = builder.Uri;
+
+			return await base.SendAsync(request.Message);
+		}
+
 		private void Register(string name)
 		{
-			ApiKey apikey = new ApiKey();
-			apikey.Key = ApiKey.GenerateKey(ApiKey.KeySize);			
+			ApiKey apikey = new ApiKey
+			{
+				Key = ApiKey.GenerateKey(ApiKey.KeySize)
+			};
 
-			var request = new RestRequest("apikeys", Method.POST);
-			request.AddJsonBody(apikey);
+			IEntityRequest content = new ApiKeyPostRequest();
+			content.FromEntity(apikey);
 
-			var response = this.Execute(request);
+			var request = new RestRequest(HttpMethod.Post, "apikeys");
+			request.SetObjectContent<JsonMediaTypeFormatter>(content);
+
+			var response = this.SendAsync(request).Result;
 
 			// TODO : get apikey id
 
@@ -47,10 +71,13 @@ namespace Redack.ConsumeLayer
 				ApiKey = apikey
 			};
 
-			request = new RestRequest("clients", Method.POST);
-			request.AddJsonBody(client);
+			content = new ClientPostRequest();
+			content.FromEntity(client);
 
-			response = this.Execute(request);
+			request = new RestRequest(HttpMethod.Post, "clients");
+			request.SetObjectContent<JsonMediaTypeFormatter>(content);
+
+			response = this.SendAsync(request).Result;
 
 			// TODO : get client response object
 		}
