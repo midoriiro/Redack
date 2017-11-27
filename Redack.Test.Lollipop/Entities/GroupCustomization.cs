@@ -1,11 +1,10 @@
 ﻿using Ploeh.AutoFixture;
 using Redack.DomainLayer.Models;
 using Redack.Test.Lollipop.Customizations;
-using Redack.Test.Lollipop.Entities;
 
-namespace Redack.Test.Lollipop.Entity
+namespace Redack.Test.Lollipop.Entities
 {
-    public class GroupCustomization : BaseEntityCustomization
+	public class GroupCustomization : BaseEntityCustomization
     {
         public override void Customize(IFixture fixture)
         {

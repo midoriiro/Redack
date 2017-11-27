@@ -1,7 +1,6 @@
 ﻿using Ploeh.AutoFixture;
 using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Security;
-using Redack.Test.Lollipop.Entity;
 
 namespace Redack.Test.Lollipop.Entities
 {
