@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -35,6 +36,7 @@ namespace Redack.DomainLayer.Models
 		}
 
 		[NotMapped]
+		[JsonIgnore]
 		public bool CanBeDeleted { get; protected set; } = true;
 
 		public abstract IQueryable<Entity> Filter(IQueryable<Entity> query);
