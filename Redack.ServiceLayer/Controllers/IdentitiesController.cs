@@ -2,9 +2,8 @@
 using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models;
-using Redack.ServiceLayer.Models.Request;
+using Redack.ServiceLayer.Models.Request.Post;
 using Redack.ServiceLayer.Security;
-using System;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
 using System.Linq;
@@ -14,7 +13,7 @@ using System.Web.Http.Description;
 
 namespace Redack.ServiceLayer.Controllers
 {
-    [RoutePrefix("api/identities")]
+	[RoutePrefix("api/identities")]
     public class IdentitiesController : BaseApiController
     {
         private readonly int _expirationTimeAccess = 5;
@@ -51,7 +50,7 @@ namespace Redack.ServiceLayer.Controllers
             {
                 await this._repositoryUser.CommitAsync();
             }
-            catch (DbEntityValidationException e)
+            catch (DbEntityValidationException)
             {
                 this.Validate<User>(identity.User);
                 return this.BadRequest(this.ModelState);
