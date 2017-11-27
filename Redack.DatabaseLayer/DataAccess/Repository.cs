@@ -5,6 +5,7 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Linq.Dynamic;
 using System.Threading.Tasks;
 
 namespace Redack.DatabaseLayer.DataAccess
@@ -66,8 +67,6 @@ namespace Redack.DatabaseLayer.DataAccess
 
 		public TEntity GetById(int id)
 		{
-			var s = this.All().ToList();
-
 			return this.All().Where(e => e.Id == id).ToList().Find(e => e.Id == id);
 		}
 
@@ -75,7 +74,25 @@ namespace Redack.DatabaseLayer.DataAccess
 		{
 			var q = await this.All().Where(e => e.Id == id).ToListAsync();
 
-			return q.Find(e => e.Id == id);
+			return q.FirstOrDefault(e => e.Id == id);
+		}
+
+		public List<TEntity> Paginate(
+			int index, 
+			int size)
+		{
+			var query = (IQueryable<TEntity>)this.All().Paginate(index, size);
+
+			return query.ToList();
+		}
+
+		public async Task<List<TEntity>> PaginateAsync(
+			int index, 
+			int size)
+		{
+			var query = (IQueryable<TEntity>)this.All().Paginate(index, size);
+
+			return await query.ToListAsync();
 		}
 
 		public TEntity GetOrInsert(TEntity entity)

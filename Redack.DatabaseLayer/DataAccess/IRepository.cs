@@ -15,7 +15,9 @@ namespace Redack.DatabaseLayer.DataAccess
         Task<List<TEntity>> GetAllAsync();
         TEntity GetById(int id);
         Task<TEntity> GetByIdAsync(int id);
-        TEntity GetOrInsert(TEntity entity);
+		List<TEntity> Paginate(int index, int size);
+		Task<List<TEntity>> PaginateAsync(int index, int size);
+		TEntity GetOrInsert(TEntity entity);
         void InsertOrUpdate(TEntity entity);
         void Insert(TEntity entity);
         void Update(TEntity entity);

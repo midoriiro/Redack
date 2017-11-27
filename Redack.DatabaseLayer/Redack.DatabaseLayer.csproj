@@ -32,15 +32,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Linq.Dynamic, Version=1.0.6132.35681, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Linq.Dynamic.1.0.7\lib\net40\System.Linq.Dynamic.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -48,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataAccess\IDbContext.cs" />
+    <Compile Include="DataAccess\QueryableExtensions.cs" />
     <Compile Include="DataAccess\RedackDbContext.cs" />
     <Compile Include="DataAccess\IRepository.cs" />
     <Compile Include="DataAccess\Repository.cs" />
@@ -58,6 +62,14 @@
     <Compile Include="Migrations\201711200849001_02-add-constraint-to-user-identicon.cs" />
     <Compile Include="Migrations\201711200849001_02-add-constraint-to-user-identicon.Designer.cs">
       <DependentUpon>201711200849001_02-add-constraint-to-user-identicon.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201711220745491_03-Update-client-and-other-fix.cs" />
+    <Compile Include="Migrations\201711220745491_03-Update-client-and-other-fix.Designer.cs">
+      <DependentUpon>201711220745491_03-Update-client-and-other-fix.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201711221059472_04-ignore-serialization-property.cs" />
+    <Compile Include="Migrations\201711221059472_04-ignore-serialization-property.Designer.cs">
+      <DependentUpon>201711221059472_04-ignore-serialization-property.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -80,6 +92,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201711200849001_02-add-constraint-to-user-identicon.resx">
       <DependentUpon>201711200849001_02-add-constraint-to-user-identicon.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711220745491_03-Update-client-and-other-fix.resx">
+      <DependentUpon>201711220745491_03-Update-client-and-other-fix.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711221059472_04-ignore-serialization-property.resx">
+      <DependentUpon>201711221059472_04-ignore-serialization-property.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
