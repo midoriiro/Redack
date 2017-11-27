@@ -3,11 +3,12 @@ using Redack.DomainLayer.Models;
 using System.Web.Http;
 using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models.Request;
+using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Put;
 
 namespace Redack.ServiceLayer.Controllers
 {
-	[RoutePrefix("api/threads")]
-	[JwtAuthorizationFilter]
+	[RoutePrefix("api/threads")]	
 	public class ThreadsController : RepositoryApiController<Thread>
 	{
 		public override bool IsOwner(int id)
@@ -15,30 +16,31 @@ namespace Redack.ServiceLayer.Controllers
 			throw new System.NotImplementedException();
 		}
 
-		[JwtAuthorize("Thread.Retrieve", "Administrator")]
 		public override async Task<IHttpActionResult> GetAll()
 		{
 			return await base.GetAll();
 		}
 
-		[JwtAuthorize("Thread.Retrieve", "Administrator")]
 		public override async Task<IHttpActionResult> Get(int id)
 		{
 			return await base.Get(id);
 		}
 
+		[JwtAuthorizationFilter]
 		[JwtAuthorize("Thread.Create", "Administrator")]
-		public override async Task<IHttpActionResult> Post([FromBody] BaseRequest<Thread> request)
+		public override async Task<IHttpActionResult> Post([FromBody] BasePostRequest<Thread> request)
 		{
 			return await base.Post(request);
 		}
 
+		[JwtAuthorizationFilter]
 		[JwtAuthorize("Thread.Update", "Administrator")]
 		public override async Task<IHttpActionResult> Put(int id, [FromBody] BasePutRequest<Thread> request)
 		{
 			return await base.Put(id, request);
 		}
 
+		[JwtAuthorizationFilter]
 		[JwtAuthorize("Thread.Delete", "Administrator")]
 		public override async Task<IHttpActionResult> Delete(int id)
 		{

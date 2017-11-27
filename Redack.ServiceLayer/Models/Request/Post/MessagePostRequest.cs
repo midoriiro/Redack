@@ -4,9 +4,9 @@ using System.Linq;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Post
 {
-	public class MessagePostRequest : BaseRequest<Message>
+	public class MessagePostRequest : BasePostRequest<Message>
 	{
 		[Required]
 		public string Text { get; set; }

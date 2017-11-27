@@ -5,6 +5,8 @@ using System.Web.Http;
 using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models.Request;
 using System.Web.Http.Description;
+using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Put;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -19,7 +21,7 @@ namespace Redack.ServiceLayer.Controllers
 		[HttpPost]
 		[Route("signin")]
 		[ResponseType(typeof(Client))]
-		public virtual async Task<IHttpActionResult> SignIn([FromBody] ClientSignInRequest request)
+		public virtual IHttpActionResult SignIn([FromBody] ClientSignInRequest request)
 		{
 			if (!this.ModelState.IsValid)
 				return this.BadRequest(this.ModelState);
@@ -46,7 +48,7 @@ namespace Redack.ServiceLayer.Controllers
 			return await base.Get(id);
 		}
 
-		public override async Task<IHttpActionResult> Post([FromBody] BaseRequest<Client> request)
+		public override async Task<IHttpActionResult> Post([FromBody] BasePostRequest<Client> request)
 		{
 			return await base.Post(request);
 		}

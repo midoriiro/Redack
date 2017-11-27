@@ -6,34 +6,36 @@ using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Put
 {
-	public class NodePutRequest : BasePutRequest<Node>
+	public class GroupPutRequest : BasePutRequest<Group>
 	{
 		[Required]
 		public string Name { get; set; }
 
 		public override Entity ToEntity(RedackDbContext context)
 		{
-			Node node;
+			Group group;
 
-			using (var repository = new Repository<Node>(context, false))
+			using (var repository = new Repository<Group>(context, false))
 			{
-				node = repository.GetById(this.Id);
+				group = repository.GetById(this.Id);
 			}
 
-			if (node == null)
+			if (group == null)
 				return null;
 
-			return node;
+			group.Name = this.Name;
+
+			return group;
 		}
 
 		public override void FromEntity(Entity entity)
 		{
-			var node = (Node) entity;
+			var group = (Group) entity;
 
-			this.Id = node.Id;
-			this.Name = node.Name;
+			this.Id = group.Id;
+			this.Name = group.Name;
 		}
 	}
 }

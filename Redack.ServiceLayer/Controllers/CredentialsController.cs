@@ -5,6 +5,8 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models.Request;
+using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Put;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -30,7 +32,7 @@ namespace Redack.ServiceLayer.Controllers
 		}
 
 		[JwtDisableAction]
-		public override async Task<IHttpActionResult> Post([FromBody] BaseRequest<Credential> request)
+		public override async Task<IHttpActionResult> Post([FromBody] BasePostRequest<Credential> request)
 		{
 			return await base.Post(request);
 		}

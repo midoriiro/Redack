@@ -4,9 +4,9 @@ using Redack.DatabaseLayer.DataAccess;
 using System.Linq;
 using Redack.ServiceLayer.Controllers;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Post
 {
-    public class ForgotPasswordRequest : BaseRequest<Identity>
+    public class ForgotPasswordRequest : BasePostRequest<Identity>
     {
         [Required]
         public int Client { get; set; }

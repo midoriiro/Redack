@@ -7,7 +7,7 @@ using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Put
 {
 	public class UserPutRequest : BasePutRequest<User>
 	{

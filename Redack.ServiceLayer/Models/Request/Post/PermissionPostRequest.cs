@@ -6,9 +6,9 @@ using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Post
 {
-	public class PermissionPutRequest : BasePutRequest<Permission>
+	public class PermissionPostRequest : BasePostRequest<Permission>
 	{
 		[Required]
 		public string Codename { get; set; }
@@ -16,31 +16,26 @@ namespace Redack.ServiceLayer.Models.Request
 		[Required]
 		public string HelpText { get; set; }
 
+		[Required]
+		public string ContentType { get; set; }
+
 		public override Entity ToEntity(RedackDbContext context)
 		{
-			Permission permission;
-
-			using (var repository = new Repository<Permission>(context, false))
+			return new Permission()
 			{
-				permission = repository.GetById(this.Id);
-			}
-
-			if (permission == null)
-				return null;
-
-			permission.Codename = this.Codename;
-			permission.HelpText = this.HelpText;
-
-			return permission;
+				Codename = this.Codename,
+				HelpText = this.HelpText,
+				ContentType = this.ContentType
+			};
 		}
 
 		public override void FromEntity(Entity entity)
 		{
 			var permission = (Permission)entity;
 
-			this.Id = permission.Id;
 			this.Codename = permission.Codename;
 			this.HelpText = permission.HelpText;
+			this.ContentType = permission.ContentType;
 		}
 	}
 }

@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Redack.DatabaseLayer.DataAccess;
+using Redack.DomainLayer.Models;
+using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Put;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Models;
-using Redack.ServiceLayer.Models;
-using Redack.ServiceLayer.Models.Request;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -31,7 +31,7 @@ namespace Redack.ServiceLayer.Controllers
 		[HttpPost]
 		[Route("")]
 		[ResponseType(typeof(Entity))]
-		Task<IHttpActionResult> Post([FromBody] BaseRequest<TEntity> request);
+		Task<IHttpActionResult> Post([FromBody] BasePostRequest<TEntity> request);
 
 		[HttpDelete]
 		[Route("{id:int:min(1)}")]

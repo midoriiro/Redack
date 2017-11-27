@@ -6,25 +6,25 @@ using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Put
 {
-	public class ApiKeyCredentialPutRequest : ApiKeyPutRequest
+	public class ApiKeyClientPutRequest : ApiKeyPutRequest
 	{
 		[Required]
-		public int Credential { get; set; }
+		public int Client { get; set; }
 
 		public override Entity ToEntity(RedackDbContext context)
 		{
-			Credential credential;
+			Client client;
 
-			using (var repository = new Repository<Credential>(context, false))
-				credential = repository.GetById(this.Credential);
+			using (var repository = new Repository<Client>(context, false))
+				client = repository.GetById(this.Client);
 
 			return new ApiKey()
 			{
 				Id = this.Id,
 				Key = this.Key,
-				Credential = credential
+				Client = client
 			};
 		}
 
@@ -34,7 +34,7 @@ namespace Redack.ServiceLayer.Models.Request
 
 			this.Id = apikey.Id;
 			this.Key = apikey.Key;
-			this.Credential = apikey.Credential.Id;
+			this.Client = apikey.Client.Id;
 		}
 	}
 }

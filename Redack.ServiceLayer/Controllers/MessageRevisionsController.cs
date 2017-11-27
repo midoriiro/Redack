@@ -3,6 +3,8 @@ using Redack.DomainLayer.Models;
 using System.Web.Http;
 using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models.Request;
+using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Put;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -26,7 +28,7 @@ namespace Redack.ServiceLayer.Controllers
 
 		[JwtAuthorizationFilter]
 		[JwtAuthorize("MessageRevision.Create", "Moderator")]
-		public override async Task<IHttpActionResult> Post([FromBody] BaseRequest<MessageRevision> request)
+		public override async Task<IHttpActionResult> Post([FromBody] BasePostRequest<MessageRevision> request)
 		{
 			return await base.Post(request);
 		}

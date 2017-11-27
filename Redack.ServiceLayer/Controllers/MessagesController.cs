@@ -5,6 +5,8 @@ using System.Web.Http;
 using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models;
 using Redack.ServiceLayer.Models.Request;
+using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Put;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -31,7 +33,7 @@ namespace Redack.ServiceLayer.Controllers
 		}
 
 		[JwtAuthorizationFilter]
-		public override async Task<IHttpActionResult> Post([FromBody] BaseRequest<Message> request)
+		public override async Task<IHttpActionResult> Post([FromBody] BasePostRequest<Message> request)
 		{
 			return await base.Post(request);
 		}

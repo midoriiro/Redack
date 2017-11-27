@@ -6,9 +6,9 @@ using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Post
 {
-	public class ThreadPostRequest : BaseRequest<Thread>
+	public class ThreadPostRequest : BasePostRequest<Thread>
 	{
 		[Required]
 		public string Title { get; set; }

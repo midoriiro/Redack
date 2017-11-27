@@ -3,7 +3,7 @@ using Redack.DomainLayer.Models;
 
 namespace Redack.ServiceLayer.Models.Request
 {
-	public interface IRequest
+	public interface IEntityRequest
 	{
 		Entity ToEntity(RedackDbContext context);
 		void FromEntity(Entity entity);

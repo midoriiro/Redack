@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Put
 {
 	public class ThreadPutRequest : BasePutRequest<Thread>
 	{

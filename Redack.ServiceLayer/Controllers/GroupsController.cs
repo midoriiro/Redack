@@ -5,6 +5,8 @@ using Redack.DomainLayer.Models;
 using System.Web.Http;
 using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models.Request;
+using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Put;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -30,7 +32,7 @@ namespace Redack.ServiceLayer.Controllers
 		}
 
 		[JwtAuthorize("Group.Create", "Administrator")]
-		public override async Task<IHttpActionResult> Post([FromBody] BaseRequest<Group> request)
+		public override async Task<IHttpActionResult> Post([FromBody] BasePostRequest<Group> request)
 		{
 			return await base.Post(request);
 		}

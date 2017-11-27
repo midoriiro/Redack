@@ -6,9 +6,9 @@ using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Post
 {
-	public class ClientSignInRequest : BaseRequest<Client>
+	public class ClientSignInRequest : BasePostRequest<Client>
 	{
 		[Required]
 		public string Name { get; set; }

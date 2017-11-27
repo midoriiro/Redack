@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks;
-using Redack.DomainLayer.Models;
-using System.Web.Http;
+﻿using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Filters;
-using Redack.ServiceLayer.Models.Request;
+using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Put;
+using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -28,7 +29,7 @@ namespace Redack.ServiceLayer.Controllers
 		}
 
 		[JwtDisableAction]
-		public override async Task<IHttpActionResult> Post([FromBody] BaseRequest<User> request)
+		public override async Task<IHttpActionResult> Post([FromBody] BasePostRequest<User> request)
 		{
 			return await base.Post(request);
 		}

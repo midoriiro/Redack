@@ -7,9 +7,9 @@ using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Post
 {
-	public class MessageRevisionPostRequest : BaseRequest<MessageRevision>
+	public class MessageRevisionPostRequest : BasePostRequest<MessageRevision>
 	{
 		[Required]
 		public int Editor { get; set; }

@@ -4,7 +4,7 @@ using System.Linq;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Put
 {
 	public class MessagePutRequest : BasePutRequest<Message>
 	{

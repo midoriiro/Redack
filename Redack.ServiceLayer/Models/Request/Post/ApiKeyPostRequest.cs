@@ -6,26 +6,26 @@ using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Post
 {
-	public class NodePostRequest : BaseRequest<Node>
+	public class ApiKeyPostRequest : BasePostRequest<ApiKey>
 	{
 		[Required]
-		public string Name { get; set; }
+		public string Key { get; set; }
 
 		public override Entity ToEntity(RedackDbContext context)
 		{
-			return new Node()
+			return new ApiKey
 			{
-				Name = this.Name
+				Key = this.Key
 			};
 		}
 
 		public override void FromEntity(Entity entity)
 		{
-			var node = (Node) entity;
+			var apikey = (ApiKey)entity;
 
-			this.Name = node.Name;
-		}
+			this.Key = apikey.Key;
+		}		
 	}
 }

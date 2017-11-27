@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using Redack.DatabaseLayer.DataAccess;
 using System.Linq;
 
-namespace Redack.ServiceLayer.Models.Request
+namespace Redack.ServiceLayer.Models.Request.Post
 {
-    public class SignInRequest : BaseRequest<Identity>
+    public class SignInRequest : BasePostRequest<Identity>
     {
         [Required]
         public int Client { get; set; }
