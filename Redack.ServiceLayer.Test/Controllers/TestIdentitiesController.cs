@@ -12,6 +12,7 @@ using Redack.ServiceLayer.Models.Request;
 using Redack.DomainLayer.Models;
 using System.Net.Http;
 using System.Net;
+using Redack.ServiceLayer.Models.Request.Post;
 
 namespace Redack.ServiceLayer.Test.Controllers
 {

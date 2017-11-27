@@ -19,7 +19,6 @@ namespace Redack.ServiceLayer.Test
 	public class BaseTestController<TController> : BaseTest where TController : BaseApiController, new ()
 	{
 		protected TController Controller;
-		protected HttpServer Server;
 		protected HttpClient Client;
 		private AuthenticationHeaderValue _auth;
 
@@ -31,13 +30,7 @@ namespace Redack.ServiceLayer.Test
 			{
 				Request = new HttpRequestMessage(),
 				Configuration = new HttpConfiguration()
-			};
-
-			var config = new HttpConfiguration();
-
-			WebApiConfig.Register(config);
-
-			this.Server = new HttpServer(config);
+			};			
 
 			this.Client = new HttpClient(this.Server);
 		}
@@ -172,17 +165,9 @@ namespace Redack.ServiceLayer.Test
         public void CreateAuthentifiedUser(Identity identity)
         {
             this._auth = this.CreateAuthenticationHeader(identity);
-        }
+        }        
 
-        public IRequest CreateBodyRequest<TRequest, TEntity>(TEntity entity) where TRequest : BaseRequest<TEntity>, new () where TEntity : Entity
-		{
-			var request = new TRequest();
-			request.FromEntity(entity);
-
-			return request;
-		}
-
-		public HttpRequestMessage CreateRequest(HttpMethod method, int? id = null, IRequest body = null, string uriEndPoint = null)
+		public HttpRequestMessage CreateRequest(HttpMethod method, int? id = null, IEntityRequest body = null, string uriEndPoint = null)
 		{
 			var request = new HttpRequestMessage()
 			{
@@ -192,7 +177,7 @@ namespace Redack.ServiceLayer.Test
 
 			if (body != null)
 			{
-				request.Content =new ObjectContent(body.GetType(), body, new JsonMediaTypeFormatter());
+				request.Content = new ObjectContent(body.GetType(), body, new JsonMediaTypeFormatter());
 				request.Content.Headers.ContentType = new MediaTypeWithQualityHeaderValue("application/json");
 			}
 
@@ -226,7 +211,6 @@ namespace Redack.ServiceLayer.Test
 		public override void Dispose()
 		{
 			this.Client.Dispose();
-			this.Server.Dispose();
 			this.Controller.Dispose();
 
 			base.Dispose();

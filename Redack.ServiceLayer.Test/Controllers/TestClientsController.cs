@@ -9,6 +9,8 @@ using Redack.DatabaseLayer.DataAccess;
 using Redack.ServiceLayer.Models.Request;
 using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Put;
 
 namespace Redack.ServiceLayer.Test.Controllers
 {
