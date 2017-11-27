@@ -1,8 +1,11 @@
-﻿using System;
-using Redack.DatabaseLayer.DataAccess;
+﻿using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
-using Redack.ServiceLayer.Models.Request;
+using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Put;
+using Redack.ServiceLayer.Models.Request.Uri;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
 using System.Linq;
@@ -31,20 +34,74 @@ namespace Redack.ServiceLayer.Controllers
 		// GET: api/Entities
 		[HttpGet]
 		[Route("")]
-		[ResponseType(typeof(ICollection<Entity>))]
+		[ResponseType(typeof(ICollection<dynamic>))]
 		public virtual async Task<IHttpActionResult> GetAll()
 		{
-			var entities = await this.Repository.GetAllAsync();
+			this.Context.Configuration.ProxyCreationEnabled = false;
 
-			return this.Ok(entities);
+			var builder = new QueryBuilder
+			{
+				RegisteredKeywords = new Dictionary<string, Type>
+				{
+					{ "paginate", typeof(PageParameter) },
+					{ "query", typeof(ExpressionParameter) },
+					{ "inclose", typeof(ExpressionParameter) },
+					{ "reshape", typeof(ExpressionParameter) },
+					{ "order", typeof(ExpressionParameter) }
+				},
+				RegisteredExpressionMethods = new Dictionary<string, string>()
+				{
+					{ "query", "Query" },
+					{ "inclose", "Inclose" },
+					{ "reshape", "Reshape" },
+					{ "order", "Order" },
+				},
+				ExcludeExpressionKeywords = new List<string>
+				{
+					"Credential",
+					"Identities",
+					"Permissions",
+					"ApiKey",
+					"Client",
+					"credential",
+					"identities",
+					"permissions",
+					"apiKey",
+					"client"
+				}
+			};
+
+			try
+			{
+				builder.Parse(this.ActionContext.Request);
+
+				var query = builder.Execute(this.Repository.All());
+
+				List<dynamic>  result = await query.ToListAsync();
+
+				if (result.Count == 0)
+					return this.NotFound();
+
+				return this.Ok(result);
+			}
+			catch(UnauthorizedAccessException)
+			{
+				return this.Unauthorized();
+			}
+			catch(Exception)
+			{
+				return this.BadRequest();
+			}
 		}
 
 		// GET: api/Entities/5
 		[HttpGet]
 		[Route("{id:int:min(1)}")]
-		[ResponseType(typeof(Entity))]
+		[ResponseType(typeof(IEntity))]
 		public virtual async Task<IHttpActionResult> Get(int id)
 		{
+			this.Context.Configuration.ProxyCreationEnabled = false;
+
 			var entity = await this.Repository.GetByIdAsync(id);
 
 			if (entity == null)
@@ -57,7 +114,7 @@ namespace Redack.ServiceLayer.Controllers
 		[HttpPost]
 		[Route("")]
 		[ResponseType(typeof(Entity))]
-		public virtual async Task<IHttpActionResult> Post([FromBody] BaseRequest<TEntity> request)
+		public virtual async Task<IHttpActionResult> Post([FromBody] BasePostRequest<TEntity> request)
 		{
 			if (!this.ModelState.IsValid)
 				return this.BadRequest(ModelState);
