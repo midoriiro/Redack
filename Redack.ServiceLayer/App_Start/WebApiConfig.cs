@@ -17,6 +17,7 @@ namespace Redack.ServiceLayer
 			config.Services.Replace(typeof(IExceptionLogger), new UnhandledExceptionLogger());
 			config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 			config.Formatters.JsonFormatter.SerializerSettings.PreserveReferencesHandling = PreserveReferencesHandling.Objects;
+			config.Formatters.JsonFormatter.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
 
 			config.MapHttpAttributeRoutes(new InheritedRouteProvider());
 
