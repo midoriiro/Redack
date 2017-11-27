@@ -1,29 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using Ploeh.AutoFixture;
+﻿using Ploeh.AutoFixture;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
+using Redack.ServiceLayer;
+using Redack.ServiceLayer.Models.Request;
 using Redack.ServiceLayer.Security;
 using Redack.Test.Lollipop.Configurations;
 using Redack.Test.Lollipop.Entities;
-using Redack.Test.Lollipop.Entity;
+using System.Collections.Generic;
+using System.Web.Http;
 
 namespace Redack.Test.Lollipop
 {
-    public class BaseTest
+	public class BaseTest
     {
         protected readonly EffortProviderFactory Factory;
         protected RedackDbContext Context;
+		protected HttpServer Server;
 
-        public BaseTest()
+		public BaseTest()
         {
             EffortProviderFactory.ResetDb();
 
             this.Factory = new EffortProviderFactory();
             this.Context = new RedackDbContext(this.Factory.CreateConnection(""));
-        }
 
-        public RedackDbContext CreateContext()
+			var config = new HttpConfiguration();
+
+			WebApiConfig.Register(config);
+
+			this.Server = new HttpServer(config);
+		}
+
+		public IEntityRequest CreateBodyRequest<TRequest, TEntity>(TEntity entity) where TRequest : IEntityRequest, new() where TEntity : Entity
+		{
+			var request = new TRequest();
+			request.FromEntity(entity);
+
+			return request;
+		}
+
+		public RedackDbContext CreateContext()
         {
             return new RedackDbContext(this.Factory.CreateConnection(""));
         }
@@ -297,6 +313,7 @@ namespace Redack.Test.Lollipop
         public virtual void Dispose()
         {
             this.Context.Dispose();
-        }
+			this.Server.Dispose();
+		}
     }
 }
