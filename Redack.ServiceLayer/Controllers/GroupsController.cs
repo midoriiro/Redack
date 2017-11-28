@@ -7,6 +7,7 @@ using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models.Request;
 using Redack.ServiceLayer.Models.Request.Post;
 using Redack.ServiceLayer.Models.Request.Put;
+using Redack.DatabaseLayer.DataAccess;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -14,6 +15,10 @@ namespace Redack.ServiceLayer.Controllers
 	[JwtAuthorizationFilter]
 	public class GroupsController : RepositoryApiController<Group>
 	{
+		public GroupsController(IDbContext context) : base(context)
+		{
+		}
+
 		public override bool IsOwner(int id)
 		{
 			throw new NotImplementedException();

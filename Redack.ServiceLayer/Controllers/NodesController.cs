@@ -5,12 +5,17 @@ using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models.Request;
 using Redack.ServiceLayer.Models.Request.Post;
 using Redack.ServiceLayer.Models.Request.Put;
+using Redack.DatabaseLayer.DataAccess;
 
 namespace Redack.ServiceLayer.Controllers
 {
 	[RoutePrefix("api/nodes")]
 	public class NodesController : RepositoryApiController<Node>
 	{
+		public NodesController(IDbContext context) : base(context)
+		{
+		}
+
 		public override bool IsOwner(int id)
 		{
 			throw new System.NotImplementedException();

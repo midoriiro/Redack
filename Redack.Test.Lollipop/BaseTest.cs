@@ -7,7 +7,9 @@ using Redack.ServiceLayer.Security;
 using Redack.Test.Lollipop.Configurations;
 using Redack.Test.Lollipop.Entities;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Web.Http;
+using Redack.Test.Lollipop.Data;
 
 namespace Redack.Test.Lollipop
 {
@@ -23,12 +25,18 @@ namespace Redack.Test.Lollipop
 
             this.Factory = new EffortProviderFactory();
             this.Context = new RedackDbContext(this.Factory.CreateConnection(""));
+		}
 
-			var config = new HttpConfiguration();
+	    public void InitialyzeServer()
+	    {
+		    var config = new HttpApiConfiguration
+		    {
+			    DbConnection = this.Factory.CreateConnection("")
+		    };
 
-			WebApiConfig.Register(config);
+		    WebApiConfig.Register(config);
 
-			this.Server = new HttpServer(config);
+		    this.Server = new HttpServer(config);
 		}
 
 		public IEntityRequest CreateBodyRequest<TRequest, TEntity>(TEntity entity) where TRequest : IEntityRequest, new() where TEntity : Entity
@@ -44,7 +52,12 @@ namespace Redack.Test.Lollipop
             return new RedackDbContext(this.Factory.CreateConnection(""));
         }
 
-        public Repository<TEntity> CreateRepository<TEntity>() where TEntity : DomainLayer.Models.Entity
+	    public DummyDbContext CreateDummyContext()
+	    {
+		    return new DummyDbContext(this.Factory.CreateConnection(""));
+	    }
+
+		public Repository<TEntity> CreateRepository<TEntity>() where TEntity : DomainLayer.Models.Entity
         {
             return new Repository<TEntity>(this.CreateContext());
         }

@@ -16,21 +16,16 @@ using Group = Redack.DomainLayer.Models.Group;
 
 namespace Redack.ServiceLayer.Test
 {
-	public class BaseTestController<TController> : BaseTest where TController : BaseApiController, new ()
+	public class BaseTestController<TController> : BaseTest where TController : BaseApiController
 	{
-		protected TController Controller;
 		protected HttpClient Client;
 		private AuthenticationHeaderValue _auth;
 
 		private Dictionary<string, Dictionary<string, Entity>> _dataSet;
 
-		public BaseTestController() : base()
+		public BaseTestController()
 		{
-			this.Controller = new TController()
-			{
-				Request = new HttpRequestMessage(),
-				Configuration = new HttpConfiguration()
-			};			
+			this.InitialyzeServer();
 
 			this.Client = new HttpClient(this.Server);
 		}
@@ -77,7 +72,7 @@ namespace Redack.ServiceLayer.Test
 			groupLambda.Name = "Lambda";
 			groupLambda.Users.Add(userLambda);
 
-			using (var repository = new Repository<Group>())
+			using (var repository = new Repository<Group>(this.Context, false))
 			{
 				repository.Update(groupAdmin);
 				repository.Update(groupModerator);
@@ -203,15 +198,9 @@ namespace Redack.ServiceLayer.Test
 			return $"{uri}/{id}";
 		}
 
-		public void SetControllerIdentity(IIdentity identity)
-		{
-			this.Controller.User = new GenericPrincipal(identity, null);
-		}
-
 		public override void Dispose()
 		{
 			this.Client.Dispose();
-			this.Controller.Dispose();
 
 			base.Dispose();
 		}

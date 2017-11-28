@@ -7,6 +7,7 @@ using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models.Request;
 using Redack.ServiceLayer.Models.Request.Post;
 using Redack.ServiceLayer.Models.Request.Put;
+using Redack.DatabaseLayer.DataAccess;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -14,6 +15,10 @@ namespace Redack.ServiceLayer.Controllers
 	[JwtAuthorizationFilter]
 	public class CredentialsController : RepositoryApiController<Credential>
 	{
+		public CredentialsController(IDbContext context) : base(context)
+		{
+		}
+
 		public override bool IsOwner(int id)
 		{
 			return this.GetIdentity().User.Credential.Id == id;

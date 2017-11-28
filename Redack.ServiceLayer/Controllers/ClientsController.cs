@@ -7,12 +7,17 @@ using Redack.ServiceLayer.Models.Request;
 using System.Web.Http.Description;
 using Redack.ServiceLayer.Models.Request.Post;
 using Redack.ServiceLayer.Models.Request.Put;
+using Redack.DatabaseLayer.DataAccess;
 
 namespace Redack.ServiceLayer.Controllers
 {
 	[RoutePrefix("api/clients")]	
 	public class ClientsController : RepositoryApiController<Client>
 	{
+		public ClientsController(IDbContext context) : base(context)
+		{
+		}
+
 		public override bool IsOwner(int id)
 		{
 			throw new NotImplementedException();
@@ -21,7 +26,7 @@ namespace Redack.ServiceLayer.Controllers
 		[HttpPost]
 		[Route("signin")]
 		[ResponseType(typeof(Client))]
-		public virtual IHttpActionResult SignIn([FromBody] ClientSignInRequest request)
+		public async Task<IHttpActionResult> SignIn([FromBody] ClientSignInRequest request)
 		{
 			if (!this.ModelState.IsValid)
 				return this.BadRequest(this.ModelState);

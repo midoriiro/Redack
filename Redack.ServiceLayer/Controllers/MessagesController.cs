@@ -7,12 +7,17 @@ using Redack.ServiceLayer.Models;
 using Redack.ServiceLayer.Models.Request;
 using Redack.ServiceLayer.Models.Request.Post;
 using Redack.ServiceLayer.Models.Request.Put;
+using Redack.DatabaseLayer.DataAccess;
 
 namespace Redack.ServiceLayer.Controllers
 {
 	[RoutePrefix("api/messages")]
 	public class MessagesController : RepositoryApiController<Message>
 	{
+		public MessagesController(IDbContext context) : base(context)
+		{
+		}
+
 		public override bool IsOwner(int id)
 		{
 			var user = this.GetIdentity().User;

@@ -4,29 +4,30 @@ using Redack.ServiceLayer.Security;
 using System;
 using System.Linq;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 
 namespace Redack.ServiceLayer.Controllers
 {
 	public class BaseApiController : ApiController
 	{
-		public RedackDbContext Context { get; }
+		public IDbContext Context { get; private set; }
 
-		public BaseApiController() : base()
+		public BaseApiController(IDbContext context) : base()
 		{
-			this.Context = new RedackDbContext();
+			this.Context = context;
 		}
 
 		public Identity GetIdentity()
 		{
 			var jwtIdentity = (JwtIdentity)this.User.Identity;
 
-            if (jwtIdentity == null)
-                return null;
+			if (jwtIdentity == null)
+				return null;
 
 			Identity identity = jwtIdentity.Identity;
 
-            if (identity == null)
-                return null;
+			if (identity == null)
+				return null;
 
 			return identity;
 		}

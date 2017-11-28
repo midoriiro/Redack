@@ -12,6 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 using System.Web.Http.Description;
 
 namespace Redack.ServiceLayer.Controllers
@@ -22,9 +23,9 @@ namespace Redack.ServiceLayer.Controllers
 		IRepositoryApiController<TEntity> 
 		where TEntity : Entity
 	{
-		public IRepository<TEntity> Repository { get; }
+		public IRepository<TEntity> Repository { get; private set; }
 
-		protected RepositoryApiController() : base()
+		public RepositoryApiController(IDbContext context) : base(context)
 		{
 			this.Repository = new Repository<TEntity>(this.Context);
 		}
@@ -129,7 +130,7 @@ namespace Redack.ServiceLayer.Controllers
 			}
 			catch (DbEntityValidationException)
 			{
-                this.Validate<TEntity>(entity);
+				this.Validate<TEntity>(entity);
 				return this.BadRequest(ModelState);
 			}
 			catch (DbUpdateException)

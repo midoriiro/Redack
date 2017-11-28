@@ -22,7 +22,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
@@ -40,7 +40,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
@@ -61,7 +61,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
  
@@ -78,7 +78,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
@@ -99,7 +99,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 
@@ -138,7 +138,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
@@ -156,7 +156,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.CreateMany<DummyEntity>(3);
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 
@@ -184,7 +184,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 			var fixture = new Fixture();
 			fixture.Customize(new OmitOnRecursionCustomization());
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 
@@ -199,7 +199,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.CreateMany<DummyEntity>(3);
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 
@@ -229,7 +229,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 			var fixture = new Fixture();
 			fixture.Customize(new OmitOnRecursionCustomization());
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			var result = await sut.GetAllAsync();
@@ -245,7 +245,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
@@ -263,7 +263,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 			var fixture = new Fixture();
 			fixture.Customize(new OmitOnRecursionCustomization());
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 
@@ -280,7 +280,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
@@ -298,7 +298,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 			var fixture = new Fixture();
 			fixture.Customize(new OmitOnRecursionCustomization());
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 
@@ -316,7 +316,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 			var obj1 = fixture.Create<DummyEntity>();
 			var obj2 = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj1);
@@ -339,7 +339,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
@@ -368,7 +368,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 			var obj1 = fixture.Create<DummyEntity>();
 			var obj2 = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj1);
@@ -391,7 +391,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 			var obj1 = fixture.Create<DummyEntity>();
 			var obj2 = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj1);
@@ -415,7 +415,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
@@ -433,7 +433,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 
@@ -449,7 +449,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
@@ -467,7 +467,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 
@@ -483,7 +483,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
@@ -535,7 +535,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			var obj = fixture.Create<DummyEntity>();
 
-			var context = new DummyDbContext();
+			var context = this.CreateDummyContext();
 
 			var sut = new Repository<DummyEntity>(context);
 			sut.Insert(obj);
