@@ -76,6 +76,7 @@
     <Compile Include="AppGuard.cs" />
     <Compile Include="RestClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RestPromise.cs" />
     <Compile Include="RestRequest.cs" />
   </ItemGroup>
   <ItemGroup>

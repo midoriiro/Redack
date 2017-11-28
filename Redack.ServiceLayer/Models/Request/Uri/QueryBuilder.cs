@@ -21,26 +21,6 @@ namespace Redack.ServiceLayer.Models.Request.Uri
 		public Dictionary<string, string> RegisteredExpressionMethods = new Dictionary<string, string>();
 		public List<string> ExcludeExpressionKeywords = new List<string>();
 
-		public string ToQueryString()
-		{
-			List<string> result = new List<string>();
-
-			for (int i = 0; i < this.Parameters.Count; i++)
-			{
-				var parameter = this.Parameters[i];
-
-				string keypath = this.GetKeyPath(parameter.Value.GetType().Name);
-				string value = parameter.Value.ToQuery();
-
-				result.Add($"[{i}][{keypath}].{parameter.Key}={value}");
-			}
-
-			if (this.Parameters.Count == 0 || this.Parameters.Last().Key != "paginate")
-				throw new InvalidOperationException("Pagination is required at end of each query string");
-
-			return string.Join("&", this.Parameters);
-		}
-
 		public void Parse(HttpRequestMessage request)
 		{
 			string query = request.RequestUri.Query;
@@ -52,21 +32,21 @@ namespace Redack.ServiceLayer.Models.Request.Uri
 				var key = values.GetKey(i);
 				var value = values[key];
 
-				var match = Regex.Match(key, @"\[\d+\]\[(?<keypath>.*)\]");
+				var match = Regex.Match(key, @"\d+\.(?<keypath>.*)\..*");
 
 				if(match.Success)
 				{
 					var keypath = match.Groups["keypath"].Value;
 					string classname = this.ParseKeyPath(keypath) + "Parameter";
 
-					Type classType = Type.GetType($"Redack.ServiceLayer.Models.Request.{classname}");
+					Type classType = Type.GetType($"Redack.ServiceLayer.Models.Request.Uri.{classname}");
 
 					if(classType != null)
 					{
 						var parameter = (IQueryParameter)Activator.CreateInstance(classType, this, request);
 						parameter.FromQuery(value);
 
-						key = Regex.Replace(key, @"\[\d+\]\[.*\]\.", "");
+						key = Regex.Replace(key, @"\d+\..*\.", "");
 
 						this.Parameters.Add(new KeyValuePair<string, IQueryParameter>(key, parameter));
 					}
@@ -139,6 +119,26 @@ namespace Redack.ServiceLayer.Models.Request.Uri
 			}
 
 			return string.Join("", keywords);
+		}
+
+		public string ToQueryString()
+		{
+			List<string> result = new List<string>();
+
+			for (int i = 0; i < this.Parameters.Count; i++)
+			{
+				var parameter = this.Parameters[i];
+
+				string keypath = this.GetKeyPath(parameter.Value.GetType().Name);
+				string value = parameter.Value.ToQuery();
+
+				result.Add($"{i}.{keypath}.{parameter.Key}={value}");
+			}
+
+			if (this.Parameters.Count == 0 || this.Parameters.Last().Key != "paginate")
+				throw new InvalidOperationException("Pagination is required at end of each query string");
+
+			return string.Join("&", this.Parameters);
 		}
 	}
 }

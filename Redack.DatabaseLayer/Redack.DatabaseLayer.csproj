@@ -78,6 +78,15 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="connection.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="connection.Debug.config">
+      <DependentUpon>connection.config</DependentUpon>
+    </Content>
+    <Content Include="connection.Release.config">
+      <DependentUpon>connection.config</DependentUpon>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
