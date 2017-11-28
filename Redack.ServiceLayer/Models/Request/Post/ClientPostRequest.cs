@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
+using System.Data.Entity;
 
 namespace Redack.ServiceLayer.Models.Request.Post
 {
@@ -19,14 +21,19 @@ namespace Redack.ServiceLayer.Models.Request.Post
 		[Required]
 		public int ApiKey { get; set; }
 
-		public override Entity ToEntity(RedackDbContext context)
+		public override Entity ToEntity(IDbContext context)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override async Task<Entity> ToEntityAsync(IDbContext context)
 		{
 			ApiKey apikey;
 
 			using (var repository = new Repository<ApiKey>(context, false))
-				apikey = repository
+				apikey = await repository
 					.Query(e => e.Id == this.ApiKey)
-					.SingleOrDefault();
+					.SingleOrDefaultAsync();
 
 			return Client.Create(this.Name, this.PassPhrase, apikey);
 		}

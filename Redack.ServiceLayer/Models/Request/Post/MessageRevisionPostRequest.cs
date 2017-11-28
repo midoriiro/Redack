@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
@@ -17,27 +18,32 @@ namespace Redack.ServiceLayer.Models.Request.Post
 		[Required]
 		public int Message { get; set; }
 
-		public override Entity ToEntity(RedackDbContext context)
+		public override Entity ToEntity(IDbContext context)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override async Task<Entity> ToEntityAsync(IDbContext context)
 		{
 			User editor;
 
 			using (var repository = new Repository<User>(context, false))
 			{
-				editor = repository
+				editor = await repository
 					.Query(e => e.Id == this.Editor)
 					.Include(e => e.Credential)
-					.SingleOrDefault();
+					.SingleOrDefaultAsync();
 			}
 
 			Message message;
 
 			using (var repository = new Repository<Message>(context, false))
 			{
-				message = repository
+				message = await repository
 					.Query(e => e.Id == this.Message)
 					.Include(e => e.Author)
 					.Include(e => e.Thread)
-					.SingleOrDefault();
+					.SingleOrDefaultAsync();
 			}
 
 			return new MessageRevision()

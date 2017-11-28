@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 
@@ -17,17 +18,22 @@ namespace Redack.ServiceLayer.Models.Request.Post
 		[Required]
 		public int Author { get; set; }
 
-		public override Entity ToEntity(RedackDbContext context)
+		public override Entity ToEntity(IDbContext context)
+		{
+			throw new System.NotImplementedException();
+		}
+
+		public override async Task<Entity> ToEntityAsync(IDbContext context)
 		{
 			Thread thread;
 
 			using (var repository = new Repository<Thread>(context, false))
-				thread = repository.GetById(this.Thread);
+				thread = await repository.GetByIdAsync(this.Thread);
 
 			User author;
 
 			using (var repository = new Repository<User>(context, false))
-				author = repository.GetById(this.Author);
+				author = await repository.GetByIdAsync(this.Author);
 
 			return new Message()
 			{

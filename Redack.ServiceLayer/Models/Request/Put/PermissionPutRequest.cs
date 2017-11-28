@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
@@ -16,14 +17,17 @@ namespace Redack.ServiceLayer.Models.Request.Put
 		[Required]
 		public string HelpText { get; set; }
 
-		public override Entity ToEntity(RedackDbContext context)
+		public override Entity ToEntity(IDbContext context)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override async Task<Entity> ToEntityAsync(IDbContext context)
 		{
 			Permission permission;
 
 			using (var repository = new Repository<Permission>(context, false))
-			{
-				permission = repository.GetById(this.Id);
-			}
+				permission = await repository.GetByIdAsync(this.Id);
 
 			if (permission == null)
 				return null;

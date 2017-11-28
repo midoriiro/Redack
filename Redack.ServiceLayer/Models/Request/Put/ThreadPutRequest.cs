@@ -3,6 +3,7 @@ using Redack.DomainLayer.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Redack.ServiceLayer.Models.Request.Put
 {
@@ -13,16 +14,21 @@ namespace Redack.ServiceLayer.Models.Request.Put
 
 		public string Description { get; set; }
 
-		public override Entity ToEntity(RedackDbContext context)
+		public override Entity ToEntity(IDbContext context)
+		{
+			throw new System.NotImplementedException();
+		}
+
+		public override async Task<Entity> ToEntityAsync(IDbContext context)
 		{
 			Thread thread;
 
 			using (var repository = new Repository<Thread>(context, false))
 			{
-				thread = repository
+				thread = await repository
 					.Query(e => e.Id == this.Id)
 					.Include(e => e.Node)
-					.SingleOrDefault();
+					.SingleOrDefaultAsync();
 			}
 
 			if (thread == null)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
@@ -13,12 +14,18 @@ namespace Redack.ServiceLayer.Models.Request.Put
 		[Required]
 		public int Credential { get; set; }
 
-		public override Entity ToEntity(RedackDbContext context)
+		public override Entity ToEntity(IDbContext context)
+		{
+			throw new NotImplementedException();
+
+		}
+
+		public override async Task<Entity> ToEntityAsync(IDbContext context)
 		{
 			Credential credential;
 
 			using (var repository = new Repository<Credential>(context, false))
-				credential = repository.GetById(this.Credential);
+				credential = await repository.GetByIdAsync(this.Credential);
 
 			return new ApiKey()
 			{
