@@ -19,7 +19,7 @@ namespace Redack.DatabaseLayer.DataAccess
 			if (index < 1)
 				throw new ArgumentOutOfRangeException(
 					nameof(index),
-					$"index have to be equal or greater than 1");
+					@"index have to be equal or greater than 1");
 
 			return source.Skip((index - 1) * size).Take(size);
 		}
