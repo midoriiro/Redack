@@ -10,6 +10,11 @@ namespace Redack.ConsumeLayer.Test
 {
 	public class TestRedackClient : BaseTest
 	{
+		public TestRedackClient()
+		{
+			this.InitialyzeServer();
+		}
+
 		[Fact]
 		public void Valid()
 		{
