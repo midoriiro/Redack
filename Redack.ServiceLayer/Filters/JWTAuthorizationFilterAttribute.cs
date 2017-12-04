@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using Redack.ServiceLayer.Controllers;
 
 namespace Redack.ServiceLayer.Filters
 {
@@ -24,7 +25,7 @@ namespace Redack.ServiceLayer.Filters
 				return;
 			}
 
-			Identity identity = this.GetIdentity(authorization.Parameter);
+			Identity identity = this.GetIdentity(authorization.Parameter, actionContext);
 
 			if(identity == null || !this.ValidIdentity(identity) || identity.Client.IsBlocked)
 			{
@@ -42,11 +43,13 @@ namespace Redack.ServiceLayer.Filters
 			actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized);
 		}
 
-		public Identity GetIdentity(string token)
+		public Identity GetIdentity(string token, HttpActionContext actionContext)
 		{
+			BaseApiController controller = (BaseApiController)actionContext.ControllerContext.Controller;
+
 			Identity identity;
 
-			using (var repository = new Repository<Identity>())
+			using (var repository = new Repository<Identity>(controller.Context, false))
 			{
 				identity = repository
 					.All()

@@ -28,7 +28,7 @@ namespace Redack.ServiceLayer.Filters
 		{
 			if (actionContext.RequestContext.Principal.Identity is JwtIdentity identity)
 			{
-				var user = identity.GetUser();
+				var user = identity.GetUser(actionContext);
 				var groups = user.Groups;
 
 				if (this._group != null && 
