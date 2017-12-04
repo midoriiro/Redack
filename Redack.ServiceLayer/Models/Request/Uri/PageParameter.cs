@@ -3,8 +3,8 @@ using Redack.DatabaseLayer.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Net.Http;
-using System.Web;
 
 namespace Redack.ServiceLayer.Models.Request.Uri
 {
@@ -15,75 +15,138 @@ namespace Redack.ServiceLayer.Models.Request.Uri
 		private readonly int MinPageSize = 1;
 		private readonly int MaxPageSize = 100;
 
+		private Dictionary<string, Dictionary<string, int>> _links;
+
 		public PageParameter(QueryBuilder builder, HttpRequestMessage request) : base(builder, request)
 		{
+			this.IsUnique = false;
+
+			this._links = new Dictionary<string, Dictionary<string, int>>();
 		}
 
 		public PageParameter(int index = 1, int? size = null) : base(null)
 		{
-			if (index < this.DefaultPageIndex)
-				index = this.DefaultPageIndex;
-
-			if (size == null)
-				size = this.DefaultPageSize;
-			else if (size > MaxPageSize)
-				size = this.MaxPageSize;
-			else if (size < MinPageSize)
-				size = this.MinPageSize;
-
 			this.Value = new Dictionary<string, int>()
 			{
 				{ "index", index },
-				{ "size", (int)size },
+				{ "size", size ?? this.DefaultPageSize },
 			};
+
+			this.Normalize(this.Value);
 		}
 
-		public void Normalize()
+		private void Normalize(Dictionary<string, int> value)
 		{
-			if (!this.Value.ContainsKey("index"))
-				this.Value["index"] = this.DefaultPageIndex;
-			else if (this.Value["index"] < this.DefaultPageIndex)
-				this.Value["index"] = this.DefaultPageIndex;
+			 if (!value.ContainsKey("index"))
+				 value["index"] = this.DefaultPageIndex;
+			else if (value["index"] < this.DefaultPageIndex)
+				 value["index"] = this.DefaultPageIndex;
 
-			if (!this.Value.ContainsKey("size"))
-				this.Value["size"] = this.DefaultPageSize;
-			else if (this.Value["size"] > MaxPageSize)
-				this.Value["size"] = this.MaxPageSize;
-			else if (this.Value["size"] < MinPageSize)
-				this.Value["size"] = this.MinPageSize;
+			if (!value.ContainsKey("size"))
+				value["size"] = this.DefaultPageSize;
+			else if (value["size"] > MaxPageSize)
+				value["size"] = this.MaxPageSize;
+			else if (value["size"] < MinPageSize)
+				value["size"] = this.MinPageSize;
 		}
 
 		public override IQueryable Execute(string key, IQueryable queryable)
 		{
-			var methodName = "Paginate";
-			var method = typeof(QueryableExtensions).GetMethod(methodName);
+			return queryable.Paginate(this.Value["index"], this.Value["size"]);
+		}
 
-			if (method == null)
-				throw new MissingMethodException($"{methodName} does not exists in QueryableExtensions class");
+		public void GetLinks(IQueryable queryable)
+		{
+			int total = queryable.Count();
+			int size = this.Value["size"];
+			int mod = total % size;
 
-			this.Normalize();
+			int currentIndex = this.Value["index"];
+			int firstIndex = this.DefaultPageIndex;
+			int lastIndex = total / size + (mod == 0 ? 0 : 1);
+			int nextIndex = currentIndex + 1;
+			int previousIndex = currentIndex - 1;
 
-			return (IQueryable)method.Invoke(queryable, new object[]
+			// f: 1, p: 2, c: 3, n: 4, l: 10 | f,p,n,l
+			// f: 1, p: 1, c: 2, n: 3, l: 10 | p,n,l
+			// f: 1, p: 0, c: 1, n: 2, l: 10 | n,l
+
+			// f: 1, p: 99008, c: 99009, n: 99010, l: 99008 | f,l
+			// f: 1, p: 99007, c: 99008, n: 99009, l: 99008 | f,p
+			// f: 1, p: 99006, c: 99007, n: 99008, l: 99008 | f,p,l
+			// f: 1, p: 99005, c: 99006, n: 99007, l: 99008 | f,p,n,l
+
+			var first = new Dictionary<string, int>
 			{
-					queryable,
-					this.Value["index"],
-					this.Value["size"]
-			});
+				{"index", firstIndex},
+				{"size", size},
+			};
+
+			var last = new Dictionary<string, int>
+			{
+				{"index", lastIndex},
+				{"size", size},
+			};
+
+			var previous = new Dictionary<string, int>
+			{
+				{"index", nextIndex},
+				{"size", size},
+			};
+
+			var next = new Dictionary<string, int>
+			{
+				{"index", nextIndex},
+				{"size", size},
+			};
+
+			var self = new Dictionary<string, int>
+			{
+				{"index", currentIndex},
+				{"size", size},
+			};
+
+			if (currentIndex > lastIndex)
+			{
+				this._links.Add("first", first);
+				this._links.Add("last", last);
+			}
+			else
+			{
+				if (firstIndex < currentIndex && firstIndex < previousIndex)
+				{
+					this._links.Add("first", first);
+				}
+
+				if (currentIndex < lastIndex)
+				{
+					this._links.Add("last", last);
+				}
+
+				if (firstIndex <= previousIndex)
+				{
+					this._links.Add("previous", previous);
+				}
+
+				if (nextIndex < lastIndex)
+				{
+					this._links.Add("next", next);
+				}
+
+				this._links.Add("self", self);
+			}
 		}
 
 		public override void FromQuery(string value)
 		{
 			this.Value = JsonConvert.DeserializeObject<Dictionary<string, int>>(value);
+
+			this.Normalize(this.Value);
 		}
 
 		public override string ToQuery()
 		{
 			return JsonConvert.SerializeObject(this.Value);
-		}
-
-		public static explicit operator PageParameter(QueryParameter<dynamic> v)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

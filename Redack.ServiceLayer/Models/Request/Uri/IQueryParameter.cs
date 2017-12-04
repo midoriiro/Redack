@@ -10,6 +10,8 @@ namespace Redack.ServiceLayer.Models.Request.Uri
 {
 	public interface IQueryParameter
 	{
+		bool IsUnique { get; }
+
 		QueryBuilder Builder { get; set; }
 		HttpRequestMessage Request { get; set; }
 

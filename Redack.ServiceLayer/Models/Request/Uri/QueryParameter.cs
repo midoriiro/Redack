@@ -10,17 +10,19 @@ namespace Redack.ServiceLayer.Models.Request.Uri
 {
 	public abstract class QueryParameter<T> : IQueryParameter
 	{
-		public T Value { get; set; }
+		public bool IsUnique { get; protected set; } = true;
+
+		public T Value { get; protected set; }
 		public QueryBuilder Builder { get; set; }
 		public HttpRequestMessage Request { get; set; }
 
-		public QueryParameter(QueryBuilder builder, HttpRequestMessage request)
+		protected QueryParameter(QueryBuilder builder, HttpRequestMessage request)
 		{
 			this.Builder = builder;
 			this.Request = request;
 		}
 
-		public QueryParameter(T value)
+		protected QueryParameter(T value)
 		{
 			this.Value = value;
 		}

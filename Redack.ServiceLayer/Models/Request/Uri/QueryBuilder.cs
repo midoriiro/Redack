@@ -1,75 +1,42 @@
-﻿using Redack.DatabaseLayer.DataAccess;
-using Redack.DomainLayer.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data.Linq;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net.Http;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
-using System.Web.Compilation;
 
 namespace Redack.ServiceLayer.Models.Request.Uri
 {
 	public sealed class QueryBuilder
 	{
-		public List<KeyValuePair<string, IQueryParameter>> Parameters { get; private set; } = new List<KeyValuePair<string, IQueryParameter>>();
+		private List<KeyValuePair<string, IQueryParameter>> Parameters { get; }
 
-		public Dictionary<string, Type> RegisteredKeywords = new Dictionary<string, Type>();
-		public Dictionary<string, string> RegisteredExpressionMethods = new Dictionary<string, string>();
-		public List<string> ExcludeExpressionKeywords = new List<string>();
+		public QueryBuilderPolicies Policies { get; set; }
 
-		public void Parse(HttpRequestMessage request)
+		public QueryBuilder()
 		{
-			string query = request.RequestUri.Query;
-
-			NameValueCollection values = HttpUtility.ParseQueryString(query);
-
-			for (int i = 0; i < values.Count; i++)
-			{
-				var key = values.GetKey(i);
-				var value = values[key];
-
-				var match = Regex.Match(key, @"\d+\.(?<keypath>.*)\..*");
-
-				if(match.Success)
-				{
-					var keypath = match.Groups["keypath"].Value;
-					string classname = this.ParseKeyPath(keypath) + "Parameter";
-
-					Type classType = Type.GetType($"Redack.ServiceLayer.Models.Request.Uri.{classname}");
-
-					if(classType != null)
-					{
-						var parameter = (IQueryParameter)Activator.CreateInstance(classType, this, request);
-						parameter.FromQuery(value);
-
-						key = Regex.Replace(key, @"\d+\..*\.", "");
-
-						this.Parameters.Add(new KeyValuePair<string, IQueryParameter>(key, parameter));
-					}
-					else
-					{
-						throw new KeyNotFoundException($"Keypath({keypath}) does not exists");
-					}
-				}
-				else
-				{
-					throw new KeyNotFoundException($"Keypath({match.Value}) incorrect format");
-				}
-			}
+			this.Parameters = new List<KeyValuePair<string, IQueryParameter>>();
+			this.Policies = new QueryBuilderPolicies();
 		}
 
 		public IQueryable Execute(IQueryable queryable)
 		{
-			foreach(var parameter in this.Parameters)
+			bool isPaginated = this.Policies.RequiredPagination;
+			bool hasPagination = 
+				this.Parameters.Count == 0 ||
+				this.Parameters.Last().Value.GetType() != typeof(PageParameter);
+
+			if (isPaginated && hasPagination)
+				throw new QueryBuilderException("Pagination is required at end of each query string");
+
+			foreach (var parameter in this.Parameters)
 			{
 				var key = parameter.Key;
 				var value = parameter.Value;
 
-				if(this.RegisteredKeywords.ContainsKey(key) && this.RegisteredKeywords[key] == value.GetType())
+				if(this.Policies.IsRegisteredKeyword(key, value.GetType()))
 				{
 					try
 					{
@@ -77,23 +44,38 @@ namespace Redack.ServiceLayer.Models.Request.Uri
 					}
 					catch(NotImplementedException)
 					{
-						continue;
 					}
 				}
 				else
 				{
-					throw new KeyNotFoundException($"Keyword({key}) is not allowed");
+					throw new QueryBuilderException($"{key} is not allowed as a keyword");
 				}
 			}
 
-			if (this.Parameters.Count == 0 || this.Parameters.Last().Key != "paginate")
-				throw new InvalidOperationException("Pagination is required at end of each query string");
+			/*if (this.Policies.IsRegisteredKeyword(
+				this.Pagination.Key, 
+				this.Pagination.Value.GetType()))
+			{
+				this.Pagination.Value.GetLinks(queryable);
+
+				queryable = this.Pagination.Value.Execute(this.Pagination.Key, queryable);
+			}
+			else
+			{
+				throw new QueryBuilderException($"{Pagination.Key} is not allowed as a keyword");
+			}*/
 
 			return queryable;
 		}
 
 		public void Add(string key, IQueryParameter parameter)
 		{
+			if(!parameter.IsUnique && this.Parameters.Any(
+				e => e.Key == key && 
+				e.Value.GetType() == parameter.GetType()))
+				throw new QueryBuilderException(
+					$"Key-Parameter association have to be unique");
+
 			this.Parameters.Add(new KeyValuePair<string, IQueryParameter>(key, parameter));
 		}
 
@@ -102,6 +84,8 @@ namespace Redack.ServiceLayer.Models.Request.Uri
 			string name = classname.Replace("Parameter", "");
 
 			string[] keywords = Regex.Split(name, @"([A-Z]+[a-z]+)");
+
+			keywords = keywords.Where(e => !string.IsNullOrEmpty(e)).ToArray();
 
 			for (int i = 0; i < keywords.Length; i++)
 				keywords[i] = keywords[i].ToLower();
@@ -121,24 +105,62 @@ namespace Redack.ServiceLayer.Models.Request.Uri
 			return string.Join("", keywords);
 		}
 
+		private IQueryParameter GetQueryParameter(string key, HttpRequestMessage request)
+		{
+			var match = Regex.Match(key, @"(?<keypath>.*)\..*");
+
+			if (match.Success)
+			{
+				var keypath = match.Groups["keypath"].Value;
+				string classname = this.ParseKeyPath(keypath) + "Parameter";
+
+				Type classType = Type.GetType($"Redack.ServiceLayer.Models.Request.Uri.{classname}");
+
+				if (classType != null)
+					return (IQueryParameter)Activator.CreateInstance(classType, this, request);
+
+				throw new QueryBuilderException($"Keypath does not exists: {keypath}");
+			}
+
+			throw new QueryBuilderException($"Incorrect format : {key}");
+		}
+
 		public string ToQueryString()
 		{
 			List<string> result = new List<string>();
 
-			for (int i = 0; i < this.Parameters.Count; i++)
+			foreach (var parameter in this.Parameters)
 			{
-				var parameter = this.Parameters[i];
-
 				string keypath = this.GetKeyPath(parameter.Value.GetType().Name);
 				string value = parameter.Value.ToQuery();
 
-				result.Add($"{i}.{keypath}.{parameter.Key}={value}");
+				result.Add($"{keypath}.{parameter.Key}={value}");
 			}
 
-			if (this.Parameters.Count == 0 || this.Parameters.Last().Key != "paginate")
-				throw new InvalidOperationException("Pagination is required at end of each query string");
+			return string.Join("&", result);
+		}
 
-			return string.Join("&", this.Parameters);
+		public void FromRequest(HttpRequestMessage request)
+		{
+			string query = request.RequestUri.Query;
+
+			NameValueCollection values = HttpUtility.ParseQueryString(query);
+
+			for (int i = 0; i < values.Count; i++)
+			{
+				var key = values.GetKey(i);
+				var value = values[key];
+
+				if(key == null)
+					throw new QueryBuilderException($"Incorrect format at position {i + 1}");
+
+				var parameter = this.GetQueryParameter(key, request);
+				parameter.FromQuery(value);
+
+				key = Regex.Replace(key, @".*\.", "");
+
+				this.Add(key, parameter);
+			}
 		}
 	}
 }
