@@ -9,11 +9,14 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
 using System.Linq;
+using System.Linq.Dynamic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Controllers;
 using System.Web.Http.Description;
+using System.Web.Http.ModelBinding;
+using Newtonsoft.Json;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -23,11 +26,38 @@ namespace Redack.ServiceLayer.Controllers
 		IRepositoryApiController<TEntity> 
 		where TEntity : Entity
 	{
-		public IRepository<TEntity> Repository { get; private set; }
+		public IRepository<TEntity> Repository { get; }
+		protected QueryBuilderPolicies Policies { get; private set; }
 
-		public RepositoryApiController(IDbContext context) : base(context)
+		protected RepositoryApiController(IDbContext context) : base(context)
 		{
 			this.Repository = new Repository<TEntity>(this.Context);
+
+			this.Policies = new QueryBuilderPolicies();
+			this.Policies.RegisterKeyword("paginate", typeof(PageParameter));
+			this.Policies.RegisterKeyword("query", typeof(ExpressionParameter));
+			this.Policies.RegisterKeyword("inclose", typeof(ExpressionParameter));
+			this.Policies.RegisterKeyword("reshape", typeof(ExpressionParameter));
+			this.Policies.RegisterKeyword("order", typeof(ExpressionParameter));
+			this.Policies.RegisterKeyword("metadata", typeof(BoolParameter));
+
+			this.Policies.RegisterExpression("query", (q, e) => q.Where(e));
+			this.Policies.RegisterExpression("inclose", (q, e) => q.Include(e));
+			this.Policies.RegisterExpression("reshape", (q, e) => q.Select(e));
+			this.Policies.RegisterExpression("order", (q, e) => q.OrderBy(e));
+
+			this.Policies.ExcludeExpressionKeyword("Credential");
+			this.Policies.ExcludeExpressionKeyword("Identities");
+			this.Policies.ExcludeExpressionKeyword("Permissions");
+			this.Policies.ExcludeExpressionKeyword("ApiKey");
+			this.Policies.ExcludeExpressionKeyword("Client");
+			this.Policies.ExcludeExpressionKeyword("credential");
+			this.Policies.ExcludeExpressionKeyword("identities");
+			this.Policies.ExcludeExpressionKeyword("permissions");
+			this.Policies.ExcludeExpressionKeyword("apiKey");
+			this.Policies.ExcludeExpressionKeyword("client");
+
+			this.Policies.RequiredPagination = true;
 		}
 
 		public abstract bool IsOwner(int id);
@@ -35,61 +65,49 @@ namespace Redack.ServiceLayer.Controllers
 		// GET: api/Entities
 		[HttpGet]
 		[Route("")]
-		[ResponseType(typeof(ICollection<dynamic>))]
+		[ResponseType(typeof(void))]
 		public virtual async Task<IHttpActionResult> GetAll()
 		{
 			this.Context.Configuration.ProxyCreationEnabled = false;
 
 			var builder = new QueryBuilder
 			{
-				RegisteredKeywords = new Dictionary<string, Type>
-				{
-					{ "paginate", typeof(PageParameter) },
-					{ "query", typeof(ExpressionParameter) },
-					{ "inclose", typeof(ExpressionParameter) },
-					{ "reshape", typeof(ExpressionParameter) },
-					{ "order", typeof(ExpressionParameter) }
-				},
-				RegisteredExpressionMethods = new Dictionary<string, string>()
-				{
-					{ "query", "Query" },
-					{ "inclose", "Inclose" },
-					{ "reshape", "Reshape" },
-					{ "order", "Order" },
-				},
-				ExcludeExpressionKeywords = new List<string>
-				{
-					"Credential",
-					"Identities",
-					"Permissions",
-					"ApiKey",
-					"Client",
-					"credential",
-					"identities",
-					"permissions",
-					"apiKey",
-					"client"
-				}
+				Policies = this.Policies
 			};
 
 			try
 			{
-				builder.Parse(this.ActionContext.Request);
+				builder.FromRequest(this.Request);
 
-				var query = builder.Execute(this.Repository.All());
+				var query = (IQueryable)this.Repository.All();
+				query = builder.Execute(query);
 
-				List<dynamic>  result = await query.ToListAsync();
+				List<dynamic> result = await query.ToListAsync();
 
-				if (result.Count == 0)
-					return this.NotFound();
-
-				return this.Ok(result);
+				return this.Ok(new
+				{
+					metadata = new object(),
+					records = result
+				});
 			}
 			catch(UnauthorizedAccessException)
 			{
 				return this.Unauthorized();
 			}
-			catch(Exception)
+			catch (QueryBuilderException e)
+			{
+				this.Configuration
+					.Formatters
+					.JsonFormatter
+					.SerializerSettings
+					.PreserveReferencesHandling = PreserveReferencesHandling.None;
+
+				return this.ResponseMessage(
+					this.Request.CreateErrorResponse(
+						HttpStatusCode.BadRequest,
+						$"Query string error : {e.Message}"));
+			}
+			catch (Exception)
 			{
 				return this.BadRequest();
 			}
@@ -114,13 +132,22 @@ namespace Redack.ServiceLayer.Controllers
 		// POST: api/Entities
 		[HttpPost]
 		[Route("")]
-		[ResponseType(typeof(Entity))]
+		[ResponseType(typeof(IEntity))]
 		public virtual async Task<IHttpActionResult> Post([FromBody] BasePostRequest<TEntity> request)
 		{
 			if (!this.ModelState.IsValid)
 				return this.BadRequest(ModelState);
 
-			TEntity entity = (TEntity)request.ToEntity(this.Context);
+			TEntity entity;
+
+			try
+			{
+				entity = (TEntity)request.ToEntity(this.Context);
+			}
+			catch (NotImplementedException)
+			{
+				entity = (TEntity) await request.ToEntityAsync(this.Context);
+			}
 
 			this.Repository.Insert(entity);
 
@@ -130,7 +157,7 @@ namespace Redack.ServiceLayer.Controllers
 			}
 			catch (DbEntityValidationException)
 			{
-				this.Validate<TEntity>(entity);
+				this.Validate(entity);
 				return this.BadRequest(ModelState);
 			}
 			catch (DbUpdateException)
@@ -159,7 +186,16 @@ namespace Redack.ServiceLayer.Controllers
 			if (!this.ModelState.IsValid)
 				return this.BadRequest(this.ModelState);
 
-			TEntity entity = (TEntity)request.ToEntity(this.Context);
+			TEntity entity;
+
+			try
+			{
+				entity = (TEntity)request.ToEntity(this.Context);
+			}
+			catch (NotImplementedException)
+			{
+				entity = (TEntity)await request.ToEntityAsync(this.Context);
+			}
 
 			if (entity == null)
 				return this.NotFound();
@@ -173,12 +209,17 @@ namespace Redack.ServiceLayer.Controllers
 			{
 				await this.Repository.CommitAsync();
 			}
+			catch (DbEntityValidationException)
+			{
+				this.Validate(entity);
+				return this.BadRequest(ModelState);
+			}
 			catch (DbUpdateConcurrencyException)
 			{
 				if (!this.EntityExists(id))
 					return this.NotFound();
 
-				throw;
+				return this.Conflict();
 			}
 
 			return this.StatusCode(HttpStatusCode.NoContent);
@@ -187,7 +228,7 @@ namespace Redack.ServiceLayer.Controllers
 		// DELETE: api/Entities/5
 		[HttpDelete]
 		[Route("{id:int:min(1)}")]
-		[ResponseType(typeof(Entity))]
+		[ResponseType(typeof(IEntity))]
 		public virtual async Task<IHttpActionResult> Delete(int id)
 		{
 			TEntity entity = await Repository.GetByIdAsync(id);
@@ -198,7 +239,7 @@ namespace Redack.ServiceLayer.Controllers
 			this.Repository.Delete(entity);
 			await Repository.CommitAsync();
 
-			return this.Ok(entity);
+			return this.StatusCode(HttpStatusCode.NoContent);
 		}
 
 		protected override void Dispose(bool disposing)
