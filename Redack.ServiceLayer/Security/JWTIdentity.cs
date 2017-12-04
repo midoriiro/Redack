@@ -3,6 +3,8 @@ using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 using System.Linq;
 using System.Security.Principal;
+using System.Web.Http.Controllers;
+using Redack.ServiceLayer.Controllers;
 
 namespace Redack.ServiceLayer.Security
 {
@@ -20,11 +22,13 @@ namespace Redack.ServiceLayer.Security
             return new GenericPrincipal(this, null);
         }
 
-        public User GetUser()
+        public User GetUser(HttpActionContext actionContext)
         {
-            User user;
+	        BaseApiController controller = (BaseApiController)actionContext.ControllerContext.Controller;
 
-            using (var repository = new Repository<User>())
+			User user;
+
+            using (var repository = new Repository<User>(controller.Context, false))
             {
                 user = repository
                     .All()

@@ -70,6 +70,7 @@
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.IO, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.4.3.0\lib\net462\System.IO.dll</HintPath>
     </Reference>
@@ -201,6 +202,9 @@
     <Compile Include="Models\Request\Uri\ListParameter.cs" />
     <Compile Include="Models\Request\Uri\PageParameter.cs" />
     <Compile Include="Models\Request\Uri\IQueryParameter.cs" />
+    <Compile Include="Models\Request\Uri\BoolParameter.cs" />
+    <Compile Include="Models\Request\Uri\QueryBuilderException.cs" />
+    <Compile Include="Models\Request\Uri\QueryBuilderPolicies.cs" />
     <Compile Include="Models\Request\Uri\SingleParameter.cs" />
     <Compile Include="Models\Request\Uri\QueryParameter.cs" />
     <Compile Include="Models\Request\Uri\QueryBuilder.cs" />
@@ -227,17 +231,13 @@
     <Compile Include="Security\UnhandledExceptionLogger.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Redack.DatabaseLayer\connection.config">
-      <Link>connection.config</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="packages.config" />
-    <None Include="web.Debug.config">
+    <Content Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
+    </Content>
+    <Content Include="web.Release.config">
       <DependentUpon>web.config</DependentUpon>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -286,13 +286,11 @@
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.8\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /S /Y "$(TargetDir)connection.config" "$(ProjectDir)"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v15.0\WebApplications\Microsoft.WebApplication.targets" />
   <Target Name="BeforeBuild">
+    <TransformXml Source="Web.config" Transform="Web.$(Configuration).config" Destination="Web.config" />
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
