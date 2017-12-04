@@ -11,6 +11,7 @@ using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 using Redack.ServiceLayer.Models.Request.Post;
 using Redack.ServiceLayer.Models.Request.Put;
+using Redack.ServiceLayer.Models.Request.Uri;
 
 namespace Redack.ServiceLayer.Test.Controllers
 {
@@ -255,7 +256,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 			var request = this.CreateRequest(HttpMethod.Delete, parameter);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 		}
 
 		[Fact]
@@ -368,7 +369,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 
 			client.IsBlocked = true;
 
-			using (var repository = new Repository<Client>())
+			using (var repository = this.CreateRepository<Client>())
 			{
 				repository.Update(client);
 				repository.Commit();

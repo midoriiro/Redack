@@ -12,6 +12,7 @@ using System.Net.Http.Headers;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Web.Http;
+using Redack.ServiceLayer.Models.Request.Uri;
 using Group = Redack.DomainLayer.Models.Group;
 
 namespace Redack.ServiceLayer.Test
@@ -174,6 +175,16 @@ namespace Redack.ServiceLayer.Test
 			{
 				request.Content = new ObjectContent(body.GetType(), body, new JsonMediaTypeFormatter());
 				request.Content.Headers.ContentType = new MediaTypeWithQualityHeaderValue("application/json");
+			}
+
+			if (method == HttpMethod.Get && id == null)
+			{
+				var builder = new QueryBuilder();
+				builder.Add("order", new ExpressionParameter(e => e.Id));
+				builder.Add("paginate", new PageParameter(1, 10));
+
+				var uri = new UriBuilder(request.RequestUri) { Query = builder.ToQueryString() };
+				request.RequestUri = uri.Uri;
 			}
 
 			request.Headers.Authorization = this._auth;

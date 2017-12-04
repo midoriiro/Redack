@@ -15,6 +15,11 @@ namespace Redack.ServiceLayer.Test.Controllers
 {
 	public class TestThreadsController : BaseTestController<ThreadsController>
 	{
+		public TestThreadsController()
+		{
+			this.CreateThread();
+		}
+
 		[Fact]
 		public void GetAll_WithAuthentifiedUser()
 		{
@@ -32,7 +37,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 			var request = this.CreateRequest(HttpMethod.Get);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 		}
 
 		[Fact]
@@ -43,7 +48,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 			var request = this.CreateRequest(HttpMethod.Get);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 		}
 
 		[Fact]
@@ -78,7 +83,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 			var request = this.CreateRequest(HttpMethod.Get, parameter);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 		}
 
 		[Fact]
@@ -91,7 +96,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 			var request = this.CreateRequest(HttpMethod.Get, parameter);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 		}
 
 		[Fact]
@@ -248,10 +253,10 @@ namespace Redack.ServiceLayer.Test.Controllers
 
 			var parameter = this.CreateThread().Id;
 
-			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 		}
 
 		[Fact]
@@ -259,7 +264,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			this.CreateAuthentifiedUser(this.GetDataSet<Thread>()["users"]["admin"] as User);
 
-			var request = this.CreateRequest(HttpMethod.Get, int.MaxValue);
+			var request = this.CreateRequest(HttpMethod.Delete, int.MaxValue);
 			var response = this.Client.SendAsync(request).Result;
 
 			Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
@@ -270,7 +275,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 		{
 			var parameter = this.CreateThread().Id;
 
-			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
 			var response = this.Client.SendAsync(request).Result;
 
 			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -283,7 +288,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 
 			var parameter = this.CreateThread().Id;
 
-			var request = this.CreateRequest(HttpMethod.Get, parameter);
+			var request = this.CreateRequest(HttpMethod.Delete, parameter);
 			var response = this.Client.SendAsync(request).Result;
 
 			Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);

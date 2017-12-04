@@ -126,7 +126,7 @@ namespace Redack.ServiceLayer.Test.Controllers
             var client = this.CreateClient();
             client.IsBlocked = true;
 
-            using (var repository = new Repository<Client>())
+            using (var repository = this.CreateRepository<Client>())
             {
                 repository.Update(client);
                 repository.Commit();

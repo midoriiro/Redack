@@ -11,11 +11,17 @@ using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 using Redack.ServiceLayer.Models.Request.Put;
 using Redack.ServiceLayer.Models.Request.Post;
+using Redack.ServiceLayer.Models.Request.Uri;
 
 namespace Redack.ServiceLayer.Test.Controllers
 {
 	public class TestMessagesController : BaseTestController<MessagesController>
 	{
+		public TestMessagesController()
+		{
+			this.CreateMessage();
+		}
+
 		[Fact]
 		public void GetAll_WithUnauthentifiedUser()
 		{
@@ -218,7 +224,7 @@ namespace Redack.ServiceLayer.Test.Controllers
 			var request = this.CreateRequest(HttpMethod.Delete, parameter);
 			var response = this.Client.SendAsync(request).Result;
 
-			Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+			Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 		}
 
 		[Fact]
