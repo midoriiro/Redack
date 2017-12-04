@@ -18,7 +18,7 @@ namespace Redack.ConsumeLayer.Test
 		[Fact]
 		public void Valid()
 		{
-			var client = new RedackClient("lol", "localhost", false, this.Server);
+			var client = new RedackClient("lol", this.Server);
 		}
 	}
 }

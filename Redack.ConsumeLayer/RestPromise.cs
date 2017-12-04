@@ -7,40 +7,70 @@ using System.Threading.Tasks;
 
 namespace Redack.ConsumeLayer
 {
-	class RestPromise
+	public class RestPromise
 	{
-		private readonly Task<HttpResponseMessage> _promise;
-		private HttpResponseMessage _response = null;
-
-		public RestPromise(Task<HttpResponseMessage> promise)
+		private enum ActionType
 		{
-			this.Done((v) => { v.Content = null; });
+			Done,
+			Failed,
+			Always
 		}
 
-		private HttpResponseMessage GetResponse()
+		private List<KeyValuePair<ActionType, Action<HttpResponseMessage>>> Actions { get; set; }
+		public RestRequest Request { get; protected set; }
+		private HttpResponseMessage _response;
+
+		public RestPromise(RestRequest request)
 		{
-			if (this._response == null)
-				this._response = this._promise.Result;
+			this.Actions = new List<KeyValuePair<ActionType, Action<HttpResponseMessage>>>();
+			this.Request = request;
+			this._response = null;
+		}
+
+		public HttpResponseMessage Execute(HttpResponseMessage response)
+		{
+			if(this._response == null)
+				this._response = response;
+
+			foreach(var action in this.Actions)
+			{
+				if (action.Key == ActionType.Done && response.IsSuccessStatusCode)
+					action.Value(response);
+				else if (action.Key == ActionType.Failed && !response.IsSuccessStatusCode)
+					action.Value(response);
+				else
+					action.Value(response);
+			}
 
 			return this._response;
 		}
 
 		public RestPromise Done(Action<HttpResponseMessage> action)
 		{
-			var response = this.GetResponse();
-
-			if(response.IsSuccessStatusCode)
-				action(response);
+			this.Actions.Add(
+				new KeyValuePair<ActionType, Action<HttpResponseMessage>>(
+					ActionType.Done, 
+					action));
 
 			return this;
 		}
 
 		public RestPromise Failed(Action<HttpResponseMessage> action)
 		{
-			var response = this.GetResponse();
+			this.Actions.Add(
+				new KeyValuePair<ActionType, Action<HttpResponseMessage>>(
+					ActionType.Failed,
+					action));
 
-			if (!response.IsSuccessStatusCode)
-				action(response);
+			return this;
+		}
+
+		public RestPromise Always(Action<HttpResponseMessage> action)
+		{
+			this.Actions.Add(
+				new KeyValuePair<ActionType, Action<HttpResponseMessage>>(
+					ActionType.Always,
+					action));
 
 			return this;
 		}
