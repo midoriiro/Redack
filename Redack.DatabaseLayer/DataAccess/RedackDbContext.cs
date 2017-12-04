@@ -5,7 +5,9 @@ using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Redack.DatabaseLayer.DataAccess
@@ -26,9 +28,38 @@ namespace Redack.DatabaseLayer.DataAccess
 
 		public RedackDbContext()
 		{
-			this.Database.Connection.ConnectionString = ConfigurationManager
-				.ConnectionStrings["RedackDbConnection"]
-				.ConnectionString;
+			try
+			{
+				var path = Path.Combine(Assembly.GetExecutingAssembly().Location, "Redack.ServiceLayer.dll.config");
+				var map = new ExeConfigurationFileMap { ExeConfigFilename = path };
+				var config = ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+
+				var section = config.ConnectionStrings.SectionInformation;
+
+				if (!section.IsProtected)
+				{
+					section.ProtectSection("DataProtectionConfigurationProvider");
+					config.Save(ConfigurationSaveMode.Minimal);
+					ConfigurationManager.RefreshSection(section.Name);
+				}
+				else
+				{
+					section.UnprotectSection();
+				}
+
+				this.Database.Connection.ConnectionString = config
+					.ConnectionStrings
+					.ConnectionStrings["RedackDbConnection"]
+					.ConnectionString;
+			}
+			catch (ConfigurationException e)
+			{
+				var section = (ConnectionStringsSection)ConfigurationManager.GetSection("connectionStrings");
+
+				this.Database.Connection.ConnectionString = section
+					.ConnectionStrings["RedackDbConnection"]
+					.ConnectionString;
+			}
 		}
 
 		public RedackDbContext(DbConnection connection) : base(connection, true)
