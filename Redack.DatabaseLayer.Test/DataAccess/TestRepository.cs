@@ -522,7 +522,7 @@ namespace Redack.DatabaseLayer.Test.DataAccess
 
 			Repository<DummyEntity> sut;
 
-			using (sut = new Repository<DummyEntity>()) { }
+			using (sut = new Repository<DummyEntity>(context.Object, true)) { }
 
 			Assert.IsTrue(sut.Disposed);
 		}
