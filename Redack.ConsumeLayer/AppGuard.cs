@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -11,9 +12,9 @@ namespace Redack.ConsumeLayer
 	{
 		private readonly string _appFolder;
 		private readonly string _tmpFolder;
-		private byte[] _key;
+		private readonly AesManaged _algorithm;
 
-		public AppGuard(string key)
+		public AppGuard()
 		{
 			string localAppDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 			this._appFolder = Path.Combine(localAppDataDirectory, "RedackAppGuard");
@@ -24,18 +25,58 @@ namespace Redack.ConsumeLayer
 
 			Directory.CreateDirectory(this._tmpFolder);
 
-			this._key = Encoding.UTF8.GetBytes(key);
+			string keyPassword = "redack.password";
+			string keySalt = "redack.salt";
 
-			this.Store(this._key);
+			var config = ConfigurationManager.OpenExeConfiguration(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+
+			string password;
+			string salt;
+
+			try
+			{
+				password = config.AppSettings.Settings[keyPassword].Value;
+				salt = config.AppSettings.Settings[keySalt].Value;
+			}
+			catch (NullReferenceException)
+			{
+				string[] credential = this.CreateCredential();
+				password = credential[0];
+				salt = credential[1];
+
+				config.AppSettings.Settings.Add(keyPassword, password);
+				config.AppSettings.Settings.Add(keySalt, salt);
+				config.Save(ConfigurationSaveMode.Minimal);
+			}
+
+			var rng = new Rfc2898DeriveBytes(password, Encoding.UTF8.GetBytes(salt), 1);
+
+			this._algorithm = new AesManaged
+			{
+				KeySize = 256,
+				BlockSize = 128
+			};
+
+			this._algorithm.Key = rng.GetBytes(this._algorithm.KeySize / 8);
+			this._algorithm.IV = rng.GetBytes(this._algorithm.BlockSize / 8);
+			this._algorithm.Mode = CipherMode.CBC;
 		}
 
-		private byte[] CreateRandomEntropy()
+		private string[] CreateCredential()
 		{
-			byte[] entropy = new byte[16];
+			RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
 
-			new RNGCryptoServiceProvider(entropy);
+			byte[] password = new byte[256];
+			rng.GetBytes(password);
 
-			return entropy;
+			byte[] salt = new byte[128];
+			rng.GetBytes(salt);
+
+			return new[]
+			{
+				Convert.ToBase64String(password),
+				Convert.ToBase64String(salt)
+			};
 		}
 
 		private void EncryptToMemory(byte[] data, MemoryProtectionScope scope)
@@ -58,67 +99,74 @@ namespace Redack.ConsumeLayer
 			ProtectedMemory.Unprotect(data, scope);
 		}
 
-		private int EncryptToStream(byte[] data, byte[] entropy, Stream stream, DataProtectionScope scope)
+		private void EncryptToStream(string data, Stream stream, DataProtectionScope scope)
 		{
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));
-			else if (data.Length <= 0)
+			if (data.Length <= 0)
 				throw new ArgumentException(nameof(data));
-			else if (entropy == null)
-				throw new ArgumentNullException(nameof(entropy));
-			else if (entropy.Length <= 0)
-				throw new ArgumentException(nameof(entropy));
-			else if(stream == null)
+			if(stream == null)
 				throw new ArgumentNullException(nameof(stream));
 
-			byte[] encrypted = ProtectedData.Protect(data, entropy, scope);
+			var transform = this._algorithm.CreateEncryptor();
 
-			int length = 0;
-
-			if (stream.CanWrite && encrypted != null)
+			using (var memory = new MemoryStream())
 			{
-				stream.Write(encrypted, 0, encrypted.Length);
-				length = encrypted.Length;
-			}
+				using (var crypto = new CryptoStream(memory, transform, CryptoStreamMode.Write))
+				{
+					using (var writer = new StreamWriter(crypto))
+					{
+						writer.Write(data);
+					}
 
-			return length;
+					if (stream.CanWrite)
+					{
+						byte[] encrypted = memory.ToArray();
+
+						stream.Write(encrypted, 0, encrypted.Length);
+					}
+				}
+			}
 		}
 
-		private byte[] DecryptToStream(byte[] entropy, Stream stream, DataProtectionScope scope)
+		private string DecryptToStream(Stream stream, DataProtectionScope scope)
 		{
-			if (entropy == null)
-				throw new ArgumentNullException(nameof(entropy));
-			else if (entropy.Length <= 0)
-				throw new ArgumentException(nameof(entropy));
-			else if (stream == null)
+			if (stream == null)
 				throw new ArgumentNullException(nameof(stream));
 
-			byte[] buffer = new byte[stream.Length];
-			byte[] decrypted;
+			byte[] encrypted = new byte[stream.Length];
 
-			if(stream.CanRead)
-			{
-				stream.Read(buffer, 0, buffer.Length);
+			if (stream.CanRead)
+				stream.Read(encrypted, 0, encrypted.Length);
 
-				decrypted = ProtectedData.Unprotect(buffer, entropy, scope);
-			}
-			else
+			string decrypted = null;
+
+			var transform = this._algorithm.CreateDecryptor();
+
+			using (var memory = new MemoryStream(encrypted))
 			{
-				throw new IOException("Could not read stream");
+				using (var crypto = new CryptoStream(memory, transform, CryptoStreamMode.Read))
+				{
+					using (StreamReader reader = new StreamReader(crypto))
+					{
+						decrypted = reader.ReadToEnd();
+					}
+				}
 			}
 
 			return decrypted;
 		}
 
-		public void Store(string filename, byte[] data)
+		public void Store(string data, Stream stream)
+		{
+			this.EncryptToStream(data, stream, DataProtectionScope.CurrentUser);
+		}
+
+		public void Store(string filename, string data)
 		{
 			FileStream stream = new FileStream(Path.Combine(this._appFolder, filename), FileMode.OpenOrCreate);
 
-			this.Restore(this._key);
-
-			this.EncryptToStream(data, this._key, stream, DataProtectionScope.CurrentUser);
-
-			this.Store(this._key);
+			this.Store(data, stream);
 		}
 
 		public void Store(byte[] data)
@@ -126,28 +174,16 @@ namespace Redack.ConsumeLayer
 			this.EncryptToMemory(data, MemoryProtectionScope.SameProcess);
 		}
 
-		public byte[] Restore(string filename)
+		public string Restore(Stream stream)
+		{
+			return this.DecryptToStream(stream, DataProtectionScope.CurrentUser);
+		}
+
+		public string Restore(string filename)
 		{
 			FileStream stream = new FileStream(Path.Combine(this._appFolder, filename), FileMode.OpenOrCreate);
 
-			byte[] data;
-
-			this.Restore(this._key);
-
-			try
-			{
-				data = this.DecryptToStream(this._key, stream, DataProtectionScope.CurrentUser);
-			}
-			catch(IOException e)
-			{
-				throw e;
-			}
-			finally
-			{
-				this.Store(this._key);
-			}
-
-			return data;
+			return this.Restore(stream);
 		}
 
 		public void Restore(byte[] data)
@@ -155,27 +191,9 @@ namespace Redack.ConsumeLayer
 			this.DecryptToMemory(data, MemoryProtectionScope.SameProcess);
 		}
 
-		#region IDisposable Support
-		private bool disposedValue = false;
-
-		void Dispose(bool disposing)
-		{
-			if (!disposedValue)
-			{
-				if (disposing)
-				{
-					this._key = null;
-					GC.Collect();
-				}
-
-				disposedValue = true;
-			}
-		}
-
 		public void Dispose()
 		{
-			Dispose(true);
+			this._algorithm.Dispose();
 		}
-		#endregion
 	}
 }
