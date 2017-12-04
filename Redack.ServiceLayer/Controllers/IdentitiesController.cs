@@ -4,6 +4,7 @@ using Redack.ServiceLayer.Filters;
 using Redack.ServiceLayer.Models;
 using Redack.ServiceLayer.Models.Request.Post;
 using Redack.ServiceLayer.Security;
+using System;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Validation;
 using System.Linq;
@@ -39,9 +40,18 @@ namespace Redack.ServiceLayer.Controllers
 			if (!this.ModelState.IsValid)
 				return this.BadRequest(this.ModelState);
 
-			Identity identity = (Identity)request.ToEntity(this.Context);
+			Identity identity;
 
-			if(identity.Client == null || identity.Client.IsBlocked)
+			try
+			{
+				identity = (Identity)request.ToEntity(this.Context);
+			}
+			catch (NotImplementedException)
+			{
+				identity = (Identity)await request.ToEntityAsync(this.Context);
+			}
+
+			if (identity.Client == null || identity.Client.IsBlocked)
 				return this.Unauthorized();
 
 			this._repositoryUser.Insert(identity.User);
@@ -76,14 +86,17 @@ namespace Redack.ServiceLayer.Controllers
 		[ResponseType(typeof(void))]
 		public virtual async Task<IHttpActionResult> SignDown()
 		{
-			Identity identity = identity = this.GetIdentity();
+			Identity identity = this.GetIdentity();
 
 			if (identity == null)
 				return this.Unauthorized();
 
-			await this.SignOutAll();
+			User user = identity.User;
 
-			this._repositoryUser.Delete(identity.User);
+			var identities = this._repository.Query(e => e.User.Id == user.Id).ToList();
+			identities.ForEach(e => this._repository.Delete(e));
+
+			this._repositoryUser.Delete(user);
 			await this._repositoryUser.CommitAsync();
 
 			return this.Ok();
@@ -98,7 +111,16 @@ namespace Redack.ServiceLayer.Controllers
 			if (!this.ModelState.IsValid)
 				return this.BadRequest(this.ModelState);
 
-			var identity = (Identity)request.ToEntity(this.Context);
+			Identity identity;
+
+			try
+			{
+				identity = (Identity)request.ToEntity(this.Context);
+			}
+			catch (NotImplementedException)
+			{
+				identity = (Identity)await request.ToEntityAsync(this.Context);
+			}
 
 			if (identity.User == null || identity.Client == null || identity.Client.IsBlocked)
 				return this.Unauthorized();
@@ -127,7 +149,16 @@ namespace Redack.ServiceLayer.Controllers
 			if(!this.ModelState.IsValid)
 				return this.BadRequest(this.ModelState);
 
-			Identity identity = (Identity)request.ToEntity(this.Context);
+			Identity identity;
+
+			try
+			{
+				identity = (Identity)request.ToEntity(this.Context);
+			}
+			catch (NotImplementedException)
+			{
+				identity = (Identity)await request.ToEntityAsync(this.Context);
+			}
 
 			if (identity == null || identity.Client == null || identity.Client.IsBlocked)
 				return this.Unauthorized();

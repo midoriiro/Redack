@@ -31,7 +31,16 @@ namespace Redack.ServiceLayer.Controllers
 			if (!this.ModelState.IsValid)
 				return this.BadRequest(this.ModelState);
 
-			var client = (Client)request.ToEntity(this.Context);
+			Client client;
+
+			try
+			{
+				client = (Client)request.ToEntity(this.Context);
+			}
+			catch (NotImplementedException)
+			{
+				client = (Client) await request.ToEntityAsync(this.Context);
+			}
 
 			if (client == null || client.IsBlocked)
 				return this.Unauthorized();
