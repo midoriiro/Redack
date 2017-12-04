@@ -30,17 +30,15 @@ namespace Redack.ServiceLayer
 				HttpApiConfiguration apiConfig = (HttpApiConfiguration)config;
 
 				container.RegisterType<IDbContext, RedackDbContext>(
-					new HierarchicalLifetimeManager(),
 					new InjectionConstructor(apiConfig.DbConnection));
 			}
 			catch(InvalidCastException)
 			{
 				container.RegisterType<IDbContext, RedackDbContext>(
-					new HierarchicalLifetimeManager(),
 					new InjectionConstructor());
 			}
 			
-			config.DependencyResolver = new UnityDependencyResolver(container);
+			config.DependencyResolver = new UnityHierarchicalDependencyResolver(container);
 
 			config.Services.Replace(typeof(IExceptionLogger), new UnhandledExceptionLogger());
 			config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
