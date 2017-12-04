@@ -62,13 +62,9 @@ namespace Redack.DomainLayer.Models
 
 		public void ToHash()
 		{
-			byte[] salt = new byte[256 / 8];
-			RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
-			provider.GetBytes(salt);
-
 			this.Salt = Convert.ToBase64String(Client.CreateRandomSalt());
 
-			this.PassPhrase = Credential.ToHash(this.PassPhrase, salt);
+			this.PassPhrase = Credential.ToHash(this.PassPhrase, Convert.FromBase64String(this.Salt));
 		}
 
 		public bool IsValid(string passphrase)
