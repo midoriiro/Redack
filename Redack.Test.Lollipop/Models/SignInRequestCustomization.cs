@@ -1,12 +1,11 @@
 ﻿using Ploeh.AutoFixture;
-using Redack.ServiceLayer.Models.Request;
-using Redack.ServiceLayer.Models.Request.Post;
+using Redack.BridgeLayer.Messages.Request.Post;
 using Redack.Test.Lollipop.Customizations;
 using Redack.Test.Lollipop.Entities;
 
 namespace Redack.Test.Lollipop.Models
 {
-    public class SignInRequestCustomization : ICustomization
+	public class SignInRequestCustomization : ICustomization
     {
         public virtual void Customize(IFixture fixture)
         {

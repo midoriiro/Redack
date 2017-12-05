@@ -1,22 +1,18 @@
 ﻿using Ploeh.AutoFixture;
-using Redack.DatabaseLayer.DataAccess;
+using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Controllers;
-using Redack.ServiceLayer.Models;
 using Redack.ServiceLayer.Security;
 using Redack.Test.Lollipop.Entities;
-using System.Web.Http.Results;
 using Redack.Test.Lollipop.Models;
+using System.Net;
+using System.Net.Http;
+using Redack.BridgeLayer.Messages.Request.Post;
 using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
-using Redack.ServiceLayer.Models.Request;
-using Redack.DomainLayer.Models;
-using System.Net.Http;
-using System.Net;
-using Redack.ServiceLayer.Models.Request.Post;
 
 namespace Redack.ServiceLayer.Test.Controllers
 {
-    public class TestIdentitiesController : BaseTestController<IdentitiesController>
+	public class TestIdentitiesController : BaseTestController<IdentitiesController>
     {
         public SignUpRequest CreateValidSignUpRequest(
             User user = null, Client client = null, bool pushUser = true, bool pushClient = true)

@@ -1,8 +1,8 @@
-﻿using Redack.DatabaseLayer.DataAccess;
+﻿using Redack.BridgeLayer.Messages.Request.Post;
+using Redack.BridgeLayer.Messages.Response;
+using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Filters;
-using Redack.ServiceLayer.Models;
-using Redack.ServiceLayer.Models.Request.Post;
 using Redack.ServiceLayer.Security;
 using System;
 using System.Data.Entity.Infrastructure;

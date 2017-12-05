@@ -1,5 +1,5 @@
 ﻿using Ploeh.AutoFixture;
-using Redack.ServiceLayer.Models.Request.Post;
+using Redack.BridgeLayer.Messages.Request.Post;
 using Redack.Test.Lollipop.Customizations;
 
 namespace Redack.Test.Lollipop.Models

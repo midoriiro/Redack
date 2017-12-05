@@ -158,6 +158,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Redack.BridgeLayer\Redack.BridgeLayer.csproj">
+      <Project>{ac1060c9-6816-4b34-aca5-fb7fbf94ac07}</Project>
+      <Name>Redack.BridgeLayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Redack.DatabaseLayer\Redack.DatabaseLayer.csproj">
       <Project>{f000ca69-8855-4078-9bdc-1a2fb0c7d0ed}</Project>
       <Name>Redack.DatabaseLayer</Name>

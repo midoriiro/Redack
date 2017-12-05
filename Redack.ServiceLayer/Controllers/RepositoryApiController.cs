@@ -1,8 +1,6 @@
-﻿using Redack.DatabaseLayer.DataAccess;
+﻿using Newtonsoft.Json;
+using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
-using Redack.ServiceLayer.Models.Request.Post;
-using Redack.ServiceLayer.Models.Request.Put;
-using Redack.ServiceLayer.Models.Request.Uri;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -12,11 +10,13 @@ using System.Linq;
 using System.Linq.Dynamic;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Web.Http.ModelBinding;
-using Newtonsoft.Json;
+using Redack.BridgeLayer.Messages.Request.Post;
+using Redack.BridgeLayer.Messages.Request.Put;
+using Redack.BridgeLayer.Messages.Uri;
 
 namespace Redack.ServiceLayer.Controllers
 {
@@ -79,16 +79,23 @@ namespace Redack.ServiceLayer.Controllers
 			{
 				builder.FromRequest(this.Request);
 
-				var query = (IQueryable)this.Repository.All();
+				var query = (IQueryable)this.Repository.All().AsNoTracking().AsQueryable();
 				query = builder.Execute(query);
 
 				List<dynamic> result = await query.ToListAsync();
 
-				return this.Ok(new
+				if (builder.IsMetadataRequested())
 				{
-					metadata = new object(),
-					records = result
-				});
+					return this.Ok(new
+					{
+						metadata = builder.GetMetadata(this.Request),
+						records = result
+					});
+				}
+				else
+				{
+					return this.Ok(result);
+				}
 			}
 			catch(UnauthorizedAccessException)
 			{
@@ -107,7 +114,7 @@ namespace Redack.ServiceLayer.Controllers
 						HttpStatusCode.BadRequest,
 						$"Query string error : {e.Message}"));
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
 				return this.BadRequest();
 			}

@@ -1,13 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
-using System.Web.Http;
 using Redack.ServiceLayer.Filters;
-using Redack.ServiceLayer.Models.Request;
+using System;
+using System.Threading.Tasks;
+using System.Web.Http;
 using System.Web.Http.Description;
-using Redack.ServiceLayer.Models.Request.Post;
-using Redack.ServiceLayer.Models.Request.Put;
-using Redack.DatabaseLayer.DataAccess;
+using Redack.BridgeLayer.Messages.Request.Post;
+using Redack.BridgeLayer.Messages.Request.Put;
 
 namespace Redack.ServiceLayer.Controllers
 {

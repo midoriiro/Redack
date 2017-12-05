@@ -1,11 +1,11 @@
 ﻿using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
-using Redack.ServiceLayer.Models.Request.Post;
-using Redack.ServiceLayer.Models.Request.Put;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using Redack.BridgeLayer.Messages.Request.Post;
+using Redack.BridgeLayer.Messages.Request.Put;
 
 namespace Redack.ServiceLayer.Controllers
 {

@@ -1,7 +1,6 @@
 ﻿using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Controllers;
-using Redack.ServiceLayer.Models.Request;
 using Redack.ServiceLayer.Security;
 using Redack.Test.Lollipop;
 using System;
@@ -9,10 +8,9 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
-using System.Security.Principal;
 using System.Text.RegularExpressions;
-using System.Web.Http;
-using Redack.ServiceLayer.Models.Request.Uri;
+using Redack.BridgeLayer.Messages.Request;
+using Redack.BridgeLayer.Messages.Uri;
 using Group = Redack.DomainLayer.Models.Group;
 
 namespace Redack.ServiceLayer.Test

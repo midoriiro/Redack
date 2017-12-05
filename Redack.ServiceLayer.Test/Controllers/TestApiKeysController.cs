@@ -1,16 +1,11 @@
 ﻿using Redack.DomainLayer.Models;
 using Redack.ServiceLayer.Controllers;
-using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http.Results;
-using Redack.ServiceLayer.Models.Request;
+using Redack.BridgeLayer.Messages.Request.Post;
+using Redack.BridgeLayer.Messages.Request.Put;
 using Xunit;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
-using Redack.ServiceLayer.Models.Request.Post;
-using Redack.ServiceLayer.Models.Request.Put;
-using Redack.ServiceLayer.Models.Request.Uri;
 
 namespace Redack.ServiceLayer.Test.Controllers
 {

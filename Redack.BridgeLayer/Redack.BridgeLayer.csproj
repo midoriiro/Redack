@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AC1060C9-6816-4B34-ACA5-FB7FBF94AC07}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Redack.BridgeLayer</RootNamespace>
+    <AssemblyName>Redack.BridgeLayer</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Messages\BaseModel.cs" />
+    <Compile Include="Messages\Request\IEntityRequest.cs" />
+    <Compile Include="Messages\Request\Post\ApiKeyPostRequest.cs" />
+    <Compile Include="Messages\Request\Post\BasePostRequest.cs" />
+    <Compile Include="Messages\Request\Post\ClientPostRequest.cs" />
+    <Compile Include="Messages\Request\Post\ClientSignInRequest.cs" />
+    <Compile Include="Messages\Request\Post\ForgotPasswordRequest.cs" />
+    <Compile Include="Messages\Request\Post\GroupPostRequest.cs" />
+    <Compile Include="Messages\Request\Post\MessagePostRequest.cs" />
+    <Compile Include="Messages\Request\Post\MessageRevisionPostRequest.cs" />
+    <Compile Include="Messages\Request\Post\NodePostRequest.cs" />
+    <Compile Include="Messages\Request\Post\PermissionPostRequest.cs" />
+    <Compile Include="Messages\Request\Post\SignInRequest.cs" />
+    <Compile Include="Messages\Request\Post\SignUpRequest.cs" />
+    <Compile Include="Messages\Request\Post\ThreadPostRequest.cs" />
+    <Compile Include="Messages\Request\Put\ApiKeyClientPutRequest.cs" />
+    <Compile Include="Messages\Request\Put\ApiKeyCredentialPutRequest.cs" />
+    <Compile Include="Messages\Request\Put\ApiKeyPutRequest.cs" />
+    <Compile Include="Messages\Request\Put\BasePutRequest.cs" />
+    <Compile Include="Messages\Request\Put\ClientPutRequest.cs" />
+    <Compile Include="Messages\Request\Put\CredentialPutRequest.cs" />
+    <Compile Include="Messages\Request\Put\GroupPutRequest.cs" />
+    <Compile Include="Messages\Request\Put\MessagePutRequest.cs" />
+    <Compile Include="Messages\Request\Put\NodePutRequest.cs" />
+    <Compile Include="Messages\Request\Put\PermissionPutRequest.cs" />
+    <Compile Include="Messages\Request\Put\ThreadPutRequest.cs" />
+    <Compile Include="Messages\Request\Put\UserPutRequest.cs" />
+    <Compile Include="Messages\Response\TokenResponse.cs" />
+    <Compile Include="Messages\Uri\BoolParameter.cs" />
+    <Compile Include="Messages\Uri\DictionaryParameter.cs" />
+    <Compile Include="Messages\Uri\ExpressionParameter.cs" />
+    <Compile Include="Messages\Uri\IQueryParameter.cs" />
+    <Compile Include="Messages\Uri\ListParameter.cs" />
+    <Compile Include="Messages\Uri\PageParameter.cs" />
+    <Compile Include="Messages\Uri\QueryBuilder.cs" />
+    <Compile Include="Messages\Uri\QueryBuilderException.cs" />
+    <Compile Include="Messages\Uri\QueryBuilderPolicies.cs" />
+    <Compile Include="Messages\Uri\QueryParameter.cs" />
+    <Compile Include="Messages\Uri\SingleParameter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Redack.DatabaseLayer\Redack.DatabaseLayer.csproj">
+      <Project>{f000ca69-8855-4078-9bdc-1a2fb0c7d0ed}</Project>
+      <Name>Redack.DatabaseLayer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Redack.DomainLayer\Redack.DomainLayer.csproj">
+      <Project>{24a7bd77-65db-4be9-bd2b-dcda1a4b3e0c}</Project>
+      <Name>Redack.DomainLayer</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

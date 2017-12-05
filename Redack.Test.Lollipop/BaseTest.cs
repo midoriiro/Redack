@@ -2,14 +2,13 @@
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
 using Redack.ServiceLayer;
-using Redack.ServiceLayer.Models.Request;
 using Redack.ServiceLayer.Security;
 using Redack.Test.Lollipop.Configurations;
+using Redack.Test.Lollipop.Data;
 using Redack.Test.Lollipop.Entities;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Web.Http;
-using Redack.Test.Lollipop.Data;
+using Redack.BridgeLayer.Messages.Request;
 
 namespace Redack.Test.Lollipop
 {
