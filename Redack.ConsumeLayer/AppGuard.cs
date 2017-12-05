@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -10,25 +9,14 @@ namespace Redack.ConsumeLayer
 {
 	public sealed class AppGuard : IDisposable
 	{
-		private readonly string _appFolder;
-		private readonly string _tmpFolder;
 		private readonly AesManaged _algorithm;
 
 		public AppGuard()
 		{
-			string localAppDataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-			this._appFolder = Path.Combine(localAppDataDirectory, "RedackAppGuard");
-
-			Directory.CreateDirectory(this._appFolder);
-
-			this._tmpFolder = Path.Combine(Path.GetTempPath(), "RedackAppGuard");
-
-			Directory.CreateDirectory(this._tmpFolder);
-
 			string keyPassword = "redack.password";
 			string keySalt = "redack.salt";
 
-			var config = ConfigurationManager.OpenExeConfiguration(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+			var config = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
 
 			string password;
 			string salt;
@@ -79,27 +67,7 @@ namespace Redack.ConsumeLayer
 			};
 		}
 
-		private void EncryptToMemory(byte[] data, MemoryProtectionScope scope)
-		{
-			if (data == null)
-				throw new ArgumentNullException(nameof(data));
-			else if (data.Length <= 0)
-				throw new ArgumentException(nameof(data));
-
-			ProtectedMemory.Protect(data, scope);
-		}
-
-		private void DecryptToMemory(byte[] data, MemoryProtectionScope scope)
-		{
-			if (data == null)
-				throw new ArgumentNullException(nameof(data));
-			else if (data.Length <= 0)
-				throw new ArgumentException(nameof(data));
-
-			ProtectedMemory.Unprotect(data, scope);
-		}
-
-		private void EncryptToStream(string data, Stream stream, DataProtectionScope scope)
+		private void EncryptToStream(string data, Stream stream)
 		{
 			if (data == null)
 				throw new ArgumentNullException(nameof(data));
@@ -129,7 +97,7 @@ namespace Redack.ConsumeLayer
 			}
 		}
 
-		private string DecryptToStream(Stream stream, DataProtectionScope scope)
+		private string DecryptToStream(Stream stream)
 		{
 			if (stream == null)
 				throw new ArgumentNullException(nameof(stream));
@@ -159,36 +127,12 @@ namespace Redack.ConsumeLayer
 
 		public void Store(string data, Stream stream)
 		{
-			this.EncryptToStream(data, stream, DataProtectionScope.CurrentUser);
-		}
-
-		public void Store(string filename, string data)
-		{
-			FileStream stream = new FileStream(Path.Combine(this._appFolder, filename), FileMode.OpenOrCreate);
-
-			this.Store(data, stream);
-		}
-
-		public void Store(byte[] data)
-		{
-			this.EncryptToMemory(data, MemoryProtectionScope.SameProcess);
+			this.EncryptToStream(data, stream);
 		}
 
 		public string Restore(Stream stream)
 		{
-			return this.DecryptToStream(stream, DataProtectionScope.CurrentUser);
-		}
-
-		public string Restore(string filename)
-		{
-			FileStream stream = new FileStream(Path.Combine(this._appFolder, filename), FileMode.OpenOrCreate);
-
-			return this.Restore(stream);
-		}
-
-		public void Restore(byte[] data)
-		{
-			this.DecryptToMemory(data, MemoryProtectionScope.SameProcess);
+			return this.DecryptToStream(stream);
 		}
 
 		public void Dispose()

@@ -1,6 +1,5 @@
-﻿using Redack.ServiceLayer.Models.Request;
-using Redack.ServiceLayer.Models.Request.Uri;
-using System;
+﻿using Redack.BridgeLayer.Messages.Request;
+using Redack.BridgeLayer.Messages.Uri;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;

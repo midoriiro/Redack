@@ -1,27 +1,24 @@
-﻿using Redack.DomainLayer.Models;
+﻿using Newtonsoft.Json;
+using Redack.BridgeLayer.Messages.Request;
+using Redack.BridgeLayer.Messages.Request.Post;
+using Redack.DomainLayer.Models;
 using System;
-using System.Configuration;
 using System.IO;
 using System.IO.IsolatedStorage;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
-using System.Web.Http;
-using Redack.ServiceLayer.Models.Request;
-using Redack.ServiceLayer.Models.Request.Post;
-using System.Net;
-using System.Text;
-using Newtonsoft.Json;
 
 namespace Redack.ConsumeLayer
 {
-	public sealed class RedackClient : HttpClient
+	public sealed class RestClient : HttpClient
 	{
 		private string _name;
 		private IsolatedStorageFile _store;
 		private Client _client;
 
-		public RedackClient(
+		public RestClient(
 			string name, 
 			string host, 
 			bool secureLayer = true)
@@ -35,14 +32,14 @@ namespace Redack.ConsumeLayer
 			this.Initialyze();
 		}
 
-		public RedackClient(string name, HttpServer server) : base(server)
+		/*public RestClient(string name, HttpServer server) : base()
 		{
 			this._name = name;
 
 			this.BaseAddress = new Uri("http://locahost/api");
 
 			this.Initialyze();
-		}
+		}*/
 
 		private void Initialyze()
 		{
@@ -50,8 +47,8 @@ namespace Redack.ConsumeLayer
 				IsolatedStorageScope.User |
 				IsolatedStorageScope.Domain |
 				IsolatedStorageScope.Assembly,
-				typeof(System.Security.Policy.Url), 
-				typeof(System.Security.Policy.Url));
+				null, 
+				null);
 
 			string filename = $"{this._name}.client_informations";
 

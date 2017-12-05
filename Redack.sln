@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.ServiceLayer.Test", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.Test.Lollipop", "Redack.Test.Lollipop\Redack.Test.Lollipop.csproj", "{0D96D605-583F-4531-98B9-298110974B41}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.ConsumeLayer", "Redack.ConsumeLayer\Redack.ConsumeLayer.csproj", "{B3E726A9-4EE2-4BD4-97FF-FDBBC75BA076}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redack.ConsumeLayer", "Redack.ConsumeLayer\Redack.ConsumeLayer.csproj", "{B3E726A9-4EE2-4BD4-97FF-FDBBC75BA076}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.ConsumeLayer.Test", "Redack.ConsumeLayer.Test\Redack.ConsumeLayer.Test.csproj", "{AF626CE6-5AFD-4FD1-A88A-8478805673B3}"
 EndProject
