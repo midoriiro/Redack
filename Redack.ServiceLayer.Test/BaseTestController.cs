@@ -178,7 +178,7 @@ namespace Redack.ServiceLayer.Test
 			if (method == HttpMethod.Get && id == null)
 			{
 				var builder = new QueryBuilder();
-				builder.Add("order", new ExpressionParameter(e => e.Id));
+				builder.Add("order", new ExpressionParameter<Entity, int>(e => e.Id));
 				builder.Add("paginate", new PageParameter(1, 10));
 
 				var uri = new UriBuilder(request.RequestUri) { Query = builder.ToQueryString() };

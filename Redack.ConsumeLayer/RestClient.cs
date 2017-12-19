@@ -14,22 +14,21 @@ namespace Redack.ConsumeLayer
 {
 	public sealed class RestClient : HttpClient
 	{
-		private string _name;
-		private IsolatedStorageFile _store;
-		private Client _client;
+		private readonly string _name;
+		private readonly AppGuard _guard;
+		public static Client Client;
+		private static RestClient _instance;
 
-		public RestClient(
+		private RestClient(
 			string name, 
 			string host, 
 			bool secureLayer = true)
 		{
 			this._name = name;
+			this._guard = new AppGuard();
 
 			string scheme = secureLayer ? "https" : "http";
-
 			this.BaseAddress = new Uri($"{scheme}://{host}/api");
-
-			this.Initialyze();
 		}
 
 		/*public RestClient(string name, HttpServer server) : base()
@@ -41,49 +40,54 @@ namespace Redack.ConsumeLayer
 			this.Initialyze();
 		}*/
 
-		private void Initialyze()
+		public static RestClient CreateInstance(string name, string host, bool secureLayer = true)
 		{
-			this._store = IsolatedStorageFile.GetStore(
-				IsolatedStorageScope.User |
-				IsolatedStorageScope.Domain |
-				IsolatedStorageScope.Assembly,
-				null, 
-				null);
+			return RestClient._instance ?? (RestClient._instance = new RestClient(name, host, secureLayer));
+		}
 
+		public static RestClient GetInstance()
+		{
+			return RestClient._instance;
+		}
+
+		public async void Initialyze()
+		{
 			string filename = $"{this._name}.client_informations";
 
-			using (var guard = new AppGuard())
+			if (!this._guard.IsolatedStore.FileExists(filename))
 			{
-				if (!_store.FileExists(filename))
+				RestClient.Client = await this.Register(this._name);
+
+				using (var stream = this._guard.CreateStream(filename, FileMode.CreateNew))
 				{
-					this._client = this.Register(this._name).Result;
+					string json = JsonConvert.SerializeObject(RestClient.Client);
 
-					using (var stream = new IsolatedStorageFileStream(filename, FileMode.CreateNew, this._store))
-					{
-						string json = JsonConvert.SerializeObject(this._client);
-
-						guard.Store(json, stream);
-					}
-				}
-				else
-				{
-					using (var stream = new IsolatedStorageFileStream(filename, FileMode.Open, this._store))
-					{
-						string json = guard.Restore(stream);
-
-						this._client = JsonConvert.DeserializeObject<Client>(json);
-					}
+					this._guard.Store(json, stream);
 				}
 			}
+			else
+			{
+				using (var stream = this._guard.CreateStream(filename, FileMode.Open))
+				{
+					string json = this._guard.Restore(stream);
+
+					RestClient.Client = JsonConvert.DeserializeObject<Client>(json);
+				}
+			}
+		}
+
+		public string GetHostname()
+		{
+			return this.BaseAddress.Host;
 		}
 
 		public async Task<HttpResponseMessage> SendAsync(RestRequest request)
 		{
 			var builder = new UriBuilder(this.BaseAddress);
 			builder.Path = $"{builder.Path}/{request.Resource}";
+			builder.Query = request.Query;
 
 			request.Message.RequestUri = builder.Uri;
-
 			return await this.SendAsync(request.Message);
 		}
 
@@ -103,7 +107,7 @@ namespace Redack.ConsumeLayer
 			content.FromEntity(apikey);
 
 			var request = new RestRequest(HttpMethod.Post, "apikeys");
-			request.SetObjectContent<JsonMediaTypeFormatter>(content);
+			request.SetObjectContent(content);
 
 			var response = await this.SendAsync(request);
 
@@ -123,7 +127,7 @@ namespace Redack.ConsumeLayer
 			content.FromEntity(client);
 
 			request = new RestRequest(HttpMethod.Post, "clients");
-			request.SetObjectContent<JsonMediaTypeFormatter>(content);
+			request.SetObjectContent(content);
 
 			if (response.StatusCode == HttpStatusCode.Created)
 			{

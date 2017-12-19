@@ -5,9 +5,146 @@
     xmlns:local="using:Redacktion"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:fa="using:FontAwesome.UWP"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+	<Grid RequestedTheme="Default">
+		<Grid.Background>
+			<LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+				<GradientStop Color="#FFCC6666" Offset="0"/>
+				<GradientStop Color="#FF663333" Offset="1"/>
+			</LinearGradientBrush>
+		</Grid.Background>
+		<NavigationView Style="{ThemeResource NavigationViewStyle}" 
+			x:Name="NavigationView"
+			ItemInvoked="NavigationView_ItemInvoked"
+			SelectionChanged="NavigationView_SelectionChanged"
+			Loading="NavigationView_Loading"
+			Loaded="NavigationView_Loaded"
+			IsSettingsVisible="False">
 
-    </Grid>
+			<NavigationView.AutoSuggestBox>
+				<AutoSuggestBox
+					x:Name="Finder" 
+					PlaceholderText="Find" 
+					QueryIcon="Find"/>
+			</NavigationView.AutoSuggestBox>
+
+			<NavigationView.MenuItems>
+
+				<NavigationViewItemSeparator/>
+
+				<NavigationViewItem Tag="root">
+					<StackPanel Orientation="Horizontal">
+						<FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE8DB;" Margin="0,0,14,0"/>
+						<TextBlock>Root</TextBlock>
+					</StackPanel>
+				</NavigationViewItem>
+
+				<NavigationViewItemSeparator />
+
+				<NavigationViewItem Tag="board" IsEnabled="False">
+					<NavigationViewItem.Foreground>
+						<SolidColorBrush Color="{StaticResource SystemBaseMediumHighColor}"/>
+					</NavigationViewItem.Foreground>
+					<StackPanel Orientation="Horizontal">
+						<FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE95A;" Margin="0,0,14,0"/>
+						<TextBlock>Board</TextBlock>
+					</StackPanel>
+				</NavigationViewItem>
+
+				<NavigationViewItem Tag="nodes">
+					<StackPanel Orientation="Horizontal">
+						<FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xF22C;" Margin="0,0,14,0"/>
+						<TextBlock>Nodes</TextBlock>
+					</StackPanel>
+				</NavigationViewItem>
+				<NavigationViewItem Tag="threads">
+					<StackPanel Orientation="Horizontal">
+						<FontIcon FontFamily="Segoe MDL2 Assets"  Glyph="&#xF168;" Margin="0,0,14,0"/>
+						<TextBlock>Threads</TextBlock>
+					</StackPanel>
+				</NavigationViewItem>
+				<NavigationViewItem Tag="messages">
+					<StackPanel Orientation="Horizontal">
+						<FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE90A;" Margin="0,0,14,0"/>
+						<TextBlock>Messages</TextBlock>
+					</StackPanel>
+				</NavigationViewItem>
+
+			</NavigationView.MenuItems>
+
+			<NavigationView.HeaderTemplate>
+				<DataTemplate>
+					<Grid Padding="24,0,0,0">
+						<Grid.Background>
+							<SolidColorBrush Color="{StaticResource SystemChromeGrayColor}"/>
+						</Grid.Background>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition/>
+						</Grid.ColumnDefinitions>
+						<TextBlock Style="{StaticResource TitleTextBlockStyle}"
+                           FontSize="28"
+                           VerticalAlignment="Stretch"
+                           Text="Redacktion" FontWeight="Bold" HorizontalAlignment="Center">
+							<TextBlock.Foreground>
+								<SolidColorBrush Color="{StaticResource SystemAltHighColor}"/>
+							</TextBlock.Foreground>
+						</TextBlock>
+						<CommandBar
+							VerticalAlignment="Stretch" 
+							HorizontalAlignment="Right" 
+							DefaultLabelPosition="Right" 
+							Grid.Column="1" Background="{x:Null}">
+							<AppBarButton
+								Label="Sign in" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">
+								<AppBarButton.Icon>
+									<fa:FontAwesome Icon="SignIn" HorizontalAlignment="Center" />
+								</AppBarButton.Icon>
+							</AppBarButton>
+							<AppBarSeparator HorizontalAlignment="Center" VerticalAlignment="Center">
+								<AppBarSeparator.Foreground>
+									<SolidColorBrush Color="#99996666"/>
+								</AppBarSeparator.Foreground>
+							</AppBarSeparator>
+							<AppBarButton
+								Label="Sign up" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center">
+								<AppBarButton.Icon>
+									<fa:FontAwesome Icon="UserPlus" HorizontalAlignment="Center" />
+								</AppBarButton.Icon>
+							</AppBarButton>
+						</CommandBar>
+					</Grid>
+				</DataTemplate>
+			</NavigationView.HeaderTemplate>
+
+			<NavigationView.PaneFooter>
+				<StackPanel>
+					<NavigationViewItem Tag="account_settings" IsEnabled="false">
+						<StackPanel Orientation="Horizontal">
+							<FontIcon FontFamily="Segoe MDL2 Assets"  Glyph="&#xE77B;" Margin="0,0,14,0"/>
+							<TextBlock>Account Settings</TextBlock>
+						</StackPanel>
+					</NavigationViewItem>
+					<NavigationViewItem Tag="app_settings">
+						<StackPanel Orientation="Horizontal">
+							<FontIcon FontFamily="Segoe MDL2 Assets"  Glyph="&#xE713;" Margin="0,0,14,0"/>
+							<TextBlock>App Settings</TextBlock>
+						</StackPanel>
+					</NavigationViewItem>
+				</StackPanel>
+			</NavigationView.PaneFooter>
+
+			<Frame x:Name="ContentFrame" Background="{StaticResource SystemControlAccentDark1AcrylicElementAccentDark1MediumLowBrush}">
+				<Frame.ContentTransitions>
+					<TransitionCollection>
+						<NavigationThemeTransition/>
+					</TransitionCollection>
+				</Frame.ContentTransitions>
+				<ProgressRing x:Name="LoadingIndicator" />
+			</Frame>
+
+		</NavigationView>
+	</Grid>
 </Page>

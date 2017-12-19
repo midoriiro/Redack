@@ -1,0 +1,78 @@
+﻿<Page
+    x:Class="Redacktion.ThreadListView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Redacktion="using:Redacktion.Controls"
+	xmlns:Redack="using:Redack.DomainLayer.Models"
+    mc:Ignorable="d">
+
+	<Grid>
+
+		<ProgressRing 
+			x:Name="LoadingIndicator" 
+			Width="256" 
+			Height="256" >
+			<ProgressRing.Foreground>
+				<SolidColorBrush Color="#FF222222"/>
+			</ProgressRing.Foreground>
+		</ProgressRing>
+
+		<Redacktion:HttpErrorMessage
+			x:Name="ErrorMessage"
+			Visibility="Collapsed"/>
+
+		<Grid
+			x:Name="ListViewContainer">
+
+			<Grid.RowDefinitions>
+				<RowDefinition  Height="*"/>
+				<RowDefinition  Height="Auto"/>
+			</Grid.RowDefinitions>
+
+			<Border
+				Grid.Row="0"
+				BorderThickness="4"
+				Margin="24,24,24,12"
+				BorderBrush="{StaticResource SystemControlAccentDark1AcrylicElementAccentDark1MediumHighBrush}">
+				<Border.Background>
+					<SolidColorBrush Color="{StaticResource SystemChromeGrayColor}"/>
+				</Border.Background>
+				<ListView 
+					x:Name="ListView"
+					ItemClick="OnItemClick"
+					IsItemClickEnabled="True">
+
+					<ListView.Header>
+						<Border Background="{StaticResource SystemControlAcrylicElementChromeGrayBrush}">
+							<TextBlock Text="{x:Bind HeaderLabel}" Padding="24,24,24,24" FontSize="18" FontWeight="Bold" >
+								<TextBlock.Foreground>
+									<SolidColorBrush Color="{StaticResource SystemAltHighColor}"/>
+								</TextBlock.Foreground>
+							</TextBlock>
+						</Border>
+					</ListView.Header>
+
+					<ListView.ItemTemplate>
+						<DataTemplate x:DataType="Redack:Thread">
+							<StackPanel>
+								<TextBlock x:Name="Title" Text="{x:Bind Title}"></TextBlock>
+								<TextBlock x:Name="Description" Text="{x:Bind Description}"></TextBlock>
+							</StackPanel>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+
+				</ListView>
+			</Border>
+
+			<Redacktion:Pagination 
+				x:Name="Pagination"
+				Grid.Row="1"
+				Margin="0,12,0,24"/>
+
+		</Grid>
+
+	</Grid>
+</Page>
+

@@ -132,22 +132,15 @@ namespace Redack.BridgeLayer.Messages.Uri
 
 		private IQueryParameter GetQueryParameter(string key, HttpRequestMessage request)
 		{
-			var match = Regex.Match(key, @"(?<keypath>.*)\..*");
-
-			if (match.Success)
+			try
 			{
-				var keypath = match.Groups["keypath"].Value;
-				string classname = this.ParseKeyPath(keypath) + "Parameter";
-
-				Type classType = Type.GetType($"Redack.BridgeLayer.Messages.Uri.{classname}");
-
-				if (classType != null)
-					return (IQueryParameter)Activator.CreateInstance(classType, this, request);
-
-				throw new QueryBuilderException($"Keypath does not exists: {keypath}");
+				Type type = this.Policies.GetRegisteredKeyword(key);
+				return (IQueryParameter)Activator.CreateInstance(type, this, request);
 			}
-
-			throw new QueryBuilderException($"Incorrect format : {key}");
+			catch (KeyNotFoundException)
+			{
+				throw new QueryBuilderException($"{key} is not allowed as a keyword");
+			}
 		}
 
 		public string ToQueryString()
@@ -159,7 +152,7 @@ namespace Redack.BridgeLayer.Messages.Uri
 				string keypath = this.GetKeyPath(parameter.Value.GetType().Name);
 				string value = parameter.Value.ToQuery();
 
-				result.Add($"{keypath}.{parameter.Key}={value}");
+				result.Add($"{parameter.Key}={value}");
 			}
 
 			return string.Join("&", result);

@@ -1,0 +1,129 @@
+﻿<Page
+    x:Class="Redacktion.SignUpPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Redacktion"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+	<Grid x:Name="MainGrid">
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup>
+				<VisualState x:Name="WideState">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="900" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="MainGrid.Margin" Value="24"/>
+						<Setter Target="MainGrid.RowDefinitions[1].Height" Value="auto"/>
+						<Setter Target="MainGrid.ColumnDefinitions[0].Width" Value="3*"/>
+						<Setter Target="MainGrid.ColumnDefinitions[1].Width" Value="2*"/>
+						<Setter Target="SignUpGrid.(Grid.Column)" Value="1"/>
+						<Setter Target="SignUpGrid.(Grid.Row)" Value="0"/>
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="NarrowState">
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="0" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="MainGrid.Margin" Value="12"/>
+						<Setter Target="TextGrid.TextAlignment" Value="Center"/>
+						<Setter Target="TextGrid.VerticalAlignment" Value="Stretch"/>
+						<Setter Target="TextGrid.Margin" Value="0 0 0 6"/>
+						<Setter Target="SignUpGrid.VerticalAlignment" Value="Bottom"/>
+						<Setter Target="SignUpGrid.Margin" Value="0 6 0 0"/>
+						<Setter Target="MainGrid.RowDefinitions[1].Height" Value="auto"/>
+						<Setter Target="MainGrid.ColumnDefinitions[1].Width" Value="auto"/>
+						<Setter Target="SignUpGrid.(Grid.Column)" Value="0"/>
+						<Setter Target="SignUpGrid.(Grid.Row)" Value="1"/>
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition/>
+			<ColumnDefinition/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+
+		<RichTextBlock x:Name="TextGrid" 
+					   Grid.Column="0" Grid.Row="0"
+					   TextAlignment="Left"
+					   Margin="24" VerticalAlignment="Center">
+			<Paragraph FontWeight="Bold" FontSize="72">Built for developers</Paragraph>
+			<Paragraph></Paragraph>
+			<Paragraph FontSize="28">
+				<Paragraph.Foreground>
+					<SolidColorBrush Color="{StaticResource SystemBaseMediumHighColor}"/>
+				</Paragraph.Foreground> GitHub is a development platform inspired by the way you work. From
+				<Run FontWeight="Bold">
+					<Run.Foreground>
+						<SolidColorBrush Color="{StaticResource SystemBaseHighColor}"/>
+					</Run.Foreground> open source
+				</Run> to
+				<Run FontWeight="Bold">
+					<Run.Foreground>
+						<SolidColorBrush Color="{StaticResource SystemBaseHighColor}"/>
+					</Run.Foreground> business
+				</Run> , you can host and review code, manage projects, and build software alongside millions of other developers.
+			</Paragraph>
+		</RichTextBlock>
+
+		<Grid x:Name="SignUpGrid" 
+			  Grid.Column="1" 
+			  Grid.Row="0"
+			  VerticalAlignment="Center" 
+			  Margin="24" 
+			  Padding="24" 
+			  BorderThickness="4" 
+			  BorderBrush="{StaticResource SystemControlAccentDark1AcrylicElementAccentDark1MediumHighBrush}">
+			<Grid.Background>
+				<SolidColorBrush Color="{StaticResource SystemChromeGrayColor}"/>
+			</Grid.Background>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="auto"/>
+				<RowDefinition Height="auto"/>
+				<RowDefinition Height="auto"/>
+				<RowDefinition Height="auto"/>
+			</Grid.RowDefinitions>
+
+			<StackPanel Grid.Row="0" Margin="0,0,0,24">
+				<TextBlock Text="Alias" Margin="0,0,0,4" />
+				<TextBox
+					x:Name="Alias"
+					PlaceholderText="Pick an alias" 
+					Height="32" />
+			</StackPanel>
+
+			<StackPanel Grid.Row="1" Margin="0,0,0,24">
+				<TextBlock Text="Email" Margin="0,0,0,4" />
+				<TextBox
+					x:Name="Email"
+					PlaceholderText="you@example.com" 
+					Height="32"/>
+			</StackPanel>
+
+			<StackPanel Grid.Row="2" Margin="0,0,0,24">
+				<TextBlock Text="Password" Margin="0,0,0,4" />
+				<TextBox 
+					x:Name="Password"
+					PlaceholderText="Create a password" 
+					Height="32"/>
+			</StackPanel>
+
+			<Button  
+				Grid.Row="3" 
+				Height="64" 
+				HorizontalAlignment="Stretch"
+				Content="Sign up for Redacktion">
+			</Button>
+
+		</Grid>
+	</Grid>
+</Page>

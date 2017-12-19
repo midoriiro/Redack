@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redack.DomainLayer.Models;
 
 namespace Redack.BridgeLayer.Messages.Uri
 {
@@ -28,11 +29,11 @@ namespace Redack.BridgeLayer.Messages.Uri
 		{
 			if(!this._registeredKeywords.ContainsKey(keyword))
 				throw new QueryBuilderException($"{keyword} does not exists as keyword");
-			if(this._registeredKeywords[keyword] != typeof(ExpressionParameter))
+			if(this._registeredKeywords[keyword] != typeof(ExpressionParameter<Entity, dynamic>))
 				throw new QueryBuilderException(
 					"To register an expression method " +
 					"you have to first register a keyword with a type " +
-					$"{typeof(ExpressionParameter).Name}");
+					$"{typeof(ExpressionParameter<Entity, dynamic>).Name}");
 
 			this._registeredExpressionMethods.Add(keyword, method);
 		}
@@ -57,6 +58,11 @@ namespace Redack.BridgeLayer.Messages.Uri
 		public bool HasExcludedExpressionKeyword(string expression)
 		{
 			return this._excludedExpressionKeywords.Any(expression.Contains);
+		}
+
+		public Type GetRegisteredKeyword(string keyword)
+		{
+			return this._registeredKeywords[keyword];
 		}
 
 		public Func<IQueryable, string, IQueryable> GetExpressionMethod(string keyword)

@@ -18,9 +18,9 @@ namespace Redack.ConsumeLayer
 			this.Message = new HttpRequestMessage(method, "");
 		}
 
-		public void SetObjectContent<TFormatter>(IEntityRequest obj) where TFormatter : MediaTypeFormatter, new()
+		public void SetObjectContent(IEntityRequest obj)
 		{
-			var formatter = new TFormatter();
+			var formatter = new JsonMediaTypeFormatter();
 
 			this.Message.Content = new ObjectContent(
 				obj.GetType(), 

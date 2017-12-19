@@ -1,0 +1,107 @@
+﻿<UserControl
+    x:Class="Redacktion.Controls.Pagination"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Redacktion.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:fa="using:FontAwesome.UWP"
+    mc:Ignorable="d">
+
+	<Grid
+		HorizontalAlignment="Center" 
+		VerticalAlignment="Center">
+
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="Auto" />
+		</Grid.ColumnDefinitions>
+
+		<Button 
+			x:Name="FirstPage"
+			Grid.Column="0"
+			Width="48" 
+			Height="48"
+			Margin="0,0,12,0"
+			BorderThickness="4"
+			BorderBrush="{StaticResource SystemControlAccentDark1AcrylicElementAccentDark1MediumHighBrush}"
+			Click="OnFirstPageRequested">
+			<Button.Foreground>
+				<SolidColorBrush Color="{StaticResource SystemAltHighColor}"/>
+			</Button.Foreground>
+			<Button.Background>
+				<SolidColorBrush Color="{StaticResource SystemChromeGrayColor}"/>
+			</Button.Background>
+			<fa:FontAwesome Icon="AngleDoubleLeft" HorizontalAlignment="Center" />
+		</Button>
+
+		<Button 
+			x:Name="PreviousPage"
+			Grid.Column="1"
+			Width="48" 
+			Height="48"
+			Margin="12,0,12,0"
+			BorderThickness="4"
+			BorderBrush="{StaticResource SystemControlAccentDark1AcrylicElementAccentDark1MediumHighBrush}"
+			Click="OnPreviousPageRequested">
+			<Button.Foreground>
+				<SolidColorBrush Color="{StaticResource SystemAltHighColor}"/>
+			</Button.Foreground>
+			<Button.Background>
+				<SolidColorBrush Color="{StaticResource SystemChromeGrayColor}"/>
+			</Button.Background>
+			<fa:FontAwesome Icon="AngleLeft" HorizontalAlignment="Center" />
+		</Button>
+
+		<TextBlock
+			x:Name="PageLabel"
+			Grid.Column="2"
+			Text="{ x:Bind PageCount }"
+			Margin="12,0,12,0"
+			VerticalAlignment="Center" FontWeight="Bold">
+			<TextBlock.Foreground>
+				<SolidColorBrush Color="{StaticResource SystemChromeGrayColor}"/>
+			</TextBlock.Foreground>
+
+		</TextBlock>		
+
+		<Button 
+			x:Name="NextPage"
+			Grid.Column="3"
+			Width="48" 
+			Height="48"
+			Margin="12,0,12,0"
+			BorderThickness="4"
+			BorderBrush="{StaticResource SystemControlAccentDark1AcrylicElementAccentDark1MediumHighBrush}"
+			Click="OnNextPageRequested">
+			<Button.Foreground>
+				<SolidColorBrush Color="{StaticResource SystemAltHighColor}"/>
+			</Button.Foreground>
+			<Button.Background>
+				<SolidColorBrush Color="{StaticResource SystemChromeGrayColor}"/>
+			</Button.Background>
+			<fa:FontAwesome Icon="AngleRight" HorizontalAlignment="Center" />
+		</Button>
+
+		<Button 
+			x:Name="LastPage"
+			Grid.Column="4"
+			Width="48" 
+			Height="48"
+			Margin="12,0,0,0"
+			BorderThickness="4"
+			BorderBrush="{StaticResource SystemControlAccentDark1AcrylicElementAccentDark1MediumHighBrush}"
+			Click="OnLastPageRequested">
+			<Button.Foreground>
+				<SolidColorBrush Color="{StaticResource SystemAltHighColor}"/>
+			</Button.Foreground>
+			<Button.Background>
+				<SolidColorBrush Color="{StaticResource SystemChromeGrayColor}"/>
+			</Button.Background>
+			<fa:FontAwesome Icon="AngleDoubleRight" HorizontalAlignment="Center" />
+		</Button>
+	</Grid>
+</UserControl>

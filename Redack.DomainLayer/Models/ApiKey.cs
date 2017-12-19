@@ -11,7 +11,7 @@ namespace Redack.DomainLayer.Models
     [Table("ApiKeys")]
     public class ApiKey : Entity
     {
-		public readonly static int KeySize = 256;
+		public static readonly int KeySize = 256;
 
         [Required(ErrorMessage = "The api key field is required")]
         [MaxLength(255, ErrorMessage = "Type less than 255 characters")]

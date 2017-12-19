@@ -1,43 +1,64 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.IO.IsolatedStorage;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using Newtonsoft.Json;
+using Redack.DomainLayer.Models;
 
 namespace Redack.ConsumeLayer
 {
 	public sealed class AppGuard : IDisposable
 	{
 		private readonly AesManaged _algorithm;
+		public IsolatedStorageFile IsolatedStore { get; private set; }
 
 		public AppGuard()
 		{
-			string keyPassword = "redack.password";
-			string keySalt = "redack.salt";
+			this.IsolatedStore = IsolatedStorageFile.GetStore(
+				IsolatedStorageScope.User |
+				IsolatedStorageScope.Domain |
+				IsolatedStorageScope.Assembly,
+				null,
+				null);
 
-			var config = ConfigurationManager.OpenExeConfiguration(Assembly.GetExecutingAssembly().Location);
+			string filename = "credential.json";
+			Dictionary<string, string> credential;
 
-			string password;
-			string salt;
-
-			try
+			if (!this.IsolatedStore.FileExists(filename))
 			{
-				password = config.AppSettings.Settings[keyPassword].Value;
-				salt = config.AppSettings.Settings[keySalt].Value;
+				credential = this.CreateCredential();
+
+				using (var stream = new IsolatedStorageFileStream(filename, FileMode.CreateNew, this.IsolatedStore))
+				{
+					string json = JsonConvert.SerializeObject(credential);
+
+					using (var writer = new StreamWriter(stream))
+					{
+						writer.Write(json);
+					}
+				}
 			}
-			catch (NullReferenceException)
+			else
 			{
-				string[] credential = this.CreateCredential();
-				password = credential[0];
-				salt = credential[1];
+				using (var stream = new IsolatedStorageFileStream(filename, FileMode.Open, this.IsolatedStore))
+				{
+					using (var reader = new StreamReader(stream))
+					{
+						string json = reader.ReadToEnd();
 
-				config.AppSettings.Settings.Add(keyPassword, password);
-				config.AppSettings.Settings.Add(keySalt, salt);
-				config.Save(ConfigurationSaveMode.Minimal);
+						credential = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+					}
+				}
 			}
 
-			var rng = new Rfc2898DeriveBytes(password, Encoding.UTF8.GetBytes(salt), 1);
+			var rng = new Rfc2898DeriveBytes(
+				credential["password"], 
+				Encoding.UTF8.GetBytes(credential["salt"]), 
+				1);
 
 			this._algorithm = new AesManaged
 			{
@@ -50,7 +71,7 @@ namespace Redack.ConsumeLayer
 			this._algorithm.Mode = CipherMode.CBC;
 		}
 
-		private string[] CreateCredential()
+		private Dictionary<string, string> CreateCredential()
 		{
 			RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
 
@@ -60,11 +81,16 @@ namespace Redack.ConsumeLayer
 			byte[] salt = new byte[128];
 			rng.GetBytes(salt);
 
-			return new[]
+			return new Dictionary<string, string>
 			{
-				Convert.ToBase64String(password),
-				Convert.ToBase64String(salt)
+				{"password", Convert.ToBase64String(password) },
+				{"salt", Convert.ToBase64String(salt) }
 			};
+		}
+
+		public IsolatedStorageFileStream CreateStream(string filename, FileMode mode)
+		{
+			return new IsolatedStorageFileStream(filename, mode, this.IsolatedStore);
 		}
 
 		private void EncryptToStream(string data, Stream stream)

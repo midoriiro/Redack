@@ -35,10 +35,10 @@ namespace Redack.ServiceLayer.Controllers
 
 			this.Policies = new QueryBuilderPolicies();
 			this.Policies.RegisterKeyword("paginate", typeof(PageParameter));
-			this.Policies.RegisterKeyword("query", typeof(ExpressionParameter));
-			this.Policies.RegisterKeyword("inclose", typeof(ExpressionParameter));
-			this.Policies.RegisterKeyword("reshape", typeof(ExpressionParameter));
-			this.Policies.RegisterKeyword("order", typeof(ExpressionParameter));
+			this.Policies.RegisterKeyword("query", typeof(ExpressionParameter<Entity, dynamic>));
+			this.Policies.RegisterKeyword("inclose", typeof(ExpressionParameter<Entity, dynamic>));
+			this.Policies.RegisterKeyword("reshape", typeof(ExpressionParameter<Entity, dynamic>));
+			this.Policies.RegisterKeyword("order", typeof(ExpressionParameter<Entity, dynamic>));
 			this.Policies.RegisterKeyword("metadata", typeof(BoolParameter));
 
 			this.Policies.RegisterExpression("query", (q, e) => q.Where(e));
@@ -128,7 +128,7 @@ namespace Redack.ServiceLayer.Controllers
 		{
 			this.Context.Configuration.ProxyCreationEnabled = false;
 
-			var entity = await this.Repository.GetByIdAsync(id);
+			var entity = this.Repository.GetById(id);
 
 			if (entity == null)
 				return NotFound();
@@ -238,7 +238,7 @@ namespace Redack.ServiceLayer.Controllers
 		[ResponseType(typeof(IEntity))]
 		public virtual async Task<IHttpActionResult> Delete(int id)
 		{
-			TEntity entity = await Repository.GetByIdAsync(id);
+			TEntity entity = Repository.GetById(id);
 
 			if (entity == null)
 				return this.NotFound();

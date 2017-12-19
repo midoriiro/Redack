@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.DomainLayer", "Redack.DomainLayer\Redack.DomainLayer.csproj", "{24A7BD77-65DB-4BE9-BD2B-DCDA1A4B3E0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redack.DomainLayer", "Redack.DomainLayer\Redack.DomainLayer.csproj", "{24A7BD77-65DB-4BE9-BD2B-DCDA1A4B3E0C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.DatabaseLayer", "Redack.DatabaseLayer\Redack.DatabaseLayer.csproj", "{F000CA69-8855-4078-9BDC-1A2FB0C7D0ED}"
 EndProject
@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redacktion", "Redacktion\Re
 		{B3E726A9-4EE2-4BD4-97FF-FDBBC75BA076} = {B3E726A9-4EE2-4BD4-97FF-FDBBC75BA076}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redack.BridgeLayer", "Redack.BridgeLayer\Redack.BridgeLayer.csproj", "{AC1060C9-6816-4B34-ACA5-FB7FBF94AC07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Redack.BridgeLayer", "Redack.BridgeLayer\Redack.BridgeLayer.csproj", "{AC1060C9-6816-4B34-ACA5-FB7FBF94AC07}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

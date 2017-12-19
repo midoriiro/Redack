@@ -1,9 +1,12 @@
-﻿using System;
+﻿
+
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.Data.Entity;
+using System.Linq;
 using System.Threading.Tasks;
 using Redack.DatabaseLayer.DataAccess;
 using Redack.DomainLayer.Models;
-using System.Data.Entity;
 
 namespace Redack.BridgeLayer.Messages.Request.Post
 {
@@ -28,9 +31,9 @@ namespace Redack.BridgeLayer.Messages.Request.Post
 			ApiKey apikey;
 
 			using (var repository = new Repository<ApiKey>(context, false))
-				apikey = await repository
+				apikey = repository
 					.Query(e => e.Id == this.ApiKey)
-					.SingleOrDefaultAsync();
+					.SingleOrDefault();
 
 			return Client.Create(this.Name, this.PassPhrase, apikey);
 		}

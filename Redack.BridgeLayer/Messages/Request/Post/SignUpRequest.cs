@@ -49,7 +49,11 @@ namespace Redack.BridgeLayer.Messages.Request.Post
 
 		public override void FromEntity(Entity entity)
 		{
-			throw new System.NotImplementedException();
+			var user = (User)entity;
+
+			this.Login = user.Credential.Login;
+			this.Password = user.Credential.Password;
+			this.PasswordConfirm = user.Credential.PasswordConfirm;
 		}
 	}
 }

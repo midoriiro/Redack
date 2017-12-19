@@ -114,15 +114,8 @@ namespace Redack.BridgeLayer.Messages.Uri
 			}
 			else
 			{
-				if (firstIndex < currentIndex && firstIndex < previousIndex)
-				{
-					this.Metadata.Add("first", first);
-				}
-
-				if (currentIndex < lastIndex)
-				{
-					this.Metadata.Add("last", last);
-				}
+				this.Metadata.Add("first", first);
+				this.Metadata.Add("last", last);
 
 				if (firstIndex <= previousIndex)
 				{

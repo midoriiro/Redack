@@ -1,26 +1,30 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\Redack.BridgeLayer\Redack.BridgeLayer.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="System.Configuration">
-			<HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.1\System.Configuration.dll</HintPath>
-		</Reference>
-		<Reference Include="System.Net.Http.Formatting">
-			<HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>false</GenerateBindingRedirectsOutputType>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <ProjectGuid>{B3E726A9-4EE2-4BD4-97FF-FDBBC75BA076}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Configuration">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.1\System.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Redack.BridgeLayer\Redack.BridgeLayer.csproj">
+      <Project>{ac1060c9-6816-4b34-aca5-fb7fbf94ac07}</Project>
+      <Name>Redack.BridgeLayer</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
