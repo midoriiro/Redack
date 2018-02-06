@@ -61,7 +61,7 @@
 			<Paragraph FontSize="28">
 				<Paragraph.Foreground>
 					<SolidColorBrush Color="{StaticResource SystemBaseMediumHighColor}"/>
-				</Paragraph.Foreground> GitHub is a development platform inspired by the way you work. From
+				</Paragraph.Foreground> Redack is a development platform inspired by the way you work. From
 				<Run FontWeight="Bold">
 					<Run.Foreground>
 						<SolidColorBrush Color="{StaticResource SystemBaseHighColor}"/>

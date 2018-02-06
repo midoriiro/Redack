@@ -52,7 +52,7 @@ namespace Redack.DatabaseLayer.DataAccess
 					.ConnectionStrings["RedackDbConnection"]
 					.ConnectionString;
 			}
-			catch (ConfigurationException e)
+			catch (ConfigurationException)
 			{
 				var section = (ConnectionStringsSection)ConfigurationManager.GetSection("connectionStrings");
 

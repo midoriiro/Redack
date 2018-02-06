@@ -32,7 +32,7 @@ namespace Redacktion
 			this.InitializeComponent();
 			this.Suspending += OnSuspending;
 
-			var client = RestClient.CreateInstance("Redacktion", "localhost:9000", false);
+			var client = RestClient.CreateInstance("Redacktion", "user17.2isa.org", false);
 			client.Initialyze();
 		}
 
